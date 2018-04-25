@@ -4,7 +4,6 @@ import * as actions from './actions';
 import * as mutations from './mutation-types';
 import _ from 'lodash';
 import Web3 from 'web3';
-import axios from 'axios';
 import createLogger from 'vuex/dist/logger';
 import { getEtherscanAddress, getNetIdString } from '../utils';
 import contract from 'truffle-contract';
@@ -43,7 +42,7 @@ const store = new Vuex.Store({
   },
   getters: {
     assetById: (state) => (tokenId) => {
-      return _.find(state.assets, (asset) => asset.id.toString() === tokenId.toString());
+      return _.find(state.assets, (asset) => asset.tokenId.toString() === tokenId.toString());
     },
     isDART: (state) => {
       if (state.curatorAddress) {

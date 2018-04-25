@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>dART</h1>
+    <h1>&nbsp;</h1>
 
     <div class="row mt-5">
       <div class="col">
@@ -42,7 +42,7 @@
         <div class="card-deck">
           <div class="card" v-for="dART, key in assets" :key="key">
             <div class="card-body">
-              <h5 class="card-title">{{ dART.handle }} <span class="badge badge-primary">{{ dART.tokenId }}</span></h5>
+              <h5 class="card-title">{{ dART.handle }} <span class="badge badge-primary float-right">{{ dART.tokenId }}</span></h5>
             </div>
             <ul class="list-group list-group-flush">
               <li class="list-group-item"><small><samp>{{ dART.hash }}</samp></small></li>

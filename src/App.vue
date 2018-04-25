@@ -25,6 +25,9 @@
 
         <ul class="navbar-nav justify-content-end">
           <li class="nav-item">
+            <router-link :to="{ name: 'home' }" class="nav-link">Home</router-link>
+          </li>
+          <li class="nav-item">
             <router-link :to="{ name: 'account' }" class="nav-link">Account</router-link>
           </li>
         </ul>
@@ -41,12 +44,13 @@
           <div class="col-sm">
             <small class="slogan">ArtBlocks</small>
           </div>
-          <div class="col-sm">
+          <div class="col-sm text-center">
             <small>
+              <router-link :to="{ name: 'home' }">Home</router-link> &bull;
               <router-link :to="{ name: 'account' }">Account</router-link>
             </small>
           </div>
-          <div class="col-sm text-center">
+          <div class="col-sm text-right">
             <small class=""><current-network></current-network></small>
           </div>
         </div>

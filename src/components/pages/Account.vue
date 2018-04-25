@@ -5,13 +5,20 @@
 
     <div class="row mb-4">
       <div class="col">
-        <address-icon :eth-address="account"></address-icon>
+        <clickable-address :eth-address="account"></clickable-address>
       </div>
     </div>
 
-    <div class="card-columns" v-if="assetsPurchasedByAccount.length > 0">
+    <div class="card-deck" v-if="assetsPurchasedByAccount.length > 0">
       <div class="card" v-for="tokenId, key in assetsPurchasedByAccount" :key="key">
-        {{ tokenId }}
+        <div class="card-body">
+          <h5 class="card-title">{{ assetById(tokenId).handle }} <span class="badge badge-primary float-right">{{ assetById(tokenId).tokenId }}</span></h5>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><small><samp>{{ assetById(tokenId).hash }}</samp></small></li>
+          <li class="list-group-item"><span class="text-muted">Owner: </span><clickable-address :eth-address="assetById(tokenId).owner"></clickable-address></li>
+          <li class="list-group-item"><span class="text-muted">Meta: </span><small><samp>{{ assetById(tokenId).uri }}</samp></small></li>
+        </ul>
       </div>
     </div>
 
@@ -25,15 +32,14 @@
 
   import { mapGetters, mapState } from 'vuex';
   import AddressIcon from '../ui-controls/AddressIcon';
-  import EthAddress from '../ui-controls/EthAddress';
+  import ClickableAddress from '../ui-controls/ClickableAddress';
 
   export default {
     name: 'account',
-    components: {AddressIcon, EthAddress},
+    components: {AddressIcon, ClickableAddress},
     computed: {
       ...mapState([
         'account',
-        'accountBalance',
         'assetsPurchasedByAccount',
       ]),
       ...mapGetters([
