@@ -776,7 +776,7 @@ contract DART is ERC721Token, ERC165 {
   /**
    * @dev Burns a DART token
    * @dev Reverts if token is not unsold or not owned by management
-   * @param _tokenId the KODA token ID
+   * @param _tokenId the DART token ID
    */
   function burn(uint256 _tokenId) external onlyDART onlyDARTOwnedToken(_tokenId) {
     require(exists(_tokenId));
@@ -812,7 +812,7 @@ contract DART is ERC721Token, ERC165 {
 
   /**
    * @dev Get token URI fro the given token, useful for testing purposes
-   * @param _tokenId the KODA token ID
+   * @param _tokenId the DART token ID
    * @return the token ID or only the base URI if not found
    */
   function tokenURI(uint256 _tokenId) public view returns (string) {
@@ -829,41 +829,15 @@ contract DART is ERC721Token, ERC165 {
     tokenBaseURI = _newBaseURI;
   }
 
-
+  /**
+   * @dev Generates a unique token hash for the token and handle
+   * @param _tokenId the DART token ID
+   */
   function tokenHash(uint256 _tokenId) public view returns (bytes32) {
-    return keccak256(strConcat(bytes32ToString(bytes32(_tokenId)), handleOf(_tokenId)));
-  }
+    // FIXME Strings.strConcat not working
+//    return keccak256(strConcat(bytes32ToString(bytes32(_tokenId)), tokenIdToHandle[_tokenId]));
 
-  // SHOULD BE IN Strings.sol
-
-  // via https://github.com/oraclize/ethereum-api/blob/master/oraclizeAPI_0.5.sol
-  function strConcat(string _a, string _b, string _c, string _d, string _e) internal pure returns (string) {
-    bytes memory _ba = bytes(_a);
-    bytes memory _bb = bytes(_b);
-    bytes memory _bc = bytes(_c);
-    bytes memory _bd = bytes(_d);
-    bytes memory _be = bytes(_e);
-    string memory abcde = new string(_ba.length + _bb.length + _bc.length + _bd.length + _be.length);
-    bytes memory babcde = bytes(abcde);
-    uint k = 0;
-    for (uint i = 0; i < _ba.length; i++) babcde[k++] = _ba[i];
-    for (i = 0; i < _bb.length; i++) babcde[k++] = _bb[i];
-    for (i = 0; i < _bc.length; i++) babcde[k++] = _bc[i];
-    for (i = 0; i < _bd.length; i++) babcde[k++] = _bd[i];
-    for (i = 0; i < _be.length; i++) babcde[k++] = _be[i];
-    return string(babcde);
-  }
-
-  function strConcat(string _a, string _b, string _c, string _d) internal pure returns (string) {
-    return strConcat(_a, _b, _c, _d, "");
-  }
-
-  function strConcat(string _a, string _b, string _c) internal pure returns (string) {
-    return strConcat(_a, _b, _c, "", "");
-  }
-
-  function strConcat(string _a, string _b) internal pure returns (string) {
-    return strConcat(_a, _b, "", "", "");
+      return keccak256(bytes32ToString(bytes32(_tokenId)));
   }
 
   function bytes32ToString(bytes32 data) internal pure returns (string) {
