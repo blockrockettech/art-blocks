@@ -10,10 +10,9 @@
     </div>
 
     <div class="card-columns" v-if="assetsPurchasedByAccount.length > 0">
-      <asset v-for="tokenId, key in assetsPurchasedByAccount"
-             :asset="assetById(tokenId)"
-             :key="key">
-      </asset>
+      <div class="card" v-for="tokenId, key in assetsPurchasedByAccount" :key="key">
+        {{ tokenId }}
+      </div>
     </div>
 
     <div v-if="assetsPurchasedByAccount.length == 0" class="row text-center">

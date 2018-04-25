@@ -16,8 +16,8 @@ module.exports = function (deployer, network, accounts) {
   }
 
   if (network === 'live') {
-    let mnemonic_live = require('../mnemonic_live');
-    _curatorAccount = new HDWalletProvider(mnemonic_live, `https://mainnet.infura.io/${infuraApikey}`, 0).getAddress();
+    let mnemonicLive = require('../mnemonic_live');
+    _curatorAccount = new HDWalletProvider(mnemonicLive, `https://mainnet.infura.io/${infuraApikey}`, 0).getAddress();
   }
 
   console.log(`_curatorAccount = ${_curatorAccount}`);

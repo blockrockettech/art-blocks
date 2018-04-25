@@ -816,8 +816,7 @@ contract DART is ERC721Token, ERC165 {
    * @return the token ID or only the base URI if not found
    */
   function tokenURI(uint256 _tokenId) public view returns (string) {
-//    return Strings.strConcat(tokenBaseURI, tokenURIs[_tokenId]);
-    return tokenURIs[_tokenId];
+    return Strings.strConcat(tokenBaseURI, tokenURIs[_tokenId]);
   }
 
   /**
@@ -834,10 +833,8 @@ contract DART is ERC721Token, ERC165 {
    * @param _tokenId the DART token ID
    */
   function tokenHash(uint256 _tokenId) public view returns (bytes32) {
-    // FIXME Strings.strConcat not working
-//    return keccak256(strConcat(bytes32ToString(bytes32(_tokenId)), tokenIdToHandle[_tokenId]));
-
-      return keccak256(bytes32ToString(bytes32(_tokenId)));
+    return keccak256(Strings.strConcat(bytes32ToString(bytes32(_tokenId)), tokenIdToHandle[_tokenId]));
+//      return keccak256(bytes32ToString(bytes32(_tokenId)));
   }
 
   function bytes32ToString(bytes32 data) internal pure returns (string) {
