@@ -25,7 +25,7 @@
 
         <ul class="navbar-nav justify-content-end">
           <li class="nav-item">
-            <router-link :to="{ name: 'home' }" class="nav-link">Home</router-link>
+            <router-link :to="{ name: 'home' }" class="nav-link d-none d-sm-block">Home</router-link>
           </li>
           <li class="nav-item">
             <router-link :to="{ name: 'account' }" class="nav-link">Account</router-link>
