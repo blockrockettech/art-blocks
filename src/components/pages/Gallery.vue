@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>dART Gallery</h1>
+    <h1>dART</h1>
 
     <div class="row mt-5">
       <div class="col">

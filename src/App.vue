@@ -39,7 +39,7 @@
       <div class="container">
         <div class="row">
           <div class="col-sm">
-            <small class="slogan">BE ORIGINAL. BUY ORIGINAL.</small>
+            <small class="slogan">ArtBlocks</small>
           </div>
           <div class="col-sm">
             <small>
