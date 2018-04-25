@@ -180,7 +180,9 @@ contract DART is ERC721Token, ERC165 {
    */
   function tokenHash(uint256 _tokenId) public view returns (bytes32) {
     // FIXME Strings.strConcat not working
-    return keccak256(bytes32ToString(bytes32(_tokenId)));
+//    return keccak256(strConcat(bytes32ToString(bytes32(_tokenId)), tokenIdToHandle[_tokenId]));
+
+      return keccak256(bytes32ToString(bytes32(_tokenId)));
   }
 
   function bytes32ToString(bytes32 data) internal pure returns (string) {
