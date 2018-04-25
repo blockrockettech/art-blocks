@@ -647,17 +647,6 @@ library Strings {
   function strConcat(string _a, string _b) internal pure returns (string) {
     return strConcat(_a, _b, "", "", "");
   }
-
-  function bytes32ToString(bytes32 data) returns (string) {
-    bytes memory bytesString = new bytes(32);
-    for (uint j = 0; j < 32; j++) {
-      byte char = byte(bytes32(uint(data) * 2 ** (8 * j)));
-      if (char != 0) {
-        bytesString[j] = char;
-      }
-    }
-    return string(bytesString);
-  }
 }
 
 // File: contracts/DART.sol
@@ -669,41 +658,41 @@ contract DART is ERC721Token, ERC165 {
   using SafeMath for uint256;
 
   bytes4 constant InterfaceSignature_ERC165 = 0x01ffc9a7;
-    /*
-    bytes4(keccak256('supportsInterface(bytes4)'));
-    */
+  /*
+  bytes4(keccak256('supportsInterface(bytes4)'));
+  */
 
   bytes4 constant InterfaceSignature_ERC721Enumerable = 0x780e9d63;
-    /*
-    bytes4(keccak256('totalSupply()')) ^
-    bytes4(keccak256('tokenOfOwnerByIndex(address,uint256)')) ^
-    bytes4(keccak256('tokenByIndex(uint256)'));
-    */
+  /*
+  bytes4(keccak256('totalSupply()')) ^
+  bytes4(keccak256('tokenOfOwnerByIndex(address,uint256)')) ^
+  bytes4(keccak256('tokenByIndex(uint256)'));
+  */
 
   bytes4 constant InterfaceSignature_ERC721Metadata = 0x5b5e139f;
-    /*
-    bytes4(keccak256('name()')) ^
-    bytes4(keccak256('symbol()')) ^
-    bytes4(keccak256('tokenURI(uint256)'));
-    */
+  /*
+  bytes4(keccak256('name()')) ^
+  bytes4(keccak256('symbol()')) ^
+  bytes4(keccak256('tokenURI(uint256)'));
+  */
 
   bytes4 constant InterfaceSignature_ERC721 = 0x80ac58cd;
-    /*
-    bytes4(keccak256('balanceOf(address)')) ^
-    bytes4(keccak256('ownerOf(uint256)')) ^
-    bytes4(keccak256('approve(address,uint256)')) ^
-    bytes4(keccak256('getApproved(uint256)')) ^
-    bytes4(keccak256('setApprovalForAll(address,bool)')) ^
-    bytes4(keccak256('isApprovedForAll(address,address)')) ^
-    bytes4(keccak256('transferFrom(address,address,uint256)')) ^
-    bytes4(keccak256('safeTransferFrom(address,address,uint256)')) ^
-    bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)'));
-    */
+  /*
+  bytes4(keccak256('balanceOf(address)')) ^
+  bytes4(keccak256('ownerOf(uint256)')) ^
+  bytes4(keccak256('approve(address,uint256)')) ^
+  bytes4(keccak256('getApproved(uint256)')) ^
+  bytes4(keccak256('setApprovalForAll(address,bool)')) ^
+  bytes4(keccak256('isApprovedForAll(address,address)')) ^
+  bytes4(keccak256('transferFrom(address,address,uint256)')) ^
+  bytes4(keccak256('safeTransferFrom(address,address,uint256)')) ^
+  bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)'));
+  */
 
-  bytes4 public constant InterfaceSignature_ERC721Optional =- 0x4f558e79;
-    /*
-    bytes4(keccak256('exists(uint256)'));
-    */
+  bytes4 public constant InterfaceSignature_ERC721Optional = - 0x4f558e79;
+  /*
+  bytes4(keccak256('exists(uint256)'));
+  */
 
   /**
    * @notice Introspection interface as per ERC-165 (https://github.com/ethereum/EIPs/issues/165).
@@ -730,7 +719,7 @@ contract DART is ERC721Token, ERC165 {
   // A pointer to the next token to be minted, zero indexed
   uint256 public tokenIdPointer = 0;
 
-  mapping (uint256 => string) internal tokenIdToHandle;
+  mapping(uint256 => string) internal tokenIdToHandle;
 
   modifier onlyCurator() {
     require(msg.sender == curatorAccount);
@@ -833,8 +822,7 @@ contract DART is ERC721Token, ERC165 {
    * @param _tokenId the DART token ID
    */
   function tokenHash(uint256 _tokenId) public view returns (bytes32) {
-    return keccak256(Strings.strConcat(bytes32ToString(bytes32(_tokenId)), tokenIdToHandle[_tokenId]));
-//      return keccak256(bytes32ToString(bytes32(_tokenId)));
+    return keccak256(Strings.strConcat(bytes32ToString(bytes32(_tokenId)), ":", tokenIdToHandle[_tokenId]));
   }
 
   function bytes32ToString(bytes32 data) internal pure returns (string) {

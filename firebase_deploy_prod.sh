@@ -11,5 +11,5 @@ PACKAGE_VERSION=$(cat package.json \
 npm run build;
 
 echo "Deploying version $PACKAGE_VERSION to PRODUCTION"
-firebase use known-origin-io;
+firebase use art-blocks;
 firebase deploy;

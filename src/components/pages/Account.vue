@@ -1,7 +1,7 @@
 <template>
   <div>
 
-    <h1>Account ({{assetsPurchasedByAccount.length}})</h1>
+    <h1>Account <small><span class="badge badge-pill badge-primary">{{assetsPurchasedByAccount.length}}</span></small></h1>
 
     <div class="row mb-4">
       <div class="col">
