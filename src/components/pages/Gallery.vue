@@ -1,64 +1,67 @@
 <template>
   <div>
-    <h1>aART Gallery</h1>
+    <h1>dART Gallery</h1>
 
-    <!--<loading-spinner v-if="!hasFinishedLoading()"></loading-spinner>-->
-
-    <h2>Hello!</h2>
+    <div class="row mt-5">
+      <div class="col">
+        <table class="table table-striped">
+          <tbody>
+          <tr v-if="contractSymbol">
+            <td>Contract</td>
+            <td><clickable-address :eth-address="contractAddress"></clickable-address></td>
+          </tr>
+          <tr v-if="contractSymbol">
+            <td>Symbol</td>
+            <td>{{ contractSymbol }}</td>
+          </tr>
+          <tr v-if="curatorAddress">
+            <td>Curator</td>
+            <td>
+              <clickable-address :eth-address="curatorAddress"></clickable-address>
+            </td>
+          </tr>
+          <tr v-if="totalSupply">
+            <td>Supply:</td>
+            <td>{{ totalSupply }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col">
+        <loading-spinner v-if="!assets"></loading-spinner>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 
   import {mapGetters, mapState} from 'vuex';
-  import LoadingSpinner from "../ui-controls/LoadingSpinner.vue";
+  import LoadingSpinner from '../ui-controls/LoadingSpinner.vue';
+  import ClickableAddress from '../ui-controls/ClickableAddress';
 
   export default {
     name: 'gallery',
     components: {
-      LoadingSpinner
+      LoadingSpinner,
+      ClickableAddress
     },
-    data() {
-      return {
-        showSold: false,
-        finishedLoading: false,
-        priceFilter: 'asc',
-        search: ''
-      };
-    },
-    methods: {
-      hasFinishedLoading: function () {
-        // Use the lack of assets in the store to determine initial loading state
-        if (this.assets.length === 0) {
-          return false;
-        }
-        return this.editions.length > 0 || this.finishedLoading === true;
-      },
-    },
+    data() {},
+    methods: {},
     computed: {
       ...mapState([
-        'editionSummary',
         'assets',
+        'curatorAddress',
+        'contractDeveloperAddress',
+        'commissionAddress',
+        'totalSupply',
+        'totalPurchaseValueInWei',
+        'totalNumberOfPurchases',
+        'totalPurchaseValueInEther',
+        'contractName',
+        'contractSymbol',
+        'contractAddress'
       ]),
-      editions: function () {
-        this.finishedLoading = false;
-
-        let results = this.$store.getters.editionSummaryFilter(this.showSold, this.priceFilter)
-          .filter(function (item) {
-
-            if (this.search.length === 0) {
-              return true;
-            }
-
-            let matchesName = item.artworkName.toLowerCase().indexOf(this.search.toLowerCase()) >= 0;
-            let matchesDescription = item.description.toLowerCase().indexOf(this.search.toLowerCase()) >= 0;
-            let matchesArtist = item.otherMeta.artist.toLowerCase().indexOf(this.search.toLowerCase()) >= 0;
-
-            return matchesName || matchesDescription || matchesArtist;
-          }.bind(this));
-        this.finishedLoading = true;
-        return results;
-      }
     }
   };
 </script>

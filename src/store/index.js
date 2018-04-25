@@ -66,10 +66,12 @@ const store = new Vuex.Store({
       state.totalContributionsInWei = totalContributionsInWei;
       state.totalContributionsInEther = totalContributionsInEther;
     },
-    [mutations.SET_CONTRACT_DETAILS](state, {name, symbol, totalSupply}) {
+    [mutations.SET_CONTRACT_DETAILS](state, {name, symbol, totalSupply, curatorAddress, contractAddress}) {
       state.totalSupply = totalSupply;
       state.contractSymbol = symbol;
       state.contractName = name;
+      state.curatorAddress = curatorAddress;
+      state.contractAddress = contractAddress;
     },
     [mutations.SET_ACCOUNT](state, {account, accountBalance}) {
       state.account = account;
@@ -333,21 +335,14 @@ const store = new Vuex.Store({
       dART.deployed()
         .then((contract) => {
 
-          // Promise.all([contract.curatorAccount(), contract.address])
-          //   .then((results) => {
-          //     commit(mutations.SET_COMMISSION_ADDRESSES, {
-          //       curatorAddress: results[0],
-          //       contractDeveloperAddress: results[1],
-          //       contractAddress: results[2]
-          //     });
-          //   });
-
-          Promise.all([contract.name(), contract.symbol(), contract.totalSupply()])
+          Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.curatorAccount(), contract.address])
             .then((results) => {
               commit(mutations.SET_CONTRACT_DETAILS, {
                 name: results[0],
                 symbol: results[1],
-                totalSupply: results[2].toString()
+                totalSupply: results[2].toString(),
+                curatorAddress: results[3],
+                contractAddress: results[4]
               });
 
               // We require totalSupply to lookup all ASSETS

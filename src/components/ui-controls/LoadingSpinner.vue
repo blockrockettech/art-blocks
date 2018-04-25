@@ -13,7 +13,7 @@
 
 <style scoped lang="scss">
 
-  $primary: #3e27d9;
+  $primary: #cc3399;
 
   .spinner {
     width: 80px;

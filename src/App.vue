@@ -102,7 +102,6 @@
   $body-bg: #ffffcc;
   $body-color: #545454;
   $primary: #cc3399;
-  $enable-rounded: false;
 
   $font-family-base: 'Avenir', Helvetica, Arial, sans-serif;
 
