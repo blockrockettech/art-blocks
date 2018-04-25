@@ -1,7 +1,6 @@
 <template>
   <div>
 
-
     <modal name="no-web3-found" :clickToClose="true" :width="300">
       <div class="alert alert-light fade show" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close" @click="$modal.hide('no-web3-found')">
@@ -9,33 +8,22 @@
         </button>
 
         <p class="pt-4 text-danger">
-          <strong>You require a Web3 Ethereum enabled browser to buy KODA assets!</strong>
+          <strong>You require a Web3 Ethereum enabled browser to purchase dART tokens!</strong>
         </p>
 
         <p>
           On a chrome browser add <a href="https://metamask.io" target="_blank">metamask.io</a> or install a mobile wallet such as <a href="https://trustwalletapp.com" target="_blank">TrustWallet</a>
         </p>
-
-        <div class="text-center">
-          <a href='https://metamask.io' target="_blank" class="pr-4"><img src="../static/metamask-logo-eyes.png" style="height: 50px"/></a>
-          <a href="https://trustwalletapp.com" target="_blank"><img src="/../static/trustwallet_logo.svg" style="height:50px"/></a>
-        </div>
       </div>
     </modal>
 
     <header>
       <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
         <router-link :to="{ name: 'home' }" class="navbar-brand">
-          KnownOrigin.io
+         dART
         </router-link>
 
         <ul class="navbar-nav justify-content-end">
-          <li class="nav-item d-none d-sm-block">
-            <router-link :to="{ name: 'gallery' }" class="nav-link">Gallery</router-link>
-          </li>
-          <li class="nav-item d-none d-sm-block">
-            <router-link :to="{ name: 'artists' }" class="nav-link">Artists</router-link>
-          </li>
           <li class="nav-item">
             <router-link :to="{ name: 'account' }" class="nav-link">Account</router-link>
           </li>
@@ -55,25 +43,10 @@
           </div>
           <div class="col-sm">
             <small>
-              <router-link :to="{ name: 'gallery' }">Gallery</router-link> &bull;
-              <router-link :to="{ name: 'artists' }">Artists</router-link> &bull;
-              <router-link :to="{ name: 'account' }">Account</router-link> &bull;
-              <router-link :to="{ name: 'details' }">Contract</router-link>
+              <router-link :to="{ name: 'account' }">Account</router-link>
             </small>
           </div>
           <div class="col-sm text-center">
-            <a href="mailto:hello@knownorigin.io" target="_blank" class="pr-2">
-              <font-awesome-icon :icon="['fas', 'envelope-square']" size="lg"></font-awesome-icon>
-            </a>
-            <a href="https://medium.com/knownorigin" target="_blank" class="pr-2">
-              <font-awesome-icon :icon="['fab', 'medium']" size="lg"></font-awesome-icon>
-            </a>
-            <a href="https://t.me/knownorigin_io" target="_blank" class="pr-2">
-              <font-awesome-icon :icon="['fab', 'telegram-plane']" size="lg"></font-awesome-icon>
-            </a>
-            <a href="https://twitter.com/knownorigin_io" target="_blank">
-              <font-awesome-icon :icon="['fab', 'twitter']" size="lg"></font-awesome-icon>
-            </a>
             <small class=""><current-network></current-network></small>
           </div>
         </div>
@@ -126,9 +99,9 @@
 
 <style lang="scss">
 
-  $body-bg: #f2f5fb;
+  $body-bg: #ffffcc;
   $body-color: #545454;
-  $primary: #3e27d9;
+  $primary: #cc3399;
   $enable-rounded: false;
 
   $font-family-base: 'Avenir', Helvetica, Arial, sans-serif;

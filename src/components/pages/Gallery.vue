@@ -1,53 +1,22 @@
 <template>
   <div>
-    <h1>Gallery</h1>
+    <h1>aART Gallery</h1>
 
-    <loading-spinner v-if="!hasFinishedLoading()"></loading-spinner>
+    <!--<loading-spinner v-if="!hasFinishedLoading()"></loading-spinner>-->
 
-    <div class="form-row mb-4" v-if="hasFinishedLoading()">
-      <div class="col">
-        <select class="form-control" title="price filter" v-model="priceFilter">
-          <option value="asc">Low to high</option>
-          <option value="desc">High to low</option>
-        </select>
-      </div>
-      <div class="col">
-        <input type="text" class="form-control" v-model="search" placeholder="Search assets..."/>
-      </div>
-    </div>
-
-    <div class="card-columns" v-if="editions.length > 0">
-      <galleryEdition
-        v-for="edition in editions"
-        :edition="edition"
-        :key="edition.edition">
-      </galleryEdition>
-    </div>
-
-
-    <div class="form-row mb-4" v-if="hasFinishedLoading()">
-      <div class="col">
-        <toggle-button :value="showSold"
-                       :labels="{checked: 'Sold', unchecked: 'Unsold'}"
-                       :sync="true" color="#82C7EB" :width="65"
-                       @change="onSoldToggleChanged">
-        </toggle-button>
-      </div>
-    </div>
+    <h2>Hello!</h2>
   </div>
 </template>
 
 <script>
 
   import {mapGetters, mapState} from 'vuex';
-  import GalleryEdition from '../GalleryEdition';
   import LoadingSpinner from "../ui-controls/LoadingSpinner.vue";
 
   export default {
     name: 'gallery',
     components: {
-      LoadingSpinner,
-      GalleryEdition
+      LoadingSpinner
     },
     data() {
       return {
@@ -58,9 +27,6 @@
       };
     },
     methods: {
-      onSoldToggleChanged: function ({value}) {
-        this.showSold = value;
-      },
       hasFinishedLoading: function () {
         // Use the lack of assets in the store to determine initial loading state
         if (this.assets.length === 0) {
