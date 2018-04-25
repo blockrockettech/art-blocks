@@ -7,6 +7,7 @@ import "./Strings.sol";
 
 import "./ERC165.sol";
 
+
 /**
 * @title DART
 */
@@ -75,7 +76,11 @@ contract DART is ERC721Token, ERC165 {
   // A pointer to the next token to be minted, zero indexed
   uint256 public tokenIdPointer = 0;
 
-  mapping(uint256 => string) internal tokenIdToHandle;
+  //Block number to Token ID
+  mapping (uint256 => uint256) internal blockNumberToTokenId;
+
+  //Token ID to Handle
+  mapping (uint256 => string) internal tokenIdToHandle;
 
   modifier onlyCurator() {
     require(msg.sender == curatorAccount);
@@ -98,7 +103,26 @@ contract DART is ERC721Token, ERC165 {
 
   // don't accept payment directly to contract
   function() public payable {
+    // TODO if payable found, check called has a token and call dArtFundDisplayTime() - probs arise if person already owns one?
     revert();
+  }
+
+  /**
+   * @dev Funds your token to be displayed for a specific amount of time
+   * @param _tokenId the DART token ID
+   */
+  function dArtFundDisplayTime(uint256 _tokenId) public payable {
+    require(exists(_tokenId));
+    require(msg.value >= 0);
+
+    // TODO valid min/max payment
+
+    // TODO
+    // determine number of blocks to display based on msg.value
+    // add to next working block list the amount of blocks the sender ha requested to be used
+    // update list of next blocks and what to display
+    // update hashing function to check this list, if match found use it, otherwise all back to default
+    // splice monies to various parties
   }
 
   /**
@@ -110,8 +134,16 @@ contract DART is ERC721Token, ERC165 {
   function mint(string _tokenURI, string _handle) external onlyDART {
     uint256 _tokenId = tokenIdPointer;
 
+    uint256 currentBlockNumber = block.number;
+
+    // ensure block is empty
+    require(blockNumberToTokenId[currentBlockNumber] == 0);
+
     super._mint(msg.sender, _tokenId);
     super._setTokenURI(_tokenId, _tokenURI);
+
+    // Set block number to token mapping (you own this block by default) TODO is this valid?
+    blockNumberToTokenId[currentBlockNumber] = _tokenId;
 
     tokenIdToHandle[_tokenId] = _handle;
 
@@ -156,6 +188,14 @@ contract DART is ERC721Token, ERC165 {
   }
 
   /**
+  * @dev Return token which backs the block
+  * @param _blockNumber to look up
+  */
+  function tokenBlockOwnerOf(uint256 _blockNumber) public view returns (uint256 _tokenId) {
+    return blockNumberToTokenId[_blockNumber];
+  }
+
+  /**
    * @dev Get token URI fro the given token, useful for testing purposes
    * @param _tokenId the DART token ID
    * @return the token ID or only the base URI if not found
@@ -178,7 +218,24 @@ contract DART is ERC721Token, ERC165 {
    * @param _tokenId the DART token ID
    */
   function tokenHash(uint256 _tokenId) public view returns (bytes32) {
+    // TODO decide on hashing function
     return keccak256(Strings.strConcat(bytes32ToString(bytes32(_tokenId)), ":", tokenIdToHandle[_tokenId]));
+  }
+
+  /**
+   * @dev Generates a unique token hash for the token and handle
+   */
+  function getCurrentHash() public view returns (bytes32 _tokenHash) {
+
+    // TODO handle funding the next hash ... ?
+
+    uint256 _tokenId = tokenBlockOwnerOf(block.number);
+    if (exists(_tokenId)) {
+      return tokenHash(_tokenId);
+    }
+
+    // if no one own the current blockhash return current
+    return block.blockhash(block.number);
   }
 
   function bytes32ToString(bytes32 data) internal pure returns (string) {
