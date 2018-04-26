@@ -134,7 +134,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev Funds your token to be displayed for a specific amount of time
    * @param _tokenId the DART token ID
    */
-  function fundDartDisplay(uint256 _tokenId) public payable onlyValidAmounts {
+  function fundDart(uint256 _tokenId) public payable onlyValidAmounts {
     require(exists(_tokenId));
 
     // determine how many blocks purchased

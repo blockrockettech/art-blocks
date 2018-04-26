@@ -175,14 +175,14 @@ const store = new Vuex.Store({
 
           const lookupInfo = (contract, index) => {
             return Promise.all([
-              contract.handleOf(index),
+              contract.nicknameOf(index),
               contract.tokenURI(index),
               contract.tokenHash(index),
               contract.ownerOf(index)
             ])
               .then((results) => {
 
-                let handle = results[0];
+                let nickname = results[0];
                 let uri = results[1];
                 let hash = results[2];
                 let owner = results[3];
@@ -194,7 +194,7 @@ const store = new Vuex.Store({
 
                 return {
                   tokenId: index,
-                  handle: handle,
+                  handle: nickname,
                   uri: uri,
                   hash: hash,
                   owner: owner
@@ -220,7 +220,7 @@ const store = new Vuex.Store({
       dart.deployed()
         .then((contract) => {
 
-          Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.curatorAccount(), contract.address])
+          Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.owner(), contract.address])
             .then((results) => {
               commit(mutations.SET_CONTRACT_DETAILS, {
                 name: results[0],
