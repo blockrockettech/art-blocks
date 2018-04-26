@@ -751,7 +751,8 @@ contract DART is ERC721Token, ERC165 {
    * @param _tokenURI the IPFS or equivalent hash
    * @param _handle char stamp of token owner
    */
-  function mint(string _tokenURI, string _handle) external onlyDART {
+  // REMOVE onlyDART guard for testing
+  function mint(string _tokenURI, string _handle) external /*onlyDART*/ {
     uint256 _tokenId = tokenIdPointer;
 
     super._mint(msg.sender, _tokenId);

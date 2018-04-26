@@ -41,6 +41,9 @@
 
         <div class="card-deck">
           <div class="card" v-for="dART, key in assets" :key="key">
+            <div class="text-center">
+              <address-icon :ethAddress="dART.hash"></address-icon>
+            </div>
             <div class="card-body">
               <h5 class="card-title">{{ dART.handle }} <span class="badge badge-primary float-right">{{ dART.tokenId }}</span></h5>
             </div>
@@ -61,12 +64,14 @@
   import { mapGetters, mapState } from 'vuex';
   import LoadingSpinner from '../ui-controls/LoadingSpinner.vue';
   import ClickableAddress from '../ui-controls/ClickableAddress';
+  import AddressIcon from '../ui-controls/AddressIcon';
 
   export default {
     name: 'gallery',
     components: {
       LoadingSpinner,
-      ClickableAddress
+      ClickableAddress,
+      AddressIcon
     },
     data() {},
     methods: {},

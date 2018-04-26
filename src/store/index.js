@@ -9,7 +9,7 @@ import { getEtherscanAddress, getNetIdString } from '../utils';
 import contract from 'truffle-contract';
 import dARTJson from '../../build/contracts/DART.json';
 
-const dART = contract(dARTJson);
+const dart = contract(dARTJson);
 
 Vue.use(Vuex);
 
@@ -44,7 +44,7 @@ const store = new Vuex.Store({
     assetById: (state) => (tokenId) => {
       return _.find(state.assets, (asset) => asset.tokenId.toString() === tokenId.toString());
     },
-    isDART: (state) => {
+    isDart: (state) => {
       if (state.curatorAddress) {
         return state.curatorAddress.toLowerCase() === state.account.toLowerCase();
       }
@@ -87,7 +87,7 @@ const store = new Vuex.Store({
   },
   actions: {
     [actions.GET_ASSETS_PURCHASED_FOR_ACCOUNT]({commit, dispatch, state}) {
-      dART.deployed()
+      dart.deployed()
         .then((contract) => {
           return contract.tokensOf(state.account)
             .then((tokens) => {
@@ -112,13 +112,13 @@ const store = new Vuex.Store({
     [actions.INIT_APP]({commit, dispatch, state}, web3) {
 
       // NON-ASYNC action - set web3 provider on init
-      dART.setProvider(web3.currentProvider);
+      dart.setProvider(web3.currentProvider);
 
       //dirty hack for web3@1.0.0 support for localhost testrpc, see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530
-      if (typeof dART.currentProvider.sendAsync !== 'function') {
-        dART.currentProvider.sendAsync = function () {
-          return dART.currentProvider.send.apply(
-            dART.currentProvider, arguments
+      if (typeof dart.currentProvider.sendAsync !== 'function') {
+        dart.currentProvider.sendAsync = function () {
+          return dart.currentProvider.send.apply(
+            dart.currentProvider, arguments
           );
         };
       }
@@ -169,7 +169,7 @@ const store = new Vuex.Store({
         });
     },
     [actions.GET_ALL_ASSETS]({commit, dispatch, state}) {
-      dART.deployed()
+      dart.deployed()
         .then((contract) => {
           let supply = _.range(0, state.totalSupply);
 
@@ -217,7 +217,7 @@ const store = new Vuex.Store({
         });
     },
     [actions.REFRESH_CONTRACT_DETAILS]({commit, dispatch, state}) {
-      dART.deployed()
+      dart.deployed()
         .then((contract) => {
 
           Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.curatorAccount(), contract.address])

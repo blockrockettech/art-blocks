@@ -1,7 +1,6 @@
 <template>
   <span v-if="ethAddress">
-    <!--<img :class="'icon-' + size" :src="'data:image/png;base64,' + createIcon"/>-->
-    <eth-address :value="ethAddress"></eth-address>
+    <img :src="'data:image/svg+xml;base64,' + createIcon"/>
   </span>
 </template>
 
@@ -16,28 +15,18 @@
     props: {
       ethAddress: {
         type: String
-      },
-      size: {
-        type: String,
-        default: 'normal'
       }
     },
     computed: {
       createIcon: function () {
-        return new Identicon(this.ethAddress, 420).toString();
+        return new Identicon(this.ethAddress, {background: [255, 255, 255, 255], format: 'svg'}).toString();
       }
     }
   };
 </script>
 
 <style>
-  .icon-normal {
-    height: 64px;
-    width: 64px;
-  }
-
-  .icon-small {
-    height: 32px;
-    width: 32px;
+  img {
+    width: 50%;
   }
 </style>
