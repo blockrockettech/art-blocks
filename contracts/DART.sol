@@ -69,9 +69,6 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
 
-  // creator and owner
-  address public curatorAccount;
-
   // total wei sent to the  contract
   uint256 public totalContributionsInWei;
 
@@ -100,13 +97,8 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   mapping (uint256 => uint256) internal blockToTokenIdToDisplay;
 
-  modifier onlyCurator() {
-    require(msg.sender == curatorAccount);
-    _;
-  }
-
   modifier onlyDARTOwnedToken(uint256 _tokenId) {
-    require(tokenOwner[_tokenId] == curatorAccount);
+    require(tokenOwner[_tokenId] == owner);
     _;
   }
 
@@ -123,7 +115,6 @@ contract DART is ERC721Token, ERC165, Whitelist {
   }
 
   function DART() public ERC721Token("Digital Art", "DART") {
-    curatorAccount = msg.sender;
     // set to current block mined in
     workingBlockCounter = block.number;
 
@@ -268,8 +259,10 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @param _tokenId the DART token ID
    */
   function tokenHash(uint256 _tokenId) public view returns (bytes32) {
+    require(exists(_tokenId));
     // TODO decide on hashing function
-    return keccak256(Strings.strConcat(bytes32ToString(bytes32(_tokenId)), ":", tokenIdToNickname[_tokenId]));
+//    return keccak256(Strings.strConcat(bytes32ToString(bytes32(_tokenId)), ":", tokenIdToNickname[_tokenId]));
+    return keccak256(Strings.strConcat(tokenIdToBlockhash[_tokenId], ":", tokenIdToNickname[_tokenId]));
   }
 
   /**
