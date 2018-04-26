@@ -151,7 +151,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
     uint256 currentBlock = block.number;
 
-    // move current block on the current block if already past last purchased block
+    // move current block on if already past last purchased block count, reduces while loop costs
     if (block.number > workingBlockCounter) {
       currentBlock = workingBlockCounter;
     }
@@ -161,7 +161,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
     uint8 i = 0;
     while (i < blocksPurchased) {
 
-      // if no one has the next block, set next block to this owner
+      // if no one has the next block, set next block to this token
       if (blockToTokenIdToDisplay[nextBlock] == 0) {
         blockToTokenIdToDisplay[nextBlock] = _tokenId;
         i++;
@@ -279,7 +279,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
     // if current block number has been allocated then use it
     if (blockToTokenIdToDisplay[block.number] != 0) {
-      tokenHash(blockToTokenIdToDisplay[block.number]);
+      return tokenHash(blockToTokenIdToDisplay[block.number]);
     }
 
     // if no one own the current blockhash return current
