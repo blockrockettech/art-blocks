@@ -262,7 +262,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
     require(exists(_tokenId));
     // TODO decide on hashing function
 //    return keccak256(Strings.strConcat(bytes32ToString(bytes32(_tokenId)), ":", tokenIdToNickname[_tokenId]));
-    return keccak256(Strings.strConcat(tokenIdToBlockhash[_tokenId], ":", tokenIdToNickname[_tokenId]));
+    return tokenIdToBlockhash[_tokenId];
   }
 
   /**
