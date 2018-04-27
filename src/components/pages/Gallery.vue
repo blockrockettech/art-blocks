@@ -2,6 +2,10 @@
   <div>
     <h1>&nbsp;</h1>
 
+    <div class="alert alert-primary" role="alert" v-if="hash">
+      #{{ blockNumber }} &gt;&gt; {{ hash }}
+    </div>
+
     <div class="row mt-5">
       <div class="col">
         <table class="table table-striped">
@@ -48,9 +52,12 @@
               <h5 class="card-title">{{ dART.handle }} <span class="badge badge-primary float-right">{{ dART.tokenId }}</span></h5>
             </div>
             <ul class="list-group list-group-flush">
-              <li class="list-group-item"><small><samp>{{ dART.hash }}</samp></small></li>
-              <li class="list-group-item"><span class="text-muted">Owner: </span> <clickable-address :eth-address="dART.owner"></clickable-address></li>
-              <li class="list-group-item"><span class="text-muted">Meta: </span><small><samp>{{ dART.uri }}</samp></small></li>
+              <li class="list-group-item">
+                <small><samp>{{ dART.hash }}</samp></small>
+              </li>
+              <li class="list-group-item"><span class="text-muted">Owner: </span>
+                <clickable-address :eth-address="dART.owner"></clickable-address>
+              </li>
             </ul>
           </div>
         </div>
@@ -65,6 +72,7 @@
   import LoadingSpinner from '../ui-controls/LoadingSpinner.vue';
   import ClickableAddress from '../ui-controls/ClickableAddress';
   import AddressIcon from '../ui-controls/AddressIcon';
+  import * as actions from '../../store/actions';
 
   export default {
     name: 'gallery',
@@ -82,8 +90,16 @@
         'totalSupply',
         'contractName',
         'contractSymbol',
-        'contractAddress'
+        'contractAddress',
+        'hash',
+        'blockNumber'
       ]),
+    },
+    mounted() {
+      setInterval(function () {
+        console.log('getting next hash');
+        this.$store.dispatch(actions.NEXT_HASH);
+      }.bind(this), 10000);
     }
   };
 </script>

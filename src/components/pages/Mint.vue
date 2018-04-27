@@ -1,10 +1,36 @@
 <template>
-  <div class="jumbotron jumbotron-fluid">
-    <div class="container">
-      <h1 class="display-4">Mint dART Tokens</h1>
-      <p class="lead">From Ethereum address:
-        <clickable-address :eth-address="account"></clickable-address>
-      </p>
+  <div class="row justify-content-center">
+    <div class="col-sm-8">
+      <div class="card text-center">
+        <div class="card-header">
+          Mint dART Token
+        </div>
+        <form @submit.prevent="sendHandler">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              From:
+              <clickable-address :eth-address="account"></clickable-address>
+            </li>
+            <li class="list-group-item">
+              <div class="form-group">
+                <label for="blockhash">Blockhash</label>
+                <input type="text" class="form-control" id="blockhash" placeholder="0x000000" v-model="blockhash">
+                <small id="emailHelp" class="form-text text-muted">dART tokens must have a unique hash!</small>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="form-group">
+                <label for="nickname">Nickname</label>
+                <input type="text" class="form-control" id="nickname" placeholder="Lord Gray" v-model="nickname">
+                <small id="nicknameHelp" class="form-text text-muted">keep it clean(ish)</small>
+              </div>
+            </li>
+          </ul>
+          <div class="card-footer text-muted">
+            <button class="btn btn-primary btn-block" type="submit">Mint</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -22,6 +48,18 @@
         'account'
       ]),
       ...mapGetters([])
+    },
+    data() {
+      return {
+        blockhash: null,
+        nickname: null
+      };
+    },
+    methods: {
+      sendHandler () {
+        console.log(`mint... ${this.blockhash} ${this.nickname}`);
+//        this.$store.dispatch(actions.RESET_PURCHASE_STATE, this.asset);
+      },
     },
     mounted() {}
   };

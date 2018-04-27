@@ -1,22 +1,5 @@
 <template>
   <div>
-
-    <modal name="no-web3-found" :clickToClose="true" :width="300">
-      <div class="alert alert-light fade show" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close" @click="$modal.hide('no-web3-found')">
-          <span aria-hidden="true">&times;</span>
-        </button>
-
-        <p class="pt-4 text-danger">
-          <strong>You require a Web3 Ethereum enabled browser to purchase dART tokens!</strong>
-        </p>
-
-        <p>
-          On a chrome browser add <a href="https://metamask.io" target="_blank">metamask.io</a> or install a mobile wallet such as <a href="https://trustwalletapp.com" target="_blank">TrustWallet</a>
-        </p>
-      </div>
-    </modal>
-
     <header>
       <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
         <router-link :to="{ name: 'home' }" class="navbar-brand">
@@ -26,6 +9,9 @@
         <ul class="navbar-nav justify-content-end">
           <li class="nav-item">
             <router-link :to="{ name: 'home' }" class="nav-link d-none d-sm-block">Home</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link :to="{ name: 'mint' }" class="nav-link d-none d-sm-block">Mint</router-link>
           </li>
           <li class="nav-item">
             <router-link :to="{ name: 'account' }" class="nav-link">Account</router-link>
@@ -47,11 +33,12 @@
           <div class="col-sm text-center">
             <small>
               <router-link :to="{ name: 'home' }">Home</router-link> &bull;
+              <router-link :to="{ name: 'mint' }">Mint</router-link> &bull;
               <router-link :to="{ name: 'account' }">Account</router-link>
             </small>
           </div>
           <div class="col-sm text-right">
-            <small class=""><current-network></current-network></small>
+            <small><current-network></current-network></small>
           </div>
         </div>
       </div>
