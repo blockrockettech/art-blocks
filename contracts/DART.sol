@@ -7,10 +7,13 @@ import "./Strings.sol";
 
 import "./ERC165.sol";
 
+import "./Whitelist.sol";
+
+
 /**
 * @title DART
 */
-contract DART is ERC721Token, ERC165 {
+contract DART is ERC721Token, ERC165, Whitelist {
   using SafeMath for uint256;
 
   bytes4 constant InterfaceSignature_ERC165 = 0x01ffc9a7;
@@ -66,55 +69,125 @@ contract DART is ERC721Token, ERC165 {
 
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
 
-  // creator and owner
-  address public curatorAccount;
-
   // total wei sent to the  contract
   uint256 public totalContributionsInWei;
 
   // A pointer to the next token to be minted, zero indexed
   uint256 public tokenIdPointer = 0;
 
-  mapping(uint256 => string) internal tokenIdToHandle;
+  // TODO handle setting these per contract/installation
+  // the price to display per block
+  uint256 public pricePerBlock = 0.01 ether;
 
-  modifier onlyCurator() {
-    require(msg.sender == curatorAccount);
-    _;
-  }
+  // TODO handle setting these per contract/installation
+  // percentage of all funds received which is directed to a donation address
+  uint8 public donationPercentage = 1;
+
+  // TODO handle setting these per contract/installation
+  // max number of blocks allowed to purchased in one go (mainly for gas costs, this should be kept fairly low for now)
+  uint256 public maxBlockPurchaseInOneGo = 10;
+
+  // Token ID to block hash
+  mapping (uint256 => bytes32) internal tokenIdToBlockhash;
+
+  //Token ID to nickname
+  mapping (uint256 => string) internal tokenIdToNickname;
+
+  uint256 workingBlockCounter = 0;
+
+  mapping (uint256 => uint256) internal blockToTokenIdToDisplay;
 
   modifier onlyDARTOwnedToken(uint256 _tokenId) {
-    require(tokenOwner[_tokenId] == curatorAccount);
+    require(tokenOwner[_tokenId] == owner);
     _;
   }
 
-  modifier onlyDART() {
-    require(msg.sender == curatorAccount);
+  modifier onlyValidAmounts() {
+    // Some value
+    require(msg.value >= 0);
+
+    // Min price
+    require(msg.value >= pricePerBlock);
+
+    // max price
+    require(msg.value <= (pricePerBlock * maxBlockPurchaseInOneGo));
     _;
   }
 
   function DART() public ERC721Token("Digital Art", "DART") {
-    curatorAccount = msg.sender;
+    // set to current block mined in
+    workingBlockCounter = block.number;
+
+    // TODO handle setting these/configuring
+    super.addAddressToWhitelist(msg.sender);
+    super.addAddressToWhitelist(0xf43aE50C468c3D3Fa0C3dC3454E797317EF53078);
+    super.addAddressToWhitelist(0xe1023C112A39c58238929153F25364c11A33B729);
   }
 
   // don't accept payment directly to contract
   function() public payable {
+    // TODO handle payments, redirect to donations address?
     revert();
+  }
+
+  /**
+   * @dev Funds your token to be displayed for a specific amount of time
+   * @param _tokenId the DART token ID
+   */
+  function fundDart(uint256 _tokenId) public payable onlyValidAmounts {
+    require(exists(_tokenId));
+
+    // determine how many blocks purchased
+    uint256 blocksPurchased = msg.value / pricePerBlock;
+
+    uint256 currentBlock = block.number;
+
+    // move current block on if already past last purchased block count, reduces while loop costs
+    if (block.number > workingBlockCounter) {
+      currentBlock = workingBlockCounter;
+    }
+
+    uint256 nextBlock = currentBlock;
+
+    uint8 i = 0;
+    while (i < blocksPurchased) {
+
+      // if no one has the next block, set next block to this token
+      if (blockToTokenIdToDisplay[nextBlock] == 0) {
+        blockToTokenIdToDisplay[nextBlock] = _tokenId;
+        i++;
+      }
+
+      // move next block on to find another free space
+      nextBlock++;
+    }
+
+    // update where the current work block is (TODO is this needed)
+    workingBlockCounter = nextBlock;
+
+    // TODO splice monies to various parties
   }
 
   /**
    * @dev Mint a new DART token
    * @dev Reverts if not called by curator
-   * @param _tokenURI the IPFS or equivalent hash
-   * @param _handle char stamp of token owner
+   * @param _blockHash an ethereum block hash
+   * @param _nickname char stamp of token owner
    */
-  function mint(string _tokenURI, string _handle) external onlyDART {
+  function mint(bytes32 _blockHash, string _nickname) external onlyWhitelisted {
     uint256 _tokenId = tokenIdPointer;
 
+    // actually mint the token
     super._mint(msg.sender, _tokenId);
-    super._setTokenURI(_tokenId, _tokenURI);
 
-    tokenIdToHandle[_tokenId] = _handle;
+    // FIXME - handle this
+    super._setTokenURI(_tokenId, "WIP");
 
+    // set data
+    tokenIdToBlockhash[_tokenId] = _blockHash;
+    tokenIdToNickname[_tokenId] = _nickname;
+
+    // bump pointer on
     tokenIdPointer = tokenIdPointer.add(1);
   }
 
@@ -123,7 +196,7 @@ contract DART is ERC721Token, ERC165 {
    * @dev Reverts if token is not unsold or not owned by management
    * @param _tokenId the DART token ID
    */
-  function burn(uint256 _tokenId) external onlyDART onlyDARTOwnedToken(_tokenId) {
+  function burn(uint256 _tokenId) external onlyWhitelisted onlyDARTOwnedToken(_tokenId) {
     require(exists(_tokenId));
     super._burn(ownerOf(_tokenId), _tokenId);
   }
@@ -134,7 +207,7 @@ contract DART is ERC721Token, ERC165 {
    * @param _tokenId the DART token ID
    * @param _uri the token URI, will be concatenated with baseUri
    */
-  function setTokenURI(uint256 _tokenId, string _uri) external onlyDART {
+  function setTokenURI(uint256 _tokenId, string _uri) external onlyWhitelisted {
     require(exists(_tokenId));
     _setTokenURI(_tokenId, _uri);
   }
@@ -151,8 +224,16 @@ contract DART is ERC721Token, ERC165 {
   * @dev Return handle of token
   * @param _tokenId token ID for handle lookup
   */
-  function handleOf(uint256 _tokenId) public view returns (string _handle) {
-    return tokenIdToHandle[_tokenId];
+  function nicknameOf(uint256 _tokenId) public view returns (string _nickname) {
+    return tokenIdToNickname[_tokenId];
+  }
+
+  /**
+  * @dev Return blockhash of the DART token
+   * @param _tokenId the DART token ID
+  */
+  function blockhashOf(uint256 _tokenId) public view returns (bytes32 hash) {
+    return tokenIdToBlockhash[_tokenId];
   }
 
   /**
@@ -169,7 +250,7 @@ contract DART is ERC721Token, ERC165 {
    * @dev Reverts if not called by management
    * @param _newBaseURI the new base URI to set
    */
-  function setTokenBaseURI(string _newBaseURI) external onlyDART {
+  function setTokenBaseURI(string _newBaseURI) external onlyWhitelisted {
     tokenBaseURI = _newBaseURI;
   }
 
@@ -178,17 +259,28 @@ contract DART is ERC721Token, ERC165 {
    * @param _tokenId the DART token ID
    */
   function tokenHash(uint256 _tokenId) public view returns (bytes32) {
-    return keccak256(Strings.strConcat(bytes32ToString(bytes32(_tokenId)), ":", tokenIdToHandle[_tokenId]));
+    require(exists(_tokenId));
+    return tokenIdToBlockhash[_tokenId];
   }
 
-  function bytes32ToString(bytes32 data) internal pure returns (string) {
-    bytes memory bytesString = new bytes(32);
-    for (uint j = 0; j < 32; j++) {
-      byte char = byte(bytes32(uint(data) * 2 ** (8 * j)));
-      if (char != 0) {
-        bytesString[j] = char;
-      }
+  /**
+   * @dev Generates a unique token hash for the token and handle
+   */
+  function nextHash() public view returns (bytes32 _tokenHash) {
+
+    // if current block number has been allocated then use it
+    if (blockToTokenIdToDisplay[block.number - 1] != 0) {
+      return tokenIdToBlockhash[blockToTokenIdToDisplay[block.number - 1]];
     }
-    return string(bytesString);
+
+    // if no one own the current blockhash return current
+    return block.blockhash(block.number - 1);
+  }
+
+  /**
+   * @dev Returns blocknumber
+   */
+  function blockNumber() public view returns (uint256 _blockNumber) {
+    return block.number;
   }
 }

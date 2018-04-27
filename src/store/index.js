@@ -36,9 +36,10 @@ const store = new Vuex.Store({
 
     // contract addresses
     curatorAddress: null,
-
-    // non-contract data
     assets: [],
+
+    hash: null,
+    blockNumber: null
   },
   getters: {
     assetById: (state) => (tokenId) => {
@@ -84,6 +85,10 @@ const store = new Vuex.Store({
     [mutations.SET_WEB3](state, web3) {
       state.web3 = web3;
     },
+    [mutations.SET_HASH](state, {hash, blockNumber}) {
+      state.hash = hash;
+      state.blockNumber = blockNumber;
+    },
   },
   actions: {
     [actions.GET_ASSETS_PURCHASED_FOR_ACCOUNT]({commit, dispatch, state}) {
@@ -96,7 +101,6 @@ const store = new Vuex.Store({
         })
         .catch((e) => {
           console.error(e);
-          // TODO handle errors
         });
     },
     [actions.GET_CURRENT_NETWORK]({commit, dispatch, state}) {
@@ -175,14 +179,14 @@ const store = new Vuex.Store({
 
           const lookupInfo = (contract, index) => {
             return Promise.all([
-              contract.handleOf(index),
+              contract.nicknameOf(index),
               contract.tokenURI(index),
               contract.tokenHash(index),
               contract.ownerOf(index)
             ])
               .then((results) => {
 
-                let handle = results[0];
+                let nickname = results[0];
                 let uri = results[1];
                 let hash = results[2];
                 let owner = results[3];
@@ -194,7 +198,7 @@ const store = new Vuex.Store({
 
                 return {
                   tokenId: index,
-                  handle: handle,
+                  handle: nickname,
                   uri: uri,
                   hash: hash,
                   owner: owner
@@ -220,7 +224,7 @@ const store = new Vuex.Store({
       dart.deployed()
         .then((contract) => {
 
-          Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.curatorAccount(), contract.address])
+          Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.owner(), contract.address])
             .then((results) => {
               commit(mutations.SET_CONTRACT_DETAILS, {
                 name: results[0],
@@ -242,6 +246,21 @@ const store = new Vuex.Store({
               });
             });
         }).catch((error) => console.log('Something went bang!', error));
+    },
+    [actions.NEXT_HASH]({commit, dispatch, state}) {
+      dart.deployed()
+        .then((contract) => {
+          Promise.all([contract.nextHash(), contract.blockNumber()])
+            .then((results) => {
+              commit(mutations.SET_HASH, {
+                hash: results[0],
+                blockNumber: results[1].toNumber(10)
+              });
+            });
+        })
+        .catch((e) => {
+          console.error(e);
+        });
     }
   }
 });

@@ -1,22 +1,5 @@
 <template>
   <div>
-
-    <modal name="no-web3-found" :clickToClose="true" :width="300">
-      <div class="alert alert-light fade show" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close" @click="$modal.hide('no-web3-found')">
-          <span aria-hidden="true">&times;</span>
-        </button>
-
-        <p class="pt-4 text-danger">
-          <strong>You require a Web3 Ethereum enabled browser to purchase dART tokens!</strong>
-        </p>
-
-        <p>
-          On a chrome browser add <a href="https://metamask.io" target="_blank">metamask.io</a> or install a mobile wallet such as <a href="https://trustwalletapp.com" target="_blank">TrustWallet</a>
-        </p>
-      </div>
-    </modal>
-
     <header>
       <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
         <router-link :to="{ name: 'home' }" class="navbar-brand">
