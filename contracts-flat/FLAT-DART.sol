@@ -830,9 +830,6 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
 
-  // creator and owner
-  address public curatorAccount;
-
   // total wei sent to the  contract
   uint256 public totalContributionsInWei;
 
@@ -854,6 +851,9 @@ contract DART is ERC721Token, ERC165, Whitelist {
   // Token ID to block hash
   mapping (uint256 => bytes32) internal tokenIdToBlockhash;
 
+  // Blockhash to Token ID
+  mapping (bytes32 => uint256) internal blockhashToTokenId;
+
   //Token ID to nickname
   mapping (uint256 => string) internal tokenIdToNickname;
 
@@ -861,13 +861,8 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   mapping (uint256 => uint256) internal blockToTokenIdToDisplay;
 
-  modifier onlyCurator() {
-    require(msg.sender == curatorAccount);
-    _;
-  }
-
   modifier onlyDARTOwnedToken(uint256 _tokenId) {
-    require(tokenOwner[_tokenId] == curatorAccount);
+    require(tokenOwner[_tokenId] == owner);
     _;
   }
 
@@ -884,7 +879,6 @@ contract DART is ERC721Token, ERC165, Whitelist {
   }
 
   function DART() public ERC721Token("Digital Art", "DART") {
-    curatorAccount = msg.sender;
     // set to current block mined in
     workingBlockCounter = block.number;
 
@@ -904,7 +898,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev Funds your token to be displayed for a specific amount of time
    * @param _tokenId the DART token ID
    */
-  function fundDartDisplay(uint256 _tokenId) public payable onlyValidAmounts {
+  function fundDart(uint256 _tokenId) public payable onlyValidAmounts {
     require(exists(_tokenId));
 
     // determine how many blocks purchased
@@ -917,7 +911,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
       currentBlock = workingBlockCounter;
     }
 
-    uint256 nextBlock = currentBlock + 1;
+    uint256 nextBlock = currentBlock;
 
     uint8 i = 0;
     while (i < blocksPurchased) {
@@ -941,20 +935,23 @@ contract DART is ERC721Token, ERC165, Whitelist {
   /**
    * @dev Mint a new DART token
    * @dev Reverts if not called by curator
-   * @param _blockHash an ethereum block hash
+   * @param _blockHash an Ethereum block hash
    * @param _nickname char stamp of token owner
    */
   function mint(bytes32 _blockHash, string _nickname) external onlyWhitelisted {
+    require(blockhashToTokenId[_blockHash] == 0);
+
     uint256 _tokenId = tokenIdPointer;
 
     // actually mint the token
     super._mint(msg.sender, _tokenId);
 
-    // TODO handle this
-    super._setTokenURI(_tokenId, "TODO - do something with this");
+    // FIXME - handle this
+    super._setTokenURI(_tokenId, "WIP");
 
     // set data
     tokenIdToBlockhash[_tokenId] = _blockHash;
+    blockhashToTokenId[_blockHash] = _tokenId;
     tokenIdToNickname[_tokenId] = _nickname;
 
     // bump pointer on
@@ -1029,8 +1026,8 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @param _tokenId the DART token ID
    */
   function tokenHash(uint256 _tokenId) public view returns (bytes32) {
-    // TODO decide on hashing function
-    return keccak256(Strings.strConcat(bytes32ToString(bytes32(_tokenId)), ":", tokenIdToNickname[_tokenId]));
+    require(exists(_tokenId));
+    return tokenIdToBlockhash[_tokenId];
   }
 
   /**
@@ -1039,22 +1036,18 @@ contract DART is ERC721Token, ERC165, Whitelist {
   function nextHash() public view returns (bytes32 _tokenHash) {
 
     // if current block number has been allocated then use it
-    if (blockToTokenIdToDisplay[block.number] != 0) {
-      return tokenHash(blockToTokenIdToDisplay[block.number]);
+    if (blockToTokenIdToDisplay[block.number - 1] != 0) {
+      return tokenIdToBlockhash[blockToTokenIdToDisplay[block.number - 1]];
     }
 
     // if no one own the current blockhash return current
-    return block.blockhash(block.number);
+    return block.blockhash(block.number - 1);
   }
 
-  function bytes32ToString(bytes32 data) internal pure returns (string) {
-    bytes memory bytesString = new bytes(32);
-    for (uint j = 0; j < 32; j++) {
-      byte char = byte(bytes32(uint(data) * 2 ** (8 * j)));
-      if (char != 0) {
-        bytesString[j] = char;
-      }
-    }
-    return string(bytesString);
+  /**
+   * @dev Returns blocknumber
+   */
+  function blockNumber() public view returns (uint256 _blockNumber) {
+    return block.number;
   }
 }
