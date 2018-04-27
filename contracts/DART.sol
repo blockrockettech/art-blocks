@@ -147,7 +147,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
       currentBlock = workingBlockCounter;
     }
 
-    uint256 nextBlock = currentBlock + 1;
+    uint256 nextBlock = currentBlock;
 
     uint8 i = 0;
     while (i < blocksPurchased) {
@@ -180,8 +180,8 @@ contract DART is ERC721Token, ERC165, Whitelist {
     // actually mint the token
     super._mint(msg.sender, _tokenId);
 
-    // TODO handle this
-    super._setTokenURI(_tokenId, "TODO - do something with this");
+    // FIXME - handle this
+    super._setTokenURI(_tokenId, "WIP");
 
     // set data
     tokenIdToBlockhash[_tokenId] = _blockHash;
@@ -260,8 +260,6 @@ contract DART is ERC721Token, ERC165, Whitelist {
    */
   function tokenHash(uint256 _tokenId) public view returns (bytes32) {
     require(exists(_tokenId));
-    // TODO decide on hashing function
-//    return keccak256(Strings.strConcat(bytes32ToString(bytes32(_tokenId)), ":", tokenIdToNickname[_tokenId]));
     return tokenIdToBlockhash[_tokenId];
   }
 
@@ -271,22 +269,18 @@ contract DART is ERC721Token, ERC165, Whitelist {
   function nextHash() public view returns (bytes32 _tokenHash) {
 
     // if current block number has been allocated then use it
-    if (blockToTokenIdToDisplay[block.number] != 0) {
-      return tokenHash(blockToTokenIdToDisplay[block.number]);
+    if (blockToTokenIdToDisplay[block.number - 1] != 0) {
+      return tokenIdToBlockhash[blockToTokenIdToDisplay[block.number - 1]];
     }
 
     // if no one own the current blockhash return current
-    return block.blockhash(block.number);
+    return block.blockhash(block.number - 1);
   }
 
-  function bytes32ToString(bytes32 data) internal pure returns (string) {
-    bytes memory bytesString = new bytes(32);
-    for (uint j = 0; j < 32; j++) {
-      byte char = byte(bytes32(uint(data) * 2 ** (8 * j)));
-      if (char != 0) {
-        bytesString[j] = char;
-      }
-    }
-    return string(bytesString);
+  /**
+   * @dev Returns blocknumber
+   */
+  function blockNumber() public view returns (uint256 _blockNumber) {
+    return block.number;
   }
 }

@@ -36,9 +36,10 @@ const store = new Vuex.Store({
 
     // contract addresses
     curatorAddress: null,
-
-    // non-contract data
     assets: [],
+
+    hash: null,
+    blockNumber: null
   },
   getters: {
     assetById: (state) => (tokenId) => {
@@ -84,6 +85,10 @@ const store = new Vuex.Store({
     [mutations.SET_WEB3](state, web3) {
       state.web3 = web3;
     },
+    [mutations.SET_HASH](state, {hash, blockNumber}) {
+      state.hash = hash;
+      state.blockNumber = blockNumber;
+    },
   },
   actions: {
     [actions.GET_ASSETS_PURCHASED_FOR_ACCOUNT]({commit, dispatch, state}) {
@@ -96,7 +101,6 @@ const store = new Vuex.Store({
         })
         .catch((e) => {
           console.error(e);
-          // TODO handle errors
         });
     },
     [actions.GET_CURRENT_NETWORK]({commit, dispatch, state}) {
@@ -242,6 +246,21 @@ const store = new Vuex.Store({
               });
             });
         }).catch((error) => console.log('Something went bang!', error));
+    },
+    [actions.NEXT_HASH]({commit, dispatch, state}) {
+      dart.deployed()
+        .then((contract) => {
+          Promise.all([contract.nextHash(), contract.blockNumber()])
+            .then((results) => {
+              commit(mutations.SET_HASH, {
+                hash: results[0],
+                blockNumber: results[1].toNumber(10)
+              });
+            });
+        })
+        .catch((e) => {
+          console.error(e);
+        });
     }
   }
 });

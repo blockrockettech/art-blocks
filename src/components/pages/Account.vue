@@ -17,7 +17,6 @@
         <ul class="list-group list-group-flush">
           <li class="list-group-item"><small><samp>{{ assetById(tokenId).hash }}</samp></small></li>
           <li class="list-group-item"><span class="text-muted">Owner: </span><clickable-address :eth-address="assetById(tokenId).owner"></clickable-address></li>
-          <li class="list-group-item"><span class="text-muted">Meta: </span><small><samp>{{ assetById(tokenId).uri }}</samp></small></li>
         </ul>
       </div>
     </div>
@@ -46,11 +45,7 @@
         'assetById',
       ])
     },
-    mounted() {
-      if (!this.account) {
-        this.$modal.show('no-web3-found');
-      }
-    }
+    mounted() {}
   };
 </script>
 
