@@ -39,6 +39,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import ClickableAddress from '../ui-controls/ClickableAddress';
+  import * as actions from '../../store/actions';
 
   export default {
     name: 'mint',
@@ -57,8 +58,8 @@
     },
     methods: {
       sendHandler () {
-        console.log(`mint... ${this.blockhash} ${this.nickname}`);
-//        this.$store.dispatch(actions.RESET_PURCHASE_STATE, this.asset);
+        console.log(`minting... ${this.blockhash} ${this.nickname}`);
+        this.$store.dispatch(actions.MINT, {blockhash: this.blockhash, nickname: this.nickname});
       },
     },
     mounted() {}

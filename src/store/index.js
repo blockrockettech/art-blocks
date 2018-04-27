@@ -192,7 +192,7 @@ const store = new Vuex.Store({
                 let owner = results[3];
 
                 // burnt
-                if (owner === "0x0000000000000000000000000000000000000000") {
+                if (owner === '0x0000000000000000000000000000000000000000') {
                   return null; // return nulls for for so we can strip them out at the nxt stage
                 }
 
@@ -256,6 +256,26 @@ const store = new Vuex.Store({
                 hash: results[0],
                 blockNumber: results[1].toNumber(10)
               });
+            });
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    },
+    [actions.MINT]({commit, dispatch, state}, {blockhash, nickname}) {
+      dart.deployed()
+        .then((contract) => {
+          console.log(`minting... ${blockhash} ${nickname}`);
+          let tx = contract.mint(blockhash, nickname, {from: state.account});
+
+          tx
+            .then((data) => {
+              setInterval(function () {
+                dispatch(actions.GET_ALL_ASSETS);
+              }, 10000);
+            })
+            .catch((e) => {
+              console.error(e);
             });
         })
         .catch((e) => {
