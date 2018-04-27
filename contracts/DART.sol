@@ -72,9 +72,6 @@ contract DART is ERC721Token, ERC165, Whitelist {
   // total wei sent to the  contract
   uint256 public totalContributionsInWei;
 
-  // A pointer to the next token to be minted, zero indexed
-  uint256 public tokenIdPointer = 0;
-
   // TODO handle setting these per contract/installation
   // the price to display per block
   uint256 public pricePerBlock = 0.01 ether;
@@ -175,12 +172,12 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev Mint a new DART token
    * @dev Reverts if not called by curator
    * @param _blockHash an Ethereum block hash
+   * @param _tokenId unique token ID
    * @param _nickname char stamp of token owner
    */
-  function mint(bytes32 _blockHash, string _nickname) external onlyWhitelisted {
+  function mint(bytes32 _blockHash, uint256 _tokenId, string _nickname) external onlyWhitelisted {
     require(blockhashToTokenId[_blockHash] == 0);
-
-    uint256 _tokenId = tokenIdPointer;
+    require(tokenIdToBlockhash[_tokenId] == 0);
 
     // actually mint the token
     super._mint(msg.sender, _tokenId);
@@ -192,9 +189,6 @@ contract DART is ERC721Token, ERC165, Whitelist {
     tokenIdToBlockhash[_tokenId] = _blockHash;
     blockhashToTokenId[_blockHash] = _tokenId;
     tokenIdToNickname[_tokenId] = _nickname;
-
-    // bump pointer on
-    tokenIdPointer = tokenIdPointer.add(1);
   }
 
   /**
