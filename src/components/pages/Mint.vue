@@ -14,7 +14,7 @@
             <li class="list-group-item">
               <div class="form-group">
                 <label for="tokenId">Token ID</label>
-                <input type="text" class="form-control" id="tokenId" placeholder="0x000000" v-model="tokenId">
+                <input type="text" class="form-control" id="tokenId" placeholder="123456" v-model="tokenId">
                 <small id="tokenIdHelp" class="form-text text-muted">All IDs are unique...</small>
               </div>
             </li>
