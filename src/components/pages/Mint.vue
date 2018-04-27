@@ -13,6 +13,13 @@
             </li>
             <li class="list-group-item">
               <div class="form-group">
+                <label for="tokenId">Token ID</label>
+                <input type="text" class="form-control" id="tokenId" placeholder="0x000000" v-model="tokenId">
+                <small id="tokenIdHelp" class="form-text text-muted">All IDs are unique...</small>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="form-group">
                 <label for="blockhash">Blockhash</label>
                 <input type="text" class="form-control" id="blockhash" placeholder="0x000000" v-model="blockhash">
                 <small id="emailHelp" class="form-text text-muted">dART tokens must have a unique hash!</small>
@@ -53,13 +60,13 @@
     data() {
       return {
         blockhash: null,
-        nickname: null
+        nickname: null,
+        tokenId: null
       };
     },
     methods: {
       sendHandler () {
-        console.log(`minting... ${this.blockhash} ${this.nickname}`);
-        this.$store.dispatch(actions.MINT, {blockhash: this.blockhash, nickname: this.nickname});
+        this.$store.dispatch(actions.MINT, {blockhash: this.blockhash, nickname: this.nickname, tokenId: this.tokenId});
       },
     },
     mounted() {}

@@ -232,14 +232,16 @@ const store = new Vuex.Store({
           console.error(e);
         });
     },
-    [actions.MINT]({commit, dispatch, state}, {blockhash, nickname}) {
+    [actions.MINT]({commit, dispatch, state}, {blockhash, nickname, tokenId}) {
       dart.deployed()
         .then((contract) => {
-          console.log(`minting... ${blockhash} ${nickname}`);
-          let tx = contract.mint(blockhash, nickname, {from: state.account});
+          console.log(`minting... ${blockhash} -  ${nickname} - ${tokenId}`);
+          let tx = contract.mint(blockhash, tokenId, nickname, {from: state.account});
 
+          console.log(tx);
           tx
             .then((data) => {
+              console.log(data);
               setInterval(function () {
                 dispatch(actions.GET_ALL_ASSETS);
               }, 10000);
