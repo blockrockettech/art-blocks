@@ -67,6 +67,8 @@ contract DART is ERC721Token, ERC165, Whitelist {
     || (_interfaceID == InterfaceSignature_ERC721Metadata));
   }
 
+  event MintDART(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, string _nickname);
+
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
 
   // total wei sent to the  contract
@@ -84,17 +86,12 @@ contract DART is ERC721Token, ERC165, Whitelist {
   // max number of blocks allowed to purchased in one go (mainly for gas costs, this should be kept fairly low for now)
   uint256 public maxBlockPurchaseInOneGo = 10;
 
-  // Token ID to block hash
+
   mapping (uint256 => bytes32) internal tokenIdToBlockhash;
-
-  // Blockhash to Token ID
   mapping (bytes32 => uint256) internal blockhashToTokenId;
-
-  //Token ID to nickname
   mapping (uint256 => string) internal tokenIdToNickname;
 
   uint256 workingBlockCounter = 0;
-
   mapping (uint256 => uint256) internal blockToTokenIdToDisplay;
 
   modifier onlyDARTOwnedToken(uint256 _tokenId) {
@@ -171,12 +168,12 @@ contract DART is ERC721Token, ERC165, Whitelist {
   /**
    * @dev Mint a new DART token
    * @dev Reverts if not called by curator
-   * @param _blockHash an Ethereum block hash
+   * @param _blockhash an Ethereum block hash
    * @param _tokenId unique token ID
    * @param _nickname char stamp of token owner
    */
-  function mint(bytes32 _blockHash, uint256 _tokenId, string _nickname) external onlyWhitelisted {
-    require(blockhashToTokenId[_blockHash] == 0);
+  function mint(bytes32 _blockhash, uint256 _tokenId, string _nickname) external onlyWhitelisted {
+    require(blockhashToTokenId[_blockhash] == 0);
     require(tokenIdToBlockhash[_tokenId] == 0);
 
     // actually mint the token
@@ -186,9 +183,11 @@ contract DART is ERC721Token, ERC165, Whitelist {
     super._setTokenURI(_tokenId, "WIP");
 
     // set data
-    tokenIdToBlockhash[_tokenId] = _blockHash;
-    blockhashToTokenId[_blockHash] = _tokenId;
+    tokenIdToBlockhash[_tokenId] = _blockhash;
+    blockhashToTokenId[_blockhash] = _tokenId;
     tokenIdToNickname[_tokenId] = _nickname;
+
+    MintDART(msg.sender, _tokenId, _blockhash, _nickname);
   }
 
   /**

@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Gallery from '@/components/pages/Gallery';
-import Account from '@/components/pages/Account';
 import Mint from '@/components/pages/Mint';
 
 Vue.use(Router);
@@ -21,11 +20,6 @@ export default new Router({
       path: '/',
       name: 'home',
       component: Gallery
-    },
-    {
-      path: '/account',
-      name: 'account',
-      component: Account
     },
     {
       path: '/mint',

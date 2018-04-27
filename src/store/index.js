@@ -42,19 +42,14 @@ const store = new Vuex.Store({
     blockNumber: null
   },
   getters: {
-    assetById: (state) => (tokenId) => {
+    assetByTokenId: (state) => (tokenId) => {
       return _.find(state.assets, (asset) => asset.tokenId.toString() === tokenId.toString());
-    },
-    isDart: (state) => {
-      if (state.curatorAddress) {
-        return state.curatorAddress.toLowerCase() === state.account.toLowerCase();
-      }
-      return false;
     }
   },
   mutations: {
-    [mutations.SET_ASSETS](state, {assets}) {
-      Vue.set(state, 'assets', assets);
+    [mutations.SET_ASSETS](state, asset) {
+      state.assets.push(asset);
+      Vue.set(state, 'assets', state.assets);
     },
     [mutations.SET_ASSETS_PURCHASED_FROM_ACCOUNT](state, tokens) {
       Vue.set(state, 'assetsPurchasedByAccount', tokens);
@@ -175,49 +170,25 @@ const store = new Vuex.Store({
     [actions.GET_ALL_ASSETS]({commit, dispatch, state}) {
       dart.deployed()
         .then((contract) => {
-          let supply = _.range(0, state.totalSupply);
 
-          const lookupInfo = (contract, index) => {
-            return Promise.all([
-              contract.nicknameOf(index),
-              contract.tokenURI(index),
-              contract.tokenHash(index),
-              contract.ownerOf(index)
-            ])
-              .then((results) => {
+          let mintEvent = contract.MintDART({}, {
+            fromBlock: 0, // FIXME use contract deployed blocknumber?!
+            toBlock: 'latest' // wait until event comes through
+          });
 
-                let nickname = results[0];
-                let uri = results[1];
-                let hash = results[2];
-                let owner = results[3];
-
-                // burnt
-                if (owner === '0x0000000000000000000000000000000000000000') {
-                  return null; // return nulls for for so we can strip them out at the nxt stage
-                }
-
-                return {
-                  tokenId: index,
-                  handle: nickname,
-                  uri: uri,
-                  hash: hash,
-                  owner: owner
-                };
+          mintEvent.watch(function (error, result) {
+            if (!error) {
+              console.log(result);
+              commit(mutations.SET_ASSETS, {
+                owner: result.args._owner,
+                tokenId: result.args._tokenId.toNumber(10),
+                blockhash: result.args._blockhash,
+                nickname: result.args._nickname,
               });
-          };
-
-          const bindAssetsToStore = (assets) => {
-            commit(mutations.SET_ASSETS, {
-              assets: assets
-            });
-          };
-
-          return Promise.all(_.map(supply, (index) => lookupInfo(contract, index)))
-            .then((assets) => {
-              // Strip out burnt tokens which will appear as nulls in the list
-              return _.without(assets, null);
-            })
-            .then(bindAssetsToStore);
+            } else {
+              console.log('Failure', error);
+            }
+          });
         });
     },
     [actions.REFRESH_CONTRACT_DETAILS]({commit, dispatch, state}) {
@@ -234,7 +205,6 @@ const store = new Vuex.Store({
                 contractAddress: results[4]
               });
 
-              // We require totalSupply to lookup all ASSETS
               dispatch(actions.GET_ALL_ASSETS);
             });
 

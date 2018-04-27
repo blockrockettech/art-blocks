@@ -46,14 +46,14 @@
         <div class="card-deck">
           <div class="card" v-for="dART, key in assets" :key="key">
             <div class="text-center">
-              <address-icon :ethAddress="dART.hash"></address-icon>
+              <address-icon :ethAddress="dART.blockhash"></address-icon>
             </div>
             <div class="card-body">
-              <h5 class="card-title">{{ dART.handle }} <span class="badge badge-primary float-right">{{ dART.tokenId }}</span></h5>
+              <h5 class="card-title">{{ dART.nickname }} <span class="badge badge-primary float-right">{{ dART.tokenId }}</span></h5>
             </div>
             <ul class="list-group list-group-flush">
               <li class="list-group-item">
-                <small><samp>{{ dART.hash }}</samp></small>
+                <small><samp>{{ dART.blockhash }}</samp></small>
               </li>
               <li class="list-group-item"><span class="text-muted">Owner: </span>
                 <clickable-address :eth-address="dART.owner"></clickable-address>
