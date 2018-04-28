@@ -68,7 +68,9 @@ contract DART is ERC721Token, ERC165, Whitelist {
   }
 
   event MintDART(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, string _nickname);
+
   event FundDART(address indexed _funder, uint256 indexed _tokenId, uint256 _nextBlock);
+
   event BlocksPurchasedDART(address indexed _funder, uint256 indexed _tokenId, uint256 _blocksPurchased);
 
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
@@ -94,7 +96,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   mapping (uint256 => string) internal tokenIdToNickname;
 
-  uint256 workingBlockCounter = 0;
+  uint256 public lastPurchasedBlock = 0;
 
   mapping (uint256 => uint256) internal blockToTokenIdToDisplay;
 
@@ -117,7 +119,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   function DART() public ERC721Token("Digital Art", "DART") {
     // set to current block mined in
-    workingBlockCounter = block.number;
+    lastPurchasedBlock = block.number;
 
     // TODO handle setting these/configuring
     super.addAddressToWhitelist(msg.sender);
@@ -139,35 +141,39 @@ contract DART is ERC721Token, ERC165, Whitelist {
     require(exists(_tokenId));
 
     // determine how many blocks purchased
-    uint256 blocksPurchased = msg.value / pricePerBlock;
+    uint256 blocksToPurchased = msg.value / pricePerBlock;
 
-    uint256 currentBlock = block.number;
+    // Start purchase from next block
+    uint256 nextBlockToPurchase = block.number;
 
-    // move current block on if already past last purchased block count, reduces while loop costs
-    if (block.number > workingBlockCounter) {
-      currentBlock = workingBlockCounter;
+    // Move next purchase-able on block if blockchain already past last purchased block
+    // This deal with people purchasing blocks far in the future & reduces looping costs
+    if (nextBlockToPurchase < lastPurchasedBlock) {
+
+      // Start from the next block becasue the lastPurchasedBlock is purchased
+      nextBlockToPurchase = lastPurchasedBlock + 1;
     }
 
-    uint256 nextBlock = currentBlock;
+    uint256 nextBlock = nextBlockToPurchase;
 
-    uint8 i = 0;
-    while (i < blocksPurchased) {
+    uint8 purchased = 0;
+    while (purchased < blocksToPurchased) {
 
       // if no one has the next block, set next block to this token
       if (blockToTokenIdToDisplay[nextBlock] == 0) {
         FundDART(msg.sender, _tokenId, nextBlock);
         blockToTokenIdToDisplay[nextBlock] = _tokenId;
-        i++;
+        purchased++;
+
+        // update last block once purchased
+        lastPurchasedBlock = nextBlock;
       }
 
       // move next block on to find another free space
       nextBlock++;
     }
 
-    // update where the current work block is
-    workingBlockCounter = nextBlock;
-
-    BlocksPurchasedDART(msg.sender, _tokenId, blocksPurchased);
+    BlocksPurchasedDART(msg.sender, _tokenId, blocksToPurchased);
 
     // TODO splice monies to various parties
   }
@@ -201,9 +207,11 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev Attempts to work out the next block which will be funded
    */
   function getNextBlockToFund() public view returns (uint256 _nextFundedBlock) {
-    if (block.number < workingBlockCounter) {
-      return workingBlockCounter;
+    if (block.number < lastPurchasedBlock) {
+      // Return the last block + 1 as the last block id already purchased
+      return lastPurchasedBlock + 1;
     }
+    // the next block which can be funded is now + 1
     return block.number + 1;
   }
 
@@ -268,15 +276,6 @@ contract DART is ERC721Token, ERC165, Whitelist {
    */
   function setTokenBaseURI(string _newBaseURI) external onlyWhitelisted {
     tokenBaseURI = _newBaseURI;
-  }
-
-  /**
-   * @dev Generates a unique token hash for the token and handle
-   * @param _tokenId the DART token ID
-   */
-  function tokenHash(uint256 _tokenId) public view returns (bytes32) {
-    require(exists(_tokenId));
-    return tokenIdToBlockhash[_tokenId];
   }
 
   /**
