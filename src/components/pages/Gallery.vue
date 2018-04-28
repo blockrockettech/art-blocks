@@ -67,10 +67,9 @@
 
       </div>
       <div class="col">
-        <loading-spinner v-if="!assets"></loading-spinner>
+        <loading-spinner v-if="!assets || assets.length == 0"></loading-spinner>
 
-
-        <div class="card-deck">
+        <div class="card-columns">
           <div class="card" v-for="dART, key in assets" :key="key">
             <div class="text-center">
               <address-icon :ethAddress="dART.blockhash"></address-icon>
@@ -88,6 +87,7 @@
             </ul>
           </div>
         </div>
+
       </div>
     </div>
   </div>
