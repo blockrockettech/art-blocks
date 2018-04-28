@@ -3,7 +3,7 @@
     <h1>&nbsp;</h1>
 
     <div class="alert alert-primary" role="alert" v-if="hash">
-      #{{ blockNumber }} &gt;&gt; {{ hash }}
+      #{{ blockNumber }} &gt;&gt; {{ hash }} - {{ getHashMatch() }}
     </div>
 
     <div class="row mt-5">
@@ -38,6 +38,33 @@
           </tr>
           </tbody>
         </table>
+
+        <div class="card text-center">
+          <div class="card-header">
+            Funding dART Tokens
+          </div>
+          <div class="card-body">
+            <p>
+              Fund your dArt token is easy as pie!
+            </p>
+            <p>
+              Simply call the function <strong><span class="text-info">fundDart(_tokenId)</span></strong> at the address: <strong>{{contractAddress}}</strong>
+            </p>
+            <p>
+              Current exchange rate is <strong>{{pricePerBlockInEth}}</strong> per block.
+            </p>
+            <p>
+              The maximum number of blocks which can be purchased in one go <strong>{{maxBlockPurchaseInOneGo}}</strong>
+            </p>
+            <p>
+              The next block which you will see your Dart token is <strong>{{nextBlockToFund}}</strong>
+            </p>
+          </div>
+          <div class="card-footer">
+            <current-network></current-network>
+          </div>
+        </div>
+
       </div>
       <div class="col">
         <loading-spinner v-if="!assets"></loading-spinner>
@@ -73,10 +100,12 @@
   import ClickableAddress from '../ui-controls/ClickableAddress';
   import AddressIcon from '../ui-controls/AddressIcon';
   import * as actions from '../../store/actions';
+  import CurrentNetwork from "../ui-controls/CurrentNetwork.vue";
 
   export default {
     name: 'gallery',
     components: {
+      CurrentNetwork,
       LoadingSpinner,
       ClickableAddress,
       AddressIcon
@@ -92,14 +121,19 @@
         'contractSymbol',
         'contractAddress',
         'hash',
-        'blockNumber'
+        'blockNumber',
+        'account',
+        'pricePerBlockInEth',
+        'maxBlockPurchaseInOneGo',
+        'nextBlockToFund',
+        'contractAddress'
       ]),
+      ...mapGetters([
+        'getHashMatch'
+      ])
     },
     mounted() {
-      setInterval(function () {
-        console.log('getting next hash');
-        this.$store.dispatch(actions.NEXT_HASH);
-      }.bind(this), 10000);
+
     }
   };
 </script>

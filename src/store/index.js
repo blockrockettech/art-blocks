@@ -48,6 +48,14 @@ const store = new Vuex.Store({
   getters: {
     assetByTokenId: (state) => (tokenId) => {
       return _.find(state.assets, (asset) => asset.tokenId.toString() === tokenId.toString());
+    },
+    getHashMatch: (state) => () => {
+      let matchAsset = _.find(state.assets, {blockhash: state.hash});
+      console.log(matchAsset);
+      if (!matchAsset) {
+        return "no match";
+      }
+      return `Matched token ${matchAsset.tokenId}`;
     }
   },
   mutations: {

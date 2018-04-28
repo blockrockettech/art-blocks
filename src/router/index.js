@@ -2,7 +2,6 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Gallery from '@/components/pages/Gallery';
 import Mint from '@/components/pages/Mint';
-import Fund from '@/components/pages/Fund';
 
 Vue.use(Router);
 
@@ -26,11 +25,6 @@ export default new Router({
       path: '/mint',
       name: 'mint',
       component: Mint
-    },
-    {
-      path: '/fund',
-      name: 'fund',
-      component: Fund
     }
   ]
 });

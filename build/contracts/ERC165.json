@@ -26,19 +26,19 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.21;\n\ninterface ERC165 {\n  /// @notice Query if a contract implements an interface\n  /// @param interfaceID The interface identifier, as specified in ERC-165\n  /// @dev Interface identification is specified in ERC-165. This function\n  ///  uses less than 30,000 gas.\n  /// @return `true` if the contract implements `interfaceID` and\n  ///  `interfaceID` is not 0xffffffff, `false` otherwise\n  function supportsInterface(bytes4 interfaceID) external pure returns (bool);\n}\n",
-  "sourcePath": "/Users/andy/workspace/art-blocks/contracts/ERC165.sol",
+  "sourcePath": "/Users/jamesmorgan/Dropbox/workspace-blockrocket/art-blocks/contracts/ERC165.sol",
   "ast": {
-    "absolutePath": "/Users/andy/workspace/art-blocks/contracts/ERC165.sol",
+    "absolutePath": "/Users/jamesmorgan/Dropbox/workspace-blockrocket/art-blocks/contracts/ERC165.sol",
     "exportedSymbols": {
       "ERC165": [
-        512
+        531
       ]
     },
-    "id": 513,
+    "id": 532,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 504,
+        "id": 523,
         "literals": [
           "solidity",
           "^",
@@ -54,9 +54,9 @@
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 512,
+        "id": 531,
         "linearizedBaseContracts": [
-          512
+          531
         ],
         "name": "ERC165",
         "nodeType": "ContractDefinition",
@@ -64,7 +64,7 @@
           {
             "body": null,
             "documentation": "@notice Query if a contract implements an interface\n @param interfaceID The interface identifier, as specified in ERC-165\n @dev Interface identification is specified in ERC-165. This function\n  uses less than 30,000 gas.\n @return `true` if the contract implements `interfaceID` and\n  `interfaceID` is not 0xffffffff, `false` otherwise",
-            "id": 511,
+            "id": 530,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": true,
@@ -72,15 +72,15 @@
             "name": "supportsInterface",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 507,
+              "id": 526,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 506,
+                  "id": 525,
                   "name": "interfaceID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 511,
+                  "scope": 530,
                   "src": "440:18:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -89,7 +89,7 @@
                     "typeString": "bytes4"
                   },
                   "typeName": {
-                    "id": 505,
+                    "id": 524,
                     "name": "bytes4",
                     "nodeType": "ElementaryTypeName",
                     "src": "440:6:1",
@@ -106,15 +106,15 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 510,
+              "id": 529,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 509,
+                  "id": 528,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 511,
+                  "scope": 530,
                   "src": "483:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -123,7 +123,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 508,
+                    "id": 527,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "483:4:1",
@@ -138,31 +138,31 @@
               ],
               "src": "482:6:1"
             },
-            "scope": 512,
+            "scope": 531,
             "src": "413:76:1",
             "stateMutability": "pure",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 513,
+        "scope": 532,
         "src": "26:465:1"
       }
     ],
     "src": "0:492:1"
   },
   "legacyAST": {
-    "absolutePath": "/Users/andy/workspace/art-blocks/contracts/ERC165.sol",
+    "absolutePath": "/Users/jamesmorgan/Dropbox/workspace-blockrocket/art-blocks/contracts/ERC165.sol",
     "exportedSymbols": {
       "ERC165": [
-        512
+        531
       ]
     },
-    "id": 513,
+    "id": 532,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 504,
+        "id": 523,
         "literals": [
           "solidity",
           "^",
@@ -178,9 +178,9 @@
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 512,
+        "id": 531,
         "linearizedBaseContracts": [
-          512
+          531
         ],
         "name": "ERC165",
         "nodeType": "ContractDefinition",
@@ -188,7 +188,7 @@
           {
             "body": null,
             "documentation": "@notice Query if a contract implements an interface\n @param interfaceID The interface identifier, as specified in ERC-165\n @dev Interface identification is specified in ERC-165. This function\n  uses less than 30,000 gas.\n @return `true` if the contract implements `interfaceID` and\n  `interfaceID` is not 0xffffffff, `false` otherwise",
-            "id": 511,
+            "id": 530,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": true,
@@ -196,15 +196,15 @@
             "name": "supportsInterface",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 507,
+              "id": 526,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 506,
+                  "id": 525,
                   "name": "interfaceID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 511,
+                  "scope": 530,
                   "src": "440:18:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -213,7 +213,7 @@
                     "typeString": "bytes4"
                   },
                   "typeName": {
-                    "id": 505,
+                    "id": 524,
                     "name": "bytes4",
                     "nodeType": "ElementaryTypeName",
                     "src": "440:6:1",
@@ -230,15 +230,15 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 510,
+              "id": 529,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 509,
+                  "id": 528,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 511,
+                  "scope": 530,
                   "src": "483:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -247,7 +247,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 508,
+                    "id": 527,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "483:4:1",
@@ -262,14 +262,14 @@
               ],
               "src": "482:6:1"
             },
-            "scope": 512,
+            "scope": 531,
             "src": "413:76:1",
             "stateMutability": "pure",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 513,
+        "scope": 532,
         "src": "26:465:1"
       }
     ],
@@ -281,5 +281,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-04-27T19:34:45.472Z"
+  "updatedAt": "2018-04-28T10:49:07.321Z"
 }

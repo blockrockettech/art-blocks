@@ -68,6 +68,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
   }
 
   event MintDART(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, string _nickname);
+  event FundDART(address indexed _funder, uint256 indexed _tokenId, uint256 _nextBlock);
 
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
 
@@ -153,6 +154,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
       // if no one has the next block, set next block to this token
       if (blockToTokenIdToDisplay[nextBlock] == 0) {
+        FundDART(msg.sender, _tokenId, nextBlock);
         blockToTokenIdToDisplay[nextBlock] = _tokenId;
         i++;
       }
@@ -196,7 +198,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev Attempts to work out the next block which will be funded
    */
   function getNextBlockToFund() public view returns (uint256 _nextFundedBlock) {
-    if (block.number > workingBlockCounter) {
+    if (block.number < workingBlockCounter) {
       return workingBlockCounter;
     }
     return block.number + 1;
