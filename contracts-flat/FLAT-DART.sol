@@ -829,6 +829,8 @@ contract DART is ERC721Token, ERC165, Whitelist {
   }
 
   event MintDART(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, string _nickname);
+  event FundDART(address indexed _funder, uint256 indexed _tokenId, uint256 _nextBlock);
+  event BlocksPurchasedDART(address indexed _funder, uint256 indexed _tokenId, uint256 _blocksPurchased);
 
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
 
@@ -845,7 +847,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   // TODO handle setting these per contract/installation
   // max number of blocks allowed to purchased in one go (mainly for gas costs, this should be kept fairly low for now)
-  uint256 public maxBlockPurchaseInOneGo = 10;
+  uint256 public maxBlockPurchaseInOneGo = 20;
 
   mapping (uint256 => bytes32) internal tokenIdToBlockhash;
 
@@ -914,6 +916,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
       // if no one has the next block, set next block to this token
       if (blockToTokenIdToDisplay[nextBlock] == 0) {
+        FundDART(msg.sender, _tokenId, nextBlock);
         blockToTokenIdToDisplay[nextBlock] = _tokenId;
         i++;
       }
@@ -924,6 +927,8 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
     // update where the current work block is
     workingBlockCounter = nextBlock;
+
+    BlocksPurchasedDART(msg.sender, _tokenId, blocksPurchased);
 
     // TODO splice monies to various parties
   }

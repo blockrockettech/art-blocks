@@ -119,7 +119,6 @@
         'totalSupply',
         'contractName',
         'contractSymbol',
-        'contractAddress',
         'hash',
         'blockNumber',
         'account',
