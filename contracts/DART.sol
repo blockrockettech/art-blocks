@@ -86,12 +86,14 @@ contract DART is ERC721Token, ERC165, Whitelist {
   // max number of blocks allowed to purchased in one go (mainly for gas costs, this should be kept fairly low for now)
   uint256 public maxBlockPurchaseInOneGo = 10;
 
-
   mapping (uint256 => bytes32) internal tokenIdToBlockhash;
+
   mapping (bytes32 => uint256) internal blockhashToTokenId;
+
   mapping (uint256 => string) internal tokenIdToNickname;
 
   uint256 workingBlockCounter = 0;
+
   mapping (uint256 => uint256) internal blockToTokenIdToDisplay;
 
   modifier onlyDARTOwnedToken(uint256 _tokenId) {
@@ -188,6 +190,16 @@ contract DART is ERC721Token, ERC165, Whitelist {
     tokenIdToNickname[_tokenId] = _nickname;
 
     MintDART(msg.sender, _tokenId, _blockhash, _nickname);
+  }
+
+  /**
+   * @dev Attempts to work out the next block which will be funded
+   */
+  function getNextBlockToFund() public view returns (uint256 _nextFundedBlock) {
+    if (block.number > workingBlockCounter) {
+      return workingBlockCounter;
+    }
+    return block.number + 1;
   }
 
   /**

@@ -10,9 +10,12 @@
           <li class="nav-item">
             <router-link :to="{ name: 'home' }" class="nav-link d-none d-sm-block">Home</router-link>
           </li>
-          <!--<li class="nav-item">-->
-            <!--<router-link :to="{ name: 'mint' }" class="nav-link d-none d-sm-block">Mint</router-link>-->
-          <!--</li>-->
+          <li class="nav-item">
+            <router-link :to="{ name: 'mint' }" class="nav-link d-none d-sm-block">Mint</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link :to="{ name: 'fund' }" class="nav-link d-none d-sm-block">Fund</router-link>
+          </li>
         </ul>
       </nav>
     </header>

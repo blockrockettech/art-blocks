@@ -58,7 +58,14 @@ contract('DART', function (accounts) {
       await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _dartOwner});
     });
 
-    // TODO
+    describe('fundDart()', async function () {
+
+      beforeEach(async function () {
+        // Mint a second token
+        await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _dartOwner});
+      });
+
+    });
 
   });
 

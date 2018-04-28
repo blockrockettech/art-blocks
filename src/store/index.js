@@ -5,7 +5,7 @@ import * as mutations from './mutation-types';
 import _ from 'lodash';
 import Web3 from 'web3';
 import createLogger from 'vuex/dist/logger';
-import { getEtherscanAddress, getNetIdString } from '../utils';
+import {getEtherscanAddress, getNetIdString} from '../utils';
 import contract from 'truffle-contract';
 import dARTJson from '../../build/contracts/DART.json';
 
@@ -33,13 +33,17 @@ const store = new Vuex.Store({
     totalSupply: null,
     totalContributionsInWei: null,
     totalContributionsEther: null,
+    pricePerBlockInWei: null,
+    pricePerBlockInEth: null,
+    maxBlockPurchaseInOneGo: null,
 
     // contract addresses
     curatorAddress: null,
     assets: [],
 
     hash: null,
-    blockNumber: null
+    blockNumber: null,
+    nextBlockToFund: null
   },
   getters: {
     assetByTokenId: (state) => (tokenId) => {
@@ -47,8 +51,13 @@ const store = new Vuex.Store({
     }
   },
   mutations: {
-    [mutations.SET_ASSETS](state, asset) {
-      state.assets.push(asset);
+    [mutations.SET_ALL_ASSETS](state, assets) {
+      Vue.set(state, 'assets', state.assets);
+    },
+    [mutations.SET_ASSET](state, asset) {
+      if (!_.find(state.assets, {tokenId: asset.tokenId})) {
+        state.assets.push(asset);
+      }
       Vue.set(state, 'assets', state.assets);
     },
     [mutations.SET_ASSETS_PURCHASED_FROM_ACCOUNT](state, tokens) {
@@ -58,12 +67,15 @@ const store = new Vuex.Store({
       state.totalContributionsInWei = totalContributionsInWei;
       state.totalContributionsInEther = totalContributionsInEther;
     },
-    [mutations.SET_CONTRACT_DETAILS](state, {name, symbol, totalSupply, curatorAddress, contractAddress}) {
+    [mutations.SET_CONTRACT_DETAILS](state, {name, symbol, totalSupply, curatorAddress, contractAddress, pricePerBlockInWei, pricePerBlockInEth, maxBlockPurchaseInOneGo}) {
       state.totalSupply = totalSupply;
       state.contractSymbol = symbol;
       state.contractName = name;
       state.curatorAddress = curatorAddress;
       state.contractAddress = contractAddress;
+      state.pricePerBlockInWei = pricePerBlockInWei;
+      state.pricePerBlockInEth = pricePerBlockInEth;
+      state.maxBlockPurchaseInOneGo = maxBlockPurchaseInOneGo;
     },
     [mutations.SET_ACCOUNT](state, {account, accountBalance}) {
       state.account = account;
@@ -80,9 +92,10 @@ const store = new Vuex.Store({
     [mutations.SET_WEB3](state, web3) {
       state.web3 = web3;
     },
-    [mutations.SET_HASH](state, {hash, blockNumber}) {
+    [mutations.SET_HASH](state, {hash, blockNumber, nextBlockToFund}) {
       state.hash = hash;
       state.blockNumber = blockNumber;
+      state.nextBlockToFund = nextBlockToFund;
     },
   },
   actions: {
@@ -172,14 +185,14 @@ const store = new Vuex.Store({
         .then((contract) => {
 
           let mintEvent = contract.MintDART({}, {
-            fromBlock: 0, // FIXME use contract deployed blocknumber?!
+            fromBlock: 0, // FIXME use contract deployed blocknumber?! or maybe expose some method to get all tokens ... is this possible ?
             toBlock: 'latest' // wait until event comes through
           });
 
           mintEvent.watch(function (error, result) {
             if (!error) {
               console.log(result);
-              commit(mutations.SET_ASSETS, {
+              commit(mutations.SET_ASSET, {
                 owner: result.args._owner,
                 tokenId: result.args._tokenId.toNumber(10),
                 blockhash: result.args._blockhash,
@@ -195,14 +208,17 @@ const store = new Vuex.Store({
       dart.deployed()
         .then((contract) => {
 
-          Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.owner(), contract.address])
+          Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.owner(), contract.address, contract.pricePerBlock(), contract.maxBlockPurchaseInOneGo()])
             .then((results) => {
               commit(mutations.SET_CONTRACT_DETAILS, {
                 name: results[0],
                 symbol: results[1],
                 totalSupply: results[2].toString(),
                 curatorAddress: results[3],
-                contractAddress: results[4]
+                contractAddress: results[4],
+                pricePerBlockInWei: results[5],
+                pricePerBlockInEth: Web3.utils.fromWei(results[5].toString(10), 'ether'),
+                maxBlockPurchaseInOneGo: results[6].toNumber(10),
               });
 
               dispatch(actions.GET_ALL_ASSETS);
@@ -220,11 +236,12 @@ const store = new Vuex.Store({
     [actions.NEXT_HASH]({commit, dispatch, state}) {
       dart.deployed()
         .then((contract) => {
-          Promise.all([contract.nextHash(), contract.blockNumber()])
+          Promise.all([contract.nextHash(), contract.blockNumber(), contract.getNextBlockToFund()])
             .then((results) => {
               commit(mutations.SET_HASH, {
                 hash: results[0],
-                blockNumber: results[1].toNumber(10)
+                blockNumber: results[1].toNumber(10),
+                nextBlockToFund: results[2].toNumber(10),
               });
             });
         })
