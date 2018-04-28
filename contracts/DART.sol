@@ -159,7 +159,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
       nextBlock++;
     }
 
-    // update where the current work block is (TODO is this needed)
+    // update where the current work block is
     workingBlockCounter = nextBlock;
 
     // TODO splice monies to various parties

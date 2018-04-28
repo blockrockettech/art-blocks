@@ -12,7 +12,6 @@ module.exports = function (deployer, network, accounts) {
 
   if (network === 'ropsten' || network === 'rinkeby') {
     _curatorAccount = new HDWalletProvider(mnemonic, `https://${network}.infura.io/${infuraApikey}`, 0).getAddress();
-
   }
 
   if (network === 'live') {

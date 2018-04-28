@@ -25,6 +25,8 @@ module.exports = function (deployer, network, accounts) {
   deployer
     .then(() => DART.deployed())
     .then((instance) => {
-      return instance.mint("0x255f9565aad18cc5ff0103e1cf91c5c789c90a6af06d7ebfc692d0a93ddb00b5", 98722, "Minty");
+      if (network === 'ganache' || network === 'ropsten' || network === 'rinkeby' || network === 'live') {
+        return instance.mint("0x255f9565aad18cc5ff0103e1cf91c5c789c90a6af06d7ebfc692d0a93ddb00b5", 98722, "Minty");
+      }
     });
 };
