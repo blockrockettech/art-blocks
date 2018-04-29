@@ -7,7 +7,7 @@
     </div>
 
     <div class="row mt-5">
-      <div class="col">
+      <div class="col-6">
         <table class="table table-striped">
           <tbody>
           <tr v-if="contractAddress">
@@ -38,7 +38,9 @@
           </tr>
           </tbody>
         </table>
+      </div>
 
+      <div class="col-6">
         <div class="card text-center">
           <div class="card-header">
             Funding dART Tokens
@@ -48,7 +50,8 @@
               Fund your dArt token is easy as pie!
             </p>
             <p>
-              Simply call the function <strong><span class="text-info">fundDart(_tokenId)</span></strong> at the address: <strong>{{contractAddress}}</strong>
+              Simply call the function <strong><span class="text-info">fundDart(_tokenId)</span></strong>
+              at the address: <strong>{{contractAddress}}</strong>
             </p>
             <p>
               Current exchange rate is <strong>{{pricePerBlockInEth}}</strong> per block.
@@ -64,8 +67,11 @@
             <current-network></current-network>
           </div>
         </div>
-
       </div>
+    </div>
+
+    <div class="row mt-5">
+
       <div class="col">
         <loading-spinner v-if="!assets || assets.length == 0"></loading-spinner>
 
@@ -75,7 +81,8 @@
               <address-icon :ethAddress="dART.blockhash"></address-icon>
             </div>
             <div class="card-body">
-              <h5 class="card-title">{{ dART.nickname }} <span class="badge badge-primary float-right">{{ dART.tokenId }}</span></h5>
+              <h5 class="card-title">{{ dART.nickname }} <span class="badge badge-primary float-right">{{ dART.tokenId
+                }}</span></h5>
             </div>
             <ul class="list-group list-group-flush">
               <li class="list-group-item">
@@ -95,7 +102,7 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import {mapGetters, mapState} from 'vuex';
   import LoadingSpinner from '../ui-controls/LoadingSpinner.vue';
   import ClickableAddress from '../ui-controls/ClickableAddress';
   import AddressIcon from '../ui-controls/AddressIcon';
@@ -110,7 +117,8 @@
       ClickableAddress,
       AddressIcon
     },
-    data() {},
+    data() {
+    },
     methods: {},
     computed: {
       ...mapState([
