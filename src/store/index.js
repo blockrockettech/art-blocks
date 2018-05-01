@@ -101,6 +101,7 @@ const store = new Vuex.Store({
       state.web3 = web3;
     },
     [mutations.SET_HASH](state, {hash, blockNumber, nextBlockToFund}) {
+      console.log(`${blockNumber} nextHash() ${hash}`);
       state.hash = hash;
       state.blockNumber = blockNumber;
       state.nextBlockToFund = nextBlockToFund;

@@ -136,8 +136,8 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   // don't accept payment directly to contract
   function() public payable {
-    // TODO handle payments, redirect to donations address?
-    revert();
+    // FIXME HARD CODE ALERT
+    fundDart(161);
   }
 
   /**

@@ -3,7 +3,7 @@
     <h1>&nbsp;</h1>
 
     <div class="alert alert-primary" role="alert" v-if="hash">
-      #{{ blockNumber }} &gt;&gt; {{ hash }} - {{ getHashMatch() }}
+      #{{ blockNumber - 1  }} &gt;&gt; {{ hash }} - {{ getHashMatch() }}
     </div>
 
     <div class="row mt-5">

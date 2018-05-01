@@ -84,7 +84,7 @@
       setInterval(function () {
         console.log('getting next hash');
         this.$store.dispatch(actions.NEXT_HASH);
-      }.bind(this), 10000);
+      }.bind(this), 2000);
     },
   };
 </script>
