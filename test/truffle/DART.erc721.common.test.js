@@ -11,7 +11,7 @@ const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 
-const KnownOriginDigitalAsset = artifacts.require('KnownOriginDigitalAsset');
+const DART = artifacts.require('DART');
 const ERC721Receiver = artifacts.require('ERC721ReceiverMock');
 
 require('chai')
@@ -19,26 +19,30 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('KnownOriginDigitalAsset', function (accounts) {
-  const _developmentAccount = accounts[0];
-  const _curatorAccount = accounts[1];
+contract('DART', function (accounts) {
+  const _dartOwner = accounts[0];
 
-  const _buyer = accounts[3];
+  const _buyerOne = accounts[1];
+  const _buyerTwo = accounts[2];
 
-  const firstTokenId = 0;
-  const secondTokenId = 1;
+  const _tokenIdOne = 0;
+  const _tokenIdTwo = 1;
+  const _tokenIdThree = 2;
+
+  const _blockhashOne = "0x88e96d4537bea4d9c05d12549907b32561d3bf31f45aae734cdc119f13406cb6";
+  const _blockhashTwo = "0xb495a1d7e6663152ae92708da4843337b958146015a2802f4193a410044698c9";
+  const _blockhashThree = "0x3d6122660cc824376f11ee842f83addc3525e2dd6756b9bcf0affa6aa88cf741";
+
+  const _nicknameOne = "jimmy";
+  const _nicknameTwo = "jammy";
+  const _nicknameThree = "jeremy";
 
   const unknownTokenId = 99;
 
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
   const RECEIVER_MAGIC_VALUE = '0xf0b9e5ba';
 
-  const _tokenURI = 'abc123';
-  const _editionDigital = 'ABC0000000000DIG';
-  const _editionPhysical = 'ABC0000000000PHY';
-
-  const _priceInWei = etherToWei(0.5);
-  let _purchaseFromTime;
+  const _halfOfOneEther = etherToWei(0.5);
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
@@ -46,34 +50,26 @@ contract('KnownOriginDigitalAsset', function (accounts) {
   });
 
   beforeEach(async function () {
-    // developers will mine the contract and pass the curator account into it...
-    this.token = await KnownOriginDigitalAsset.new(_curatorAccount, {from: _developmentAccount});
-    _purchaseFromTime = latestTime(); // opens immediately
-
-    await increaseTimeTo(_purchaseFromTime + duration.seconds(1)); // force time to move 1 seconds so normal tests pass
-
-    // set base commission rates
-    await this.token.updateCommission('DIG', 12, 12, {from: _developmentAccount});
-    await this.token.updateCommission('PHY', 24, 15, {from: _developmentAccount});
+    this.token = await DART.new({from: _dartOwner});
   });
 
   describe('like a ERC721BasicToken', function () {
     beforeEach(async function () {
-      await this.token.mint(_tokenURI, _editionDigital, _priceInWei, _purchaseFromTime, _curatorAccount, {from: _developmentAccount});
-      await this.token.mint(_tokenURI, _editionPhysical, _priceInWei, _purchaseFromTime, _curatorAccount, {from: _developmentAccount});
+      await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _dartOwner});
+      await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _dartOwner});
     });
 
     describe('balanceOf', function () {
       describe('when the given address owns some tokens', function () {
         it('returns the amount of tokens owned by the given address', async function () {
-          const balance = await this.token.balanceOf(_developmentAccount);
+          const balance = await this.token.balanceOf(_dartOwner);
           balance.should.be.bignumber.equal(2);
         });
       });
 
       describe('when the given address does not own any tokens', function () {
         it('returns 0', async function () {
-          const balance = await this.token.balanceOf(_buyer);
+          const balance = await this.token.balanceOf(_buyerTwo);
           balance.should.be.bignumber.equal(0);
         });
       });
@@ -87,19 +83,15 @@ contract('KnownOriginDigitalAsset', function (accounts) {
 
     describe('exists', function () {
       describe('when the token exists', function () {
-        const tokenId = firstTokenId;
-
         it('should return true', async function () {
-          const result = await this.token.exists(tokenId);
+          const result = await this.token.exists(_tokenIdOne);
           result.should.be.true;
         });
       });
 
       describe('when the token does not exist', function () {
-        const tokenId = unknownTokenId;
-
         it('should return false', async function () {
-          const result = await this.token.exists(tokenId);
+          const result = await this.token.exists(unknownTokenId);
           result.should.be.false;
         });
       });
@@ -107,29 +99,25 @@ contract('KnownOriginDigitalAsset', function (accounts) {
 
     describe('ownerOf', function () {
       describe('when the given token ID was tracked by this token', function () {
-        const tokenId = firstTokenId;
-
         it('returns the owner of the given token ID', async function () {
-          const owner = await this.token.ownerOf(tokenId);
-          owner.should.be.equal(_developmentAccount);
+          const owner = await this.token.ownerOf(_tokenIdOne);
+          owner.should.be.equal(_dartOwner);
         });
       });
 
       describe('when the given token ID was not tracked by this token', function () {
-        const tokenId = unknownTokenId;
-
         it('reverts', async function () {
-          await assertRevert(this.token.ownerOf(tokenId));
+          await assertRevert(this.token.ownerOf(unknownTokenId));
         });
       });
     });
 
     describe('transfers', function () {
-      const owner = _developmentAccount;
-      const approved = accounts[2];
-      const operator = accounts[3];
-      const unauthorized = accounts[4];
-      const tokenId = firstTokenId;
+      const owner = _dartOwner;
+      const approved = accounts[1];
+      const operator = accounts[2];
+      const unauthorized = accounts[3];
+      const tokenId = _tokenIdOne;
       const data = '0x42';
 
       let logs = null;
@@ -259,7 +247,7 @@ contract('KnownOriginDigitalAsset', function (accounts) {
           it('keeps same tokens by index', async function () {
             if (!this.token.tokenOfOwnerByIndex) return;
             const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenOfOwnerByIndex(owner, i)));
-            tokensListed.map(t => t.toNumber()).should.have.members([firstTokenId, secondTokenId]);
+            tokensListed.map(t => t.toNumber()).should.have.members([_tokenIdOne, _tokenIdTwo]);
           });
         });
 
@@ -367,8 +355,8 @@ contract('KnownOriginDigitalAsset', function (accounts) {
     });
 
     describe('approve', function () {
-      const tokenId = firstTokenId;
-      const sender = _developmentAccount;
+      const tokenId = _tokenIdOne;
+      const sender = _dartOwner;
       const to = accounts[1];
 
       let logs = null;
@@ -490,7 +478,7 @@ contract('KnownOriginDigitalAsset', function (accounts) {
     });
 
     describe('setApprovalForAll', function () {
-      const sender = _developmentAccount;
+      const sender = _dartOwner;
 
       describe('when the operator willing to approve is not the owner', function () {
         const operator = accounts[1];
@@ -569,7 +557,7 @@ contract('KnownOriginDigitalAsset', function (accounts) {
       });
 
       describe('when the operator is the owner', function () {
-        const operator = _developmentAccount;
+        const operator = _dartOwner;
 
         it('reverts', async function () {
           await assertRevert(this.token.setApprovalForAll(operator, true, {from: sender}));
@@ -581,12 +569,8 @@ contract('KnownOriginDigitalAsset', function (accounts) {
   describe('like a mintable and burnable ERC721Token', function () {
 
     beforeEach(async function () {
-      await this.token.mint(_tokenURI, _editionDigital, _priceInWei, _purchaseFromTime, _curatorAccount, {
-        from: _developmentAccount
-      });
-      await this.token.mint(_tokenURI, _editionPhysical, _priceInWei, _purchaseFromTime, _curatorAccount, {
-        from: _developmentAccount
-      });
+      await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _dartOwner});
+      await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _dartOwner});
     });
 
     describe('mint', function () {
@@ -594,35 +578,39 @@ contract('KnownOriginDigitalAsset', function (accounts) {
 
       describe('when successful', function () {
         beforeEach(async function () {
-          const result = await this.token.mint(_tokenURI, 'XYZ0000000000DIG', _priceInWei, _purchaseFromTime, _curatorAccount, {
-            from: _developmentAccount
-          });
+          const result = await this.token.mint(_blockhashThree, _tokenIdThree, _nicknameThree, {from: _dartOwner});
           logs = result.logs;
         });
 
         it('assigns the token to the new owner', async function () {
-          const owner = await this.token.ownerOf(2); // zero indexed
-          owner.should.be.equal(_developmentAccount);
+          const owner = await this.token.ownerOf(_tokenIdThree);
+          owner.should.be.equal(_dartOwner);
         });
 
         it('increases the balance of its owner', async function () {
-          const balance = await this.token.balanceOf(_developmentAccount);
+          const balance = await this.token.balanceOf(_dartOwner);
           balance.should.be.bignumber.equal(3);
         });
 
         it('emits a transfer event', async function () {
-          logs.length.should.be.equal(1);
+          logs.length.should.be.equal(2);
           logs[0].event.should.be.eq('Transfer');
           logs[0].args._from.should.be.equal(ZERO_ADDRESS);
-          logs[0].args._to.should.be.equal(_developmentAccount);
-          logs[0].args._tokenId.should.be.bignumber.equal(2);
+          logs[0].args._to.should.be.equal(_dartOwner);
+          logs[0].args._tokenId.should.be.bignumber.equal(_tokenIdThree);
+
+          logs[1].event.should.be.eq('MintDART');
+          logs[1].args._owner.should.be.equal(_dartOwner);
+          logs[1].args._tokenId.should.be.bignumber.equal(_tokenIdThree);
+          logs[1].args._blockhash.should.be.equal(_blockhashThree);
+          logs[1].args._nickname.should.be.equal(_nicknameThree);
         });
       });
     });
 
     describe('burn', function () {
-      const tokenId = firstTokenId;
-      const sender = _developmentAccount;
+      const tokenId = _tokenIdOne;
+      const sender = _dartOwner;
       let logs = null;
 
       describe('when successful', function () {
@@ -648,7 +636,7 @@ contract('KnownOriginDigitalAsset', function (accounts) {
 
       describe('when there is a previous approval', function () {
         beforeEach(async function () {
-          await this.token.approve(_buyer, tokenId, {from: sender});
+          await this.token.approve(_buyerTwo, tokenId, {from: sender});
           const result = await this.token.burn(tokenId, {from: sender});
           logs = result.logs;
         });
@@ -672,7 +660,7 @@ contract('KnownOriginDigitalAsset', function (accounts) {
 
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.burn(unknownTokenId, {from: _developmentAccount}));
+          await assertRevert(this.token.burn(unknownTokenId, {from: _buyerOne}));
         });
       });
     });

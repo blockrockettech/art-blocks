@@ -5,16 +5,15 @@ const latestTime = require('../helpers/latestTime');
 
 const BigNumber = web3.BigNumber;
 
-const KnownOriginDigitalAsset = artifacts.require('KnownOriginDigitalAsset');
+const DART = artifacts.require('DART');
 
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('KnownOriginDigitalAsset', function (accounts) {
-  const _developmentAccount = accounts[0];
-  const _curatorAccount = accounts[1];
+contract('DART', function (accounts) {
+  const _dartOwner = accounts[0];
 
   let _purchaseFromTime;
 
@@ -25,14 +24,10 @@ contract('KnownOriginDigitalAsset', function (accounts) {
 
   beforeEach(async function () {
     // developers will mine the contract and pass the curator account into it...
-    this.token = await KnownOriginDigitalAsset.new(_curatorAccount, {from: _developmentAccount});
+    this.token = await DART.new({from: _dartOwner});
     _purchaseFromTime = latestTime(); // opens immediately
 
     await increaseTimeTo(_purchaseFromTime + duration.seconds(1)); // force time to move 1 seconds so normal tests pass
-
-    // set base commission rates
-    await this.token.updateCommission('DIG', 12, 12, {from: _developmentAccount});
-    await this.token.updateCommission('PHY', 24, 15, {from: _developmentAccount});
   });
 
   describe('ERC165 supportsInterface()', async function () {

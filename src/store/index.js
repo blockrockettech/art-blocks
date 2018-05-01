@@ -5,7 +5,7 @@ import * as mutations from './mutation-types';
 import _ from 'lodash';
 import Web3 from 'web3';
 import createLogger from 'vuex/dist/logger';
-import { getEtherscanAddress, getNetIdString } from '../utils';
+import {getEtherscanAddress, getNetIdString} from '../utils';
 import contract from 'truffle-contract';
 import dARTJson from '../../build/contracts/DART.json';
 
@@ -33,28 +33,40 @@ const store = new Vuex.Store({
     totalSupply: null,
     totalContributionsInWei: null,
     totalContributionsEther: null,
+    pricePerBlockInWei: null,
+    pricePerBlockInEth: null,
+    maxBlockPurchaseInOneGo: null,
 
     // contract addresses
     curatorAddress: null,
     assets: [],
 
     hash: null,
-    blockNumber: null
+    blockNumber: null,
+    nextBlockToFund: null
   },
   getters: {
-    assetById: (state) => (tokenId) => {
+    assetByTokenId: (state) => (tokenId) => {
       return _.find(state.assets, (asset) => asset.tokenId.toString() === tokenId.toString());
     },
-    isDart: (state) => {
-      if (state.curatorAddress) {
-        return state.curatorAddress.toLowerCase() === state.account.toLowerCase();
+    getHashMatch: (state) => () => {
+      let matchAsset = _.find(state.assets, {blockhash: state.hash});
+      console.log(matchAsset);
+      if (!matchAsset) {
+        return "no match";
       }
-      return false;
+      return `Matched token ${matchAsset.tokenId}`;
     }
   },
   mutations: {
-    [mutations.SET_ASSETS](state, {assets}) {
-      Vue.set(state, 'assets', assets);
+    [mutations.SET_ALL_ASSETS](state, assets) {
+      Vue.set(state, 'assets', state.assets);
+    },
+    [mutations.SET_ASSET](state, asset) {
+      if (!_.find(state.assets, {tokenId: asset.tokenId})) {
+        state.assets.push(asset);
+      }
+      Vue.set(state, 'assets', state.assets);
     },
     [mutations.SET_ASSETS_PURCHASED_FROM_ACCOUNT](state, tokens) {
       Vue.set(state, 'assetsPurchasedByAccount', tokens);
@@ -63,12 +75,15 @@ const store = new Vuex.Store({
       state.totalContributionsInWei = totalContributionsInWei;
       state.totalContributionsInEther = totalContributionsInEther;
     },
-    [mutations.SET_CONTRACT_DETAILS](state, {name, symbol, totalSupply, curatorAddress, contractAddress}) {
+    [mutations.SET_CONTRACT_DETAILS](state, {name, symbol, totalSupply, curatorAddress, contractAddress, pricePerBlockInWei, pricePerBlockInEth, maxBlockPurchaseInOneGo}) {
       state.totalSupply = totalSupply;
       state.contractSymbol = symbol;
       state.contractName = name;
       state.curatorAddress = curatorAddress;
       state.contractAddress = contractAddress;
+      state.pricePerBlockInWei = pricePerBlockInWei;
+      state.pricePerBlockInEth = pricePerBlockInEth;
+      state.maxBlockPurchaseInOneGo = maxBlockPurchaseInOneGo;
     },
     [mutations.SET_ACCOUNT](state, {account, accountBalance}) {
       state.account = account;
@@ -85,9 +100,10 @@ const store = new Vuex.Store({
     [mutations.SET_WEB3](state, web3) {
       state.web3 = web3;
     },
-    [mutations.SET_HASH](state, {hash, blockNumber}) {
+    [mutations.SET_HASH](state, {hash, blockNumber, nextBlockToFund}) {
       state.hash = hash;
       state.blockNumber = blockNumber;
+      state.nextBlockToFund = nextBlockToFund;
     },
   },
   actions: {
@@ -175,66 +191,44 @@ const store = new Vuex.Store({
     [actions.GET_ALL_ASSETS]({commit, dispatch, state}) {
       dart.deployed()
         .then((contract) => {
-          let supply = _.range(0, state.totalSupply);
 
-          const lookupInfo = (contract, index) => {
-            return Promise.all([
-              contract.nicknameOf(index),
-              contract.tokenURI(index),
-              contract.tokenHash(index),
-              contract.ownerOf(index)
-            ])
-              .then((results) => {
+          let mintEvent = contract.MintDART({}, {
+            fromBlock: 0, // FIXME use contract deployed blocknumber?! or maybe expose some method to get all tokens ... is this possible ?
+            toBlock: 'latest' // wait until event comes through
+          });
 
-                let nickname = results[0];
-                let uri = results[1];
-                let hash = results[2];
-                let owner = results[3];
-
-                // burnt
-                if (owner === "0x0000000000000000000000000000000000000000") {
-                  return null; // return nulls for for so we can strip them out at the nxt stage
-                }
-
-                return {
-                  tokenId: index,
-                  handle: nickname,
-                  uri: uri,
-                  hash: hash,
-                  owner: owner
-                };
+          mintEvent.watch(function (error, result) {
+            if (!error) {
+              console.log(result);
+              commit(mutations.SET_ASSET, {
+                owner: result.args._owner,
+                tokenId: result.args._tokenId.toNumber(10),
+                blockhash: result.args._blockhash,
+                nickname: result.args._nickname,
               });
-          };
-
-          const bindAssetsToStore = (assets) => {
-            commit(mutations.SET_ASSETS, {
-              assets: assets
-            });
-          };
-
-          return Promise.all(_.map(supply, (index) => lookupInfo(contract, index)))
-            .then((assets) => {
-              // Strip out burnt tokens which will appear as nulls in the list
-              return _.without(assets, null);
-            })
-            .then(bindAssetsToStore);
+            } else {
+              console.log('Failure', error);
+            }
+          });
         });
     },
     [actions.REFRESH_CONTRACT_DETAILS]({commit, dispatch, state}) {
       dart.deployed()
         .then((contract) => {
 
-          Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.owner(), contract.address])
+          Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.owner(), contract.address, contract.pricePerBlock(), contract.maxBlockPurchaseInOneGo()])
             .then((results) => {
               commit(mutations.SET_CONTRACT_DETAILS, {
                 name: results[0],
                 symbol: results[1],
                 totalSupply: results[2].toString(),
                 curatorAddress: results[3],
-                contractAddress: results[4]
+                contractAddress: results[4],
+                pricePerBlockInWei: results[5],
+                pricePerBlockInEth: Web3.utils.fromWei(results[5].toString(10), 'ether'),
+                maxBlockPurchaseInOneGo: results[6].toNumber(10),
               });
 
-              // We require totalSupply to lookup all ASSETS
               dispatch(actions.GET_ALL_ASSETS);
             });
 
@@ -250,12 +244,35 @@ const store = new Vuex.Store({
     [actions.NEXT_HASH]({commit, dispatch, state}) {
       dart.deployed()
         .then((contract) => {
-          Promise.all([contract.nextHash(), contract.blockNumber()])
+          Promise.all([contract.nextHash(), contract.blockNumber(), contract.getNextBlockToFund()])
             .then((results) => {
               commit(mutations.SET_HASH, {
                 hash: results[0],
-                blockNumber: results[1].toNumber(10)
+                blockNumber: results[1].toNumber(10),
+                nextBlockToFund: results[2].toNumber(10),
               });
+            });
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    },
+    [actions.MINT]({commit, dispatch, state}, {blockhash, nickname, tokenId}) {
+      dart.deployed()
+        .then((contract) => {
+          console.log(`minting... ${blockhash} -  ${nickname} - ${tokenId}`);
+          let tx = contract.mint(blockhash, tokenId, nickname, {from: state.account});
+
+          console.log(tx);
+          tx
+            .then((data) => {
+              console.log(data);
+              setInterval(function () {
+                dispatch(actions.GET_ALL_ASSETS);
+              }, 10000);
+            })
+            .catch((e) => {
+              console.error(e);
             });
         })
         .catch((e) => {

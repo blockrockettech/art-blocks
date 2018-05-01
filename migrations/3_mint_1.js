@@ -12,7 +12,6 @@ module.exports = function (deployer, network, accounts) {
 
   if (network === 'ropsten' || network === 'rinkeby') {
     _curatorAccount = new HDWalletProvider(mnemonic, `https://${network}.infura.io/${infuraApikey}`, 0).getAddress();
-
   }
 
   if (network === 'live') {
@@ -25,6 +24,8 @@ module.exports = function (deployer, network, accounts) {
   deployer
     .then(() => DART.deployed())
     .then((instance) => {
-      return instance.mint("0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3", "TEST MINT 001");
+      if (network === 'ganache' || network === 'ropsten' || network === 'rinkeby' || network === 'live') {
+        return instance.mint("0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3", 123, "TEST MINT 001");
+      }
     });
 };

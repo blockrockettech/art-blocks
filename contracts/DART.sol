@@ -67,13 +67,18 @@ contract DART is ERC721Token, ERC165, Whitelist {
     || (_interfaceID == InterfaceSignature_ERC721Metadata));
   }
 
+  event MintDART(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, string _nickname);
+
+  event FundDART(address indexed _funder, uint256 indexed _tokenId, bytes32 _blockhash, uint256 _block);
+
+  event BlocksPurchasedDART(address indexed _funder, uint256 indexed _tokenId, uint256 _blocksPurchased);
+
+  event Test(string name, uint256 now);
+
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
 
   // total wei sent to the  contract
   uint256 public totalContributionsInWei;
-
-  // A pointer to the next token to be minted, zero indexed
-  uint256 public tokenIdPointer = 0;
 
   // TODO handle setting these per contract/installation
   // the price to display per block
@@ -85,17 +90,22 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   // TODO handle setting these per contract/installation
   // max number of blocks allowed to purchased in one go (mainly for gas costs, this should be kept fairly low for now)
-  uint256 public maxBlockPurchaseInOneGo = 10;
+  uint256 public maxBlockPurchaseInOneGo = 20;
 
-  // Token ID to block hash
   mapping (uint256 => bytes32) internal tokenIdToBlockhash;
 
-  //Token ID to nickname
+  mapping (bytes32 => uint256) internal blockhashToTokenId;
+
   mapping (uint256 => string) internal tokenIdToNickname;
 
-  uint256 workingBlockCounter = 0;
+  uint256 public lastPurchasedBlock = 0;
 
-  mapping (uint256 => uint256) internal blockToTokenIdToDisplay;
+  mapping (uint256 => uint256) internal blockToTokenOwner;
+
+  mapping (uint256 => bool) internal blockPurchasedMapping;
+
+  // Mapping tokenID to the blocks that have purchased
+  mapping (uint256 => uint256[]) internal tokenToBlocksPurchased;
 
   modifier onlyDARTOwnedToken(uint256 _tokenId) {
     require(tokenOwner[_tokenId] == owner);
@@ -116,7 +126,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   function DART() public ERC721Token("Digital Art", "DART") {
     // set to current block mined in
-    workingBlockCounter = block.number;
+    lastPurchasedBlock = block.number;
 
     // TODO handle setting these/configuring
     super.addAddressToWhitelist(msg.sender);
@@ -138,32 +148,49 @@ contract DART is ERC721Token, ERC165, Whitelist {
     require(exists(_tokenId));
 
     // determine how many blocks purchased
-    uint256 blocksPurchased = msg.value / pricePerBlock;
+    uint256 blocksToPurchased = msg.value / pricePerBlock;
 
-    uint256 currentBlock = block.number;
+    // Start purchase from next block the current block is being mined
+    uint256 nextBlockToPurchase = block.number + 1;
 
-    // move current block on if already past last purchased block count, reduces while loop costs
-    if (block.number > workingBlockCounter) {
-      currentBlock = workingBlockCounter;
+    // Move next purchase-able on block if the blockchain is in the past when compared to future purchased blocks
+    // This deal with people purchasing blocks in the future & reduces looping costs
+    if (nextBlockToPurchase < lastPurchasedBlock) {
+      nextBlockToPurchase = lastPurchasedBlock;
     }
 
-    uint256 nextBlock = currentBlock;
+    uint256 nextBlock = nextBlockToPurchase;
 
-    uint8 i = 0;
-    while (i < blocksPurchased) {
+    uint8 purchased = 0;
+    while (purchased < blocksToPurchased) {
 
-      // if no one has the next block, set next block to this token
-      if (blockToTokenIdToDisplay[nextBlock] == 0) {
-        blockToTokenIdToDisplay[nextBlock] = _tokenId;
-        i++;
+      // if the next block is not purchased
+      if (!blockPurchasedMapping[nextBlock]) {
+
+        // Set a boolean flag to identify this block is purchased
+        blockPurchasedMapping[nextBlock] = true;
+
+        // keep track of the token associated to the block
+        blockToTokenOwner[nextBlock] = _tokenId;
+
+        // Keep track of the blocks purchased by the token
+        tokenToBlocksPurchased[_tokenId].push(nextBlock);
+
+        // Emit event for logging/tracking
+        FundDART(msg.sender, _tokenId, generateHash(nextBlock), nextBlock);
+
+        // Mark one block as found
+        purchased++;
       }
 
       // move next block on to find another free space
       nextBlock++;
     }
 
-    // update where the current work block is (TODO is this needed)
-    workingBlockCounter = nextBlock;
+    // update last block once purchased
+    lastPurchasedBlock = nextBlock;
+
+    BlocksPurchasedDART(msg.sender, _tokenId, blocksToPurchased);
 
     // TODO splice monies to various parties
   }
@@ -171,11 +198,13 @@ contract DART is ERC721Token, ERC165, Whitelist {
   /**
    * @dev Mint a new DART token
    * @dev Reverts if not called by curator
-   * @param _blockHash an ethereum block hash
+   * @param _blockhash an Ethereum block hash
+   * @param _tokenId unique token ID
    * @param _nickname char stamp of token owner
    */
-  function mint(bytes32 _blockHash, string _nickname) external onlyWhitelisted {
-    uint256 _tokenId = tokenIdPointer;
+  function mint(bytes32 _blockhash, uint256 _tokenId, string _nickname) external onlyWhitelisted {
+    require(blockhashToTokenId[_blockhash] == 0);
+    require(tokenIdToBlockhash[_tokenId] == 0);
 
     // actually mint the token
     super._mint(msg.sender, _tokenId);
@@ -184,11 +213,21 @@ contract DART is ERC721Token, ERC165, Whitelist {
     super._setTokenURI(_tokenId, "WIP");
 
     // set data
-    tokenIdToBlockhash[_tokenId] = _blockHash;
+    tokenIdToBlockhash[_tokenId] = _blockhash;
+    blockhashToTokenId[_blockhash] = _tokenId;
     tokenIdToNickname[_tokenId] = _nickname;
 
-    // bump pointer on
-    tokenIdPointer = tokenIdPointer.add(1);
+    MintDART(msg.sender, _tokenId, _blockhash, _nickname);
+  }
+
+  /**
+   * @dev Attempts to work out the next block which will be funded
+   */
+  function getNextBlockToFund() public view returns (uint256 _nextFundedBlock) {
+    if (block.number < lastPurchasedBlock) {
+      return lastPurchasedBlock;
+    }
+    return block.number + 1;
   }
 
   /**
@@ -199,6 +238,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
   function burn(uint256 _tokenId) external onlyWhitelisted onlyDARTOwnedToken(_tokenId) {
     require(exists(_tokenId));
     super._burn(ownerOf(_tokenId), _tokenId);
+    // TODO clear metadata
   }
 
   /**
@@ -221,19 +261,40 @@ contract DART is ERC721Token, ERC165, Whitelist {
   }
 
   /**
-  * @dev Return handle of token
-  * @param _tokenId token ID for handle lookup
-  */
+   * @dev Return handle of token
+   * @param _tokenId token ID for handle lookup
+   */
   function nicknameOf(uint256 _tokenId) public view returns (string _nickname) {
     return tokenIdToNickname[_tokenId];
   }
 
   /**
-  * @dev Return blockhash of the DART token
+   * @dev Return blockhash of the DART token
    * @param _tokenId the DART token ID
-  */
+   */
   function blockhashOf(uint256 _tokenId) public view returns (bytes32 hash) {
     return tokenIdToBlockhash[_tokenId];
+  }
+
+  /**
+   * @dev Return token ID for the provided block or 0 when not found
+   */
+  function blockOwnerOf(uint256 _blockNumber) public view returns (uint256 _tokenId) {
+    return blockToTokenOwner[_blockNumber];
+  }
+
+  /**
+   * @dev Returns whether the specified block has been purchased
+   */
+  function isBlockPurchased(uint256 _blockNumber) public view returns (bool) {
+    return blockPurchasedMapping[_blockNumber];
+  }
+
+  /**
+   * @dev Returns the blocks which the [provided token has purchased
+   */
+  function blocksPurchasedByToken(uint256 _tokenId) public view returns (uint256[] _blocks) {
+    return tokenToBlocksPurchased[_tokenId];
   }
 
   /**
@@ -255,30 +316,42 @@ contract DART is ERC721Token, ERC165, Whitelist {
   }
 
   /**
-   * @dev Generates a unique token hash for the token and handle
-   * @param _tokenId the DART token ID
+   * @dev Get the hash the given block
+   * @param _blockNumber the block to generate hash for
+   * TODO rename this to get()
    */
-  function tokenHash(uint256 _tokenId) public view returns (bytes32) {
-    require(exists(_tokenId));
-    return tokenIdToBlockhash[_tokenId];
+  function generateHash(uint256 _blockNumber) public view returns (bytes32 _tokenHash) {
+    // Dont allow this to be called for hashes which aren't purchased
+    require(isBlockPurchased(_blockNumber));
+
+    uint256 token = blockOwnerOf(_blockNumber);
+    return blockhashOf(token);
   }
 
   /**
    * @dev Generates a unique token hash for the token and handle
    */
   function nextHash() public view returns (bytes32 _tokenHash) {
+    uint256 nextBlock = block.number - 1;
 
     // if current block number has been allocated then use it
-    if (blockToTokenIdToDisplay[block.number - 1] != 0) {
-      return tokenIdToBlockhash[blockToTokenIdToDisplay[block.number - 1]];
+    if (blockOwnerOf(nextBlock) != 0) {
+      return generateHash(nextBlock);
     }
 
     // if no one own the current blockhash return current
-    return block.blockhash(block.number - 1);
+    return defaultBlockhash(nextBlock);
   }
 
   /**
-   * @dev Returns blocknumber
+   * @dev Generates default block hash behaviour - good for testings
+   */
+  function defaultBlockhash(uint256 _blockNumber) public view returns (bytes32 _tokenHash) {
+    return block.blockhash(_blockNumber);
+  }
+
+  /**
+   * @dev Returns blocknumber - good for testings
    */
   function blockNumber() public view returns (uint256 _blockNumber) {
     return block.number;

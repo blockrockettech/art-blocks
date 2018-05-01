@@ -12,7 +12,8 @@ export const SET_WEB3 = 'SET_WEB3';
 export const SET_ACCOUNT = 'SET_ACCOUNT';
 export const SET_ASSETS_PURCHASED_FROM_ACCOUNT = 'SET_ASSETS_PURCHASED_FROM_ACCOUNT';
 
-export const SET_ASSETS = 'SET_ASSETS';
+export const SET_ALL_ASSETS = 'SET_ALL_ASSETS';
+export const SET_ASSET = 'SET_ASSET';
 export const SET_HASH = 'SET_HASH';
 
 export const SET_CONTRACT_DETAILS = 'SET_CONTRACT_DETAILS';

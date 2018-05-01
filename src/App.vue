@@ -11,7 +11,7 @@
             <router-link :to="{ name: 'home' }" class="nav-link d-none d-sm-block">Home</router-link>
           </li>
           <li class="nav-item">
-            <router-link :to="{ name: 'account' }" class="nav-link">Account</router-link>
+            <router-link :to="{ name: 'mint' }" class="nav-link d-none d-sm-block">Mint</router-link>
           </li>
         </ul>
       </nav>
@@ -25,16 +25,16 @@
       <div class="container">
         <div class="row">
           <div class="col-sm">
-            <small class="slogan">ArtBlocks</small>
+            <small class="slogan">DecentralizedArt.io</small>
           </div>
           <div class="col-sm text-center">
             <small>
-              <router-link :to="{ name: 'home' }">Home</router-link> &bull;
-              <router-link :to="{ name: 'account' }">Account</router-link>
+              <router-link :to="{ name: 'home' }">Home</router-link>
+              <!--<router-link :to="{ name: 'mint' }">Mint</router-link> -->
             </small>
           </div>
           <div class="col-sm text-right">
-            <small class=""><current-network></current-network></small>
+            <small><current-network></current-network></small>
           </div>
         </div>
       </div>
@@ -80,6 +80,11 @@
 
       // Bootstrap the full app
       this.$store.dispatch(actions.INIT_APP, bootStrappedWeb3);
+
+      setInterval(function () {
+        console.log('getting next hash');
+        this.$store.dispatch(actions.NEXT_HASH);
+      }.bind(this), 10000);
     },
   };
 </script>
