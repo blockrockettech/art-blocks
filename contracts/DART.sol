@@ -100,12 +100,12 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   uint256 public lastPurchasedBlock = 0;
 
-  mapping (uint256 => uint256) internal blockToTokenOwner;
+  mapping (uint256 => uint256) internal blocknumberToTokenOwner;
 
-  mapping (uint256 => bool) internal blockPurchasedMapping;
+  mapping (uint256 => bool) internal blocknumberToPurchased;
 
   // Mapping tokenID to the blocks that have purchased
-  mapping (uint256 => uint256[]) internal tokenToBlocksPurchased;
+  mapping (uint256 => uint256[]) internal tokenIdToPurchasedBlocknumbers;
 
   modifier onlyDARTOwnedToken(uint256 _tokenId) {
     require(tokenOwner[_tokenId] == owner);
@@ -143,13 +143,13 @@ contract DART is ERC721Token, ERC165, Whitelist {
   function purchaseBlock(uint256 _blocknumber, uint256 _tokenId) internal {
 
     // Set a boolean flag to identify this block is purchased
-    blockPurchasedMapping[_blocknumber] = true;
+    blocknumberToPurchased[_blocknumber] = true;
 
     // keep track of the token associated to the block
-    blockToTokenOwner[_blocknumber] = _tokenId;
+    blocknumberToTokenOwner[_blocknumber] = _tokenId;
 
     // Keep track of the blocks purchased by the token
-    tokenToBlocksPurchased[_tokenId].push(_blocknumber);
+    tokenIdToPurchasedBlocknumbers[_tokenId].push(_blocknumber);
 
     // Emit event for logging/tracking
     FundDART(msg.sender, _tokenId, generateHash(_blocknumber), _blocknumber);
@@ -309,21 +309,21 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev Return token ID for the provided block or 0 when not found
    */
   function blockOwnerOf(uint256 _blockNumber) public view returns (uint256 _tokenId) {
-    return blockToTokenOwner[_blockNumber];
+    return blocknumberToTokenOwner[_blockNumber];
   }
 
   /**
    * @dev Returns whether the specified block has been purchased
    */
   function isBlockPurchased(uint256 _blockNumber) public view returns (bool) {
-    return blockPurchasedMapping[_blockNumber];
+    return blocknumberToPurchased[_blockNumber];
   }
 
   /**
    * @dev Returns the blocks which the [provided token has purchased
    */
   function blocksPurchasedByToken(uint256 _tokenId) public view returns (uint256[] _blocks) {
-    return tokenToBlocksPurchased[_tokenId];
+    return tokenIdToPurchasedBlocknumbers[_tokenId];
   }
 
   /**
