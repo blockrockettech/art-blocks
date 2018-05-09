@@ -116,11 +116,11 @@ contract DART is ERC721Token, ERC165, Whitelist {
     // Some value
     require(msg.value >= 0);
 
-    // Min price
-    require(msg.value >= pricePerBlock);
-
-    // max price
-    require(msg.value <= (pricePerBlock * maxBlockPurchaseInOneGo));
+//    // Min price
+//    require(msg.value >= pricePerBlock);
+//
+//    // max price
+//    require(msg.value <= (pricePerBlock * maxBlockPurchaseInOneGo));
     _;
   }
 
@@ -140,59 +140,88 @@ contract DART is ERC721Token, ERC165, Whitelist {
     fundDart(161);
   }
 
+  function purchaseBlock(uint256 _blocknumber, uint256 _tokenId) internal {
+
+    // Set a boolean flag to identify this block is purchased
+    blockPurchasedMapping[_blocknumber] = true;
+
+    // keep track of the token associated to the block
+    blockToTokenOwner[_blocknumber] = _tokenId;
+
+    // Keep track of the blocks purchased by the token
+    tokenToBlocksPurchased[_tokenId].push(_blocknumber);
+
+    // Emit event for logging/tracking
+    FundDART(msg.sender, _tokenId, generateHash(_blocknumber), _blocknumber);
+  }
+
   /**
    * @dev Funds your token to be displayed for a specific amount of time
    * @param _tokenId the DART token ID
    */
+//  function fundDart(uint256 _tokenId) public payable onlyValidAmounts {
+//    require(exists(_tokenId));
+//
+//    // determine how many blocks purchased
+//    uint256 blocksToPurchased = msg.value / pricePerBlock;
+//
+//    // Start purchase from next block the current block is being mined
+//    uint256 nextBlockToPurchase = block.number + 1;
+//
+//    // Move next purchase-able on block if the blockchain is in the past when compared to future purchased blocks
+//    // This deal with people purchasing blocks in the future & reduces looping costs
+//    if (nextBlockToPurchase < lastPurchasedBlock) {
+//      nextBlockToPurchase = lastPurchasedBlock;
+//    }
+//
+//    uint256 nextBlock = nextBlockToPurchase;
+//
+//    uint8 purchased = 0;
+//    while (purchased < blocksToPurchased) {
+//
+//      // if the next block is not purchased
+//      if (!blockPurchasedMapping[nextBlock]) {
+//
+//        // Set a boolean flag to identify this block is purchased
+//        blockPurchasedMapping[nextBlock] = true;
+//
+//        // keep track of the token associated to the block
+//        blockToTokenOwner[nextBlock] = _tokenId;
+//
+//        // Keep track of the blocks purchased by the token
+//        tokenToBlocksPurchased[_tokenId].push(nextBlock);
+//
+//        // Emit event for logging/tracking
+//        FundDART(msg.sender, _tokenId, generateHash(nextBlock), nextBlock);
+//
+//        // Mark one block as found
+//        purchased++;
+//      }
+//
+//      // move next block on to find another free space
+//      nextBlock++;
+//    }
+//
+//    // update last block once purchased
+//    lastPurchasedBlock = nextBlock;
+//
+//    BlocksPurchasedDART(msg.sender, _tokenId, blocksToPurchased);
+//
+//    // TODO splice monies to various parties
+//  }
   function fundDart(uint256 _tokenId) public payable onlyValidAmounts {
     require(exists(_tokenId));
 
-    // determine how many blocks purchased
-    uint256 blocksToPurchased = msg.value / pricePerBlock;
-
-    // Start purchase from next block the current block is being mined
-    uint256 nextBlockToPurchase = block.number + 1;
-
-    // Move next purchase-able on block if the blockchain is in the past when compared to future purchased blocks
-    // This deal with people purchasing blocks in the future & reduces looping costs
-    if (nextBlockToPurchase < lastPurchasedBlock) {
-      nextBlockToPurchase = lastPurchasedBlock;
-    }
-
-    uint256 nextBlock = nextBlockToPurchase;
-
-    uint8 purchased = 0;
-    while (purchased < blocksToPurchased) {
-
-      // if the next block is not purchased
-      if (!blockPurchasedMapping[nextBlock]) {
-
-        // Set a boolean flag to identify this block is purchased
-        blockPurchasedMapping[nextBlock] = true;
-
-        // keep track of the token associated to the block
-        blockToTokenOwner[nextBlock] = _tokenId;
-
-        // Keep track of the blocks purchased by the token
-        tokenToBlocksPurchased[_tokenId].push(nextBlock);
-
-        // Emit event for logging/tracking
-        FundDART(msg.sender, _tokenId, generateHash(nextBlock), nextBlock);
-
-        // Mark one block as found
-        purchased++;
-      }
-
-      // move next block on to find another free space
-      nextBlock++;
-    }
-
-    // update last block once purchased
-    lastPurchasedBlock = nextBlock;
-
-    BlocksPurchasedDART(msg.sender, _tokenId, blocksToPurchased);
-
-    // TODO splice monies to various parties
+    purchaseBlock(block.number + 1, _tokenId);
+    purchaseBlock(block.number + 2, _tokenId);
+    purchaseBlock(block.number + 3, _tokenId);
+    purchaseBlock(block.number + 4, _tokenId);
+    purchaseBlock(block.number + 5, _tokenId);
+    purchaseBlock(block.number + 6, _tokenId);
+    purchaseBlock(block.number + 7, _tokenId);
+    purchaseBlock(block.number + 8, _tokenId);
+    purchaseBlock(block.number + 9, _tokenId);
+    purchaseBlock(block.number + 10, _tokenId);
   }
 
   /**

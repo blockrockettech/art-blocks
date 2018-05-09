@@ -43,7 +43,8 @@ const store = new Vuex.Store({
 
     hash: null,
     blockNumber: null,
-    nextBlockToFund: null
+    nextBlockToFund: null,
+    hashes: {}
   },
   getters: {
     assetByTokenId: (state) => (tokenId) => {
@@ -101,10 +102,18 @@ const store = new Vuex.Store({
       state.web3 = web3;
     },
     [mutations.SET_HASH](state, {hash, blockNumber, nextBlockToFund}) {
-      console.log(`${blockNumber} nextHash() ${hash}`);
+      console.log(`block - 1: ${blockNumber - 1} nextHash(): ${hash}`);
       state.hash = hash;
       state.blockNumber = blockNumber;
       state.nextBlockToFund = nextBlockToFund;
+
+      state.hashes[blockNumber] = {
+
+      };
+
+
+
+
     },
   },
   actions: {
