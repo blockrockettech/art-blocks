@@ -4,36 +4,33 @@
 
     <div class="row mt-5">
       <div class="col">
-        <table class="table table-striped">
-          <tbody>
-          <tr v-if="contractAddress">
-            <td>Contract</td>
-            <td>
-              <clickable-address :eth-address="contractAddress"></clickable-address>
-            </td>
-          </tr>
-          <tr v-if="contractName">
-            <td>Name</td>
-            <td>
-              {{ contractName }}
-            </td>
-          </tr>
-          <tr v-if="contractSymbol">
-            <td>Symbol</td>
-            <td>{{ contractSymbol }}</td>
-          </tr>
-          <tr v-if="curatorAddress">
-            <td>Curator</td>
-            <td>
-              <clickable-address :eth-address="curatorAddress"></clickable-address>
-            </td>
-          </tr>
-          <tr v-if="totalSupply">
-            <td>Supply:</td>
-            <td>{{ totalSupply }}</td>
-          </tr>
-          </tbody>
-        </table>
+        <div v-for="obj, key in hashes" :key="key" class="alert alert-light" role="alert">
+          <span class="badge">#{{ key }}</span> <code>{{ obj.hash }}</code> <span class="badge" v-if="getHashMatch(key) !== -1">DART {{ getHashMatch(key) }}</span>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card text-center">
+          <div class="card-header">
+            Funding dART Tokens
+          </div>
+          <div class="card-body">
+            <p>
+              Call <span class="text-info">fundDart(_tokenId)</span> at the address: <code>{{contractAddress}}</code>
+            </p>
+            <p>
+              Current exchange rate is: <strong>{{pricePerBlockInEth}}</strong> per block.
+            </p>
+            <p>
+              Max number of blocknumbers per purchase: <strong>{{maxBlockPurchaseInOneGo}}</strong>
+            </p>
+            <p>
+             Next available blocknumber is: <strong>{{nextBlockToFund}}</strong>
+            </p>
+          </div>
+          <div class="card-footer">
+            <current-network></current-network>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -69,7 +66,7 @@
 
 <script>
 
-  import {mapGetters, mapState} from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import LoadingSpinner from '../ui-controls/LoadingSpinner.vue';
   import ClickableAddress from '../ui-controls/ClickableAddress';
   import AddressIcon from '../ui-controls/AddressIcon';
@@ -87,11 +84,10 @@
     computed: {
       ...mapState([
         'assets',
-        'curatorAddress',
-        'totalSupply',
-        'contractName',
-        'contractSymbol',
         'account',
+        'pricePerBlockInEth',
+        'maxBlockPurchaseInOneGo',
+        'nextBlockToFund',
         'contractAddress',
         'hashes'
       ]),

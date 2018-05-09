@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Gallery from '@/components/pages/Gallery';
 import Mint from '@/components/pages/Mint';
+import Hash from '@/components/pages/Hash';
 
 Vue.use(Router);
 
@@ -25,6 +26,11 @@ export default new Router({
       path: '/mint',
       name: 'mint',
       component: Mint
+    },
+    {
+      path: '/hash',
+      name: 'hash',
+      component: Hash
     }
   ]
 });

@@ -102,6 +102,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   mapping (uint256 => uint256) internal blocknumberToTokenOwner;
 
+  // FIXME remove? Can use mapping above?
   mapping (uint256 => bool) internal blocknumberToPurchased;
 
   // Mapping tokenID to the blocks that have purchased

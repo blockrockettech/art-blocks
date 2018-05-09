@@ -42,7 +42,7 @@ const store = new Vuex.Store({
     assets: [],
 
     hash: null,
-    blockNumber: null,
+    blocknumber: null,
     nextBlockToFund: null,
     hashes: {}
   },
@@ -50,13 +50,13 @@ const store = new Vuex.Store({
     assetByTokenId: (state) => (tokenId) => {
       return _.find(state.assets, (asset) => asset.tokenId.toString() === tokenId.toString());
     },
-    getHashMatch: (state) => () => {
-      let matchAsset = _.find(state.assets, {blockhash: state.hash});
+    getHashMatch: (state) => (blocknumber) => {
+      let matchAsset = _.find(state.assets, {blockhash: blocknumber});
       console.log(matchAsset);
       if (!matchAsset) {
-        return "no match";
+        return -1;
       }
-      return `Matched token ${matchAsset.tokenId}`;
+      return matchAsset.tokenId;
     }
   },
   mutations: {
@@ -101,19 +101,18 @@ const store = new Vuex.Store({
     [mutations.SET_WEB3](state, web3) {
       state.web3 = web3;
     },
-    [mutations.SET_HASH](state, {hash, nextBlock, blockNumber, nextBlockToFund}) {
-      console.log(`block - 1: ${blockNumber - 1} nextHash(): ${hash} | nextBlock: ${nextBlock}`);
+    [mutations.SET_HASH](state, {hash, blocknumber, nextBlockToFund}) {
+      console.log(`blocknumber: ${blocknumber} nextHash(): ${hash}`);
       state.hash = hash;
-      state.blockNumber = blockNumber;
+      state.blocknumber = blocknumber;
       state.nextBlockToFund = nextBlockToFund;
 
-      state.hashes[blockNumber] = {
-
+      state.hashes[blocknumber] = {
+        hash: hash,
+        blocknumber: blocknumber
       };
 
-
-
-
+      Vue.set(state, 'hashes', state.hashes);
     },
   },
   actions: {
@@ -254,13 +253,12 @@ const store = new Vuex.Store({
     [actions.NEXT_HASH]({commit, dispatch, state}) {
       dart.deployed()
         .then((contract) => {
-          Promise.all([contract.nextHash(), contract.blockNumber(), contract.getNextBlockToFund()])
+          Promise.all([contract.nextHash(), contract.getNextBlockToFund()])
             .then((results) => {
               commit(mutations.SET_HASH, {
                 hash: results[0][0],
-                nextBlock: results[0][1],
-                blockNumber: results[1].toNumber(10),
-                nextBlockToFund: results[2].toNumber(10),
+                blocknumber: results[0][1].toNumber(10),
+                nextBlockToFund: results[1].toNumber(10)
               });
             });
         })
