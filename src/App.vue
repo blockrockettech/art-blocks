@@ -18,30 +18,14 @@
           </li>
         </ul>
       </nav>
+
     </header>
 
     <main role="main" class="container">
       <router-view></router-view>
     </main>
 
-    <footer class="footer">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm">
-            <small class="slogan">DecentralizedArt.io</small>
-          </div>
-          <div class="col-sm text-center">
-            <small>
-              <router-link :to="{ name: 'home' }">Home</router-link>
-              <!--<router-link :to="{ name: 'mint' }">Mint</router-link> -->
-            </small>
-          </div>
-          <div class="col-sm text-right">
-            <small><current-network></current-network></small>
-          </div>
-        </div>
-      </div>
-    </footer>
+    <current-network></current-network>
   </div>
 </template>
 

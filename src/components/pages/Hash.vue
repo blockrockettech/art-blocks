@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h1>&nbsp;</h1>
-
     <div class="row mt-5">
       <div class="col">
         <div v-for="obj, key in hashes" :key="key" class="alert alert-light" role="alert">
@@ -20,18 +18,22 @@
             <p>
               Call <span class="text-info">fundDart(_tokenId)</span> at the address: <code>{{contractAddress}}</code>
             </p>
-            <p>
-              Current exchange rate is: <strong>{{pricePerBlockInEth}}</strong> per block.
-            </p>
-            <p>
-              Max number of blocknumbers per purchase: <strong>{{maxBlockPurchaseInOneGo}}</strong>
-            </p>
-            <p>
-             Next available blocknumber is: <strong>{{nextBlockToFund}}</strong>
-            </p>
-          </div>
-          <div class="card-footer">
-            <current-network></current-network>
+            <div class="row">
+              <div class="col">
+                Rate: <strong>{{pricePerBlockInEth}}</strong> per block.
+              </div>
+              <div class="col">
+                Max blocks: <strong>{{maxBlockPurchaseInOneGo}}</strong> per purchase
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col">
+                Current blocknumber is: <strong>{{ blocknumber }}</strong>
+              </div>
+              <div class="col">
+                Next available blocknumber is: <strong>{{nextBlockToFund}}</strong>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -90,6 +92,7 @@
       ...mapState([
         'assets',
         'account',
+        'blocknumber',
         'pricePerBlockInEth',
         'maxBlockPurchaseInOneGo',
         'nextBlockToFund',

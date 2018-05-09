@@ -103,7 +103,7 @@ const store = new Vuex.Store({
     [mutations.SET_HASH](state, {hash, blocknumber, nextBlockToFund}) {
       console.log(`blocknumber: ${blocknumber} nextHash(): ${hash}`);
       state.hash = hash;
-      state.blocknumber = blocknumber;
+      state.blocknumber = blocknumber + 1;
       state.nextBlockToFund = nextBlockToFund;
 
       state.hashes[blocknumber] = {

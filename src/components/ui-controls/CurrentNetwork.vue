@@ -1,5 +1,5 @@
 <template>
-  <div class="current-network">
+  <div class="m-4">
     Network: {{ currentNetwork }}
   </div>
 </template>
