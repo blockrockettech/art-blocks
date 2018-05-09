@@ -5,7 +5,10 @@
     <div class="row mt-5">
       <div class="col">
         <div v-for="obj, key in hashes" :key="key" class="alert alert-light" role="alert">
-          <span class="badge">#{{ key }}</span> <code>{{ obj.hash }}</code> <span class="badge" v-if="getHashMatch(obj.hash)">DART {{ getHashMatch(obj.hash) }}</span>
+          <span class="badge">#{{ key }}</span>
+          <clickable-blockhash :ethAddress="obj.hash" :blocknumber="key"></clickable-blockhash>
+          <span class="badge badge-primary float-right" v-if="getHashMatch(obj.hash)">{{ getHashMatch(obj.hash) }}</span>
+          <span class="badge badge-warning float-right" v-if="!getHashMatch(obj.hash)">Blockchain</span>
         </div>
       </div>
       <div class="col">
@@ -69,6 +72,7 @@
   import { mapGetters, mapState } from 'vuex';
   import LoadingSpinner from '../ui-controls/LoadingSpinner.vue';
   import ClickableAddress from '../ui-controls/ClickableAddress';
+  import ClickableBlockhash from '../ui-controls/ClickableBlockhash';
   import AddressIcon from '../ui-controls/AddressIcon';
   import * as actions from '../../store/actions';
   import CurrentNetwork from "../ui-controls/CurrentNetwork.vue";
@@ -79,6 +83,7 @@
       CurrentNetwork,
       LoadingSpinner,
       ClickableAddress,
+      ClickableBlockhash,
       AddressIcon
     },
     computed: {
