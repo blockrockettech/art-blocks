@@ -101,8 +101,8 @@ const store = new Vuex.Store({
     [mutations.SET_WEB3](state, web3) {
       state.web3 = web3;
     },
-    [mutations.SET_HASH](state, {hash, blockNumber, nextBlockToFund}) {
-      console.log(`block - 1: ${blockNumber - 1} nextHash(): ${hash}`);
+    [mutations.SET_HASH](state, {hash, nextBlock, blockNumber, nextBlockToFund}) {
+      console.log(`block - 1: ${blockNumber - 1} nextHash(): ${hash} | nextBlock: ${nextBlock}`);
       state.hash = hash;
       state.blockNumber = blockNumber;
       state.nextBlockToFund = nextBlockToFund;
@@ -257,7 +257,8 @@ const store = new Vuex.Store({
           Promise.all([contract.nextHash(), contract.blockNumber(), contract.getNextBlockToFund()])
             .then((results) => {
               commit(mutations.SET_HASH, {
-                hash: results[0],
+                hash: results[0][0],
+                nextBlock: results[0][1],
                 blockNumber: results[1].toNumber(10),
                 nextBlockToFund: results[2].toNumber(10),
               });

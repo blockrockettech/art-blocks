@@ -4,7 +4,7 @@ const HDWalletProvider = require('truffle-hdwallet-provider');
 const infuraApikey = 'nbCbdzC6IG9CF6hmvAVQ';
 let mnemonic = require('../mnemonic');
 
-module.exports = function (deployer, network, accounts) {
+module.exports = async function (deployer, network, accounts) {
 
   console.log(`Funding a token on DART contract to ${network}...`);
 
@@ -22,11 +22,9 @@ module.exports = function (deployer, network, accounts) {
 
   console.log(`_curatorAccount = ${_curatorAccount}`);
 
-  deployer
-    .then(() => DART.deployed())
-    .then((instance) => {
-      if (network === 'ganache' || network === 'ropsten' || network === 'rinkeby' || network === 'live') {
-        return instance.fundDart(161, {value: 1000000000000000000});
-      }
-    });
+  let instance = await DART.deployed();
+
+  if (network === 'ganache' || network === 'ropsten' || network === 'rinkeby' || network === 'live') {
+    await instance.fundDart(161, {value: web3.toWei(0.1, 'ether')}); // FUND 10 BLOCKS
+  }
 };

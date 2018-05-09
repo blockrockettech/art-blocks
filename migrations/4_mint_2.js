@@ -4,7 +4,7 @@ const HDWalletProvider = require('truffle-hdwallet-provider');
 const infuraApikey = 'nbCbdzC6IG9CF6hmvAVQ';
 let mnemonic = require('../mnemonic');
 
-module.exports = function (deployer, network, accounts) {
+module.exports = async function (deployer, network, accounts) {
 
   console.log(`Minting a test token on DART contract to ${network}...`);
 
@@ -22,11 +22,9 @@ module.exports = function (deployer, network, accounts) {
 
   console.log(`_curatorAccount = ${_curatorAccount}`);
 
-  deployer
-    .then(() => DART.deployed())
-    .then((instance) => {
-      if (network === 'ganache' || network === 'ropsten' || network === 'rinkeby' || network === 'live') {
-        return instance.mint("0xb495a1d7e6663152ae92708da4843337b958146015a2802f4193a410044698c9", 161, "LOVE FROM MANCHESTER");
-      }
-    });
+  let instance = await DART.deployed();
+
+  if (network === 'ganache' || network === 'ropsten' || network === 'rinkeby' || network === 'live') {
+    await instance.mint("0xb495a1d7e6663152ae92708da4843337b958146015a2802f4193a410044698c9", 161, "LOVE FROM MANCHESTER");
+  }
 };
