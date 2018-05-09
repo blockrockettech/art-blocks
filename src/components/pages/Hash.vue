@@ -5,7 +5,7 @@
     <div class="row mt-5">
       <div class="col">
         <div v-for="obj, key in hashes" :key="key" class="alert alert-light" role="alert">
-          <span class="badge">#{{ key }}</span> <code>{{ obj.hash }}</code> <span class="badge" v-if="getHashMatch(key) !== -1">DART {{ getHashMatch(key) }}</span>
+          <span class="badge">#{{ key }}</span> <code>{{ obj.hash }}</code> <span class="badge" v-if="getHashMatch(obj.hash)">DART {{ getHashMatch(obj.hash) }}</span>
         </div>
       </div>
       <div class="col">

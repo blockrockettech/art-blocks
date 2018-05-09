@@ -50,11 +50,10 @@ const store = new Vuex.Store({
     assetByTokenId: (state) => (tokenId) => {
       return _.find(state.assets, (asset) => asset.tokenId.toString() === tokenId.toString());
     },
-    getHashMatch: (state) => (blocknumber) => {
-      let matchAsset = _.find(state.assets, {blockhash: blocknumber});
-      console.log(matchAsset);
+    getHashMatch: (state) => (blockhash) => {
+      let matchAsset = _.find(state.assets, {blockhash: blockhash});
       if (!matchAsset) {
-        return -1;
+        return false;
       }
       return matchAsset.tokenId;
     }
