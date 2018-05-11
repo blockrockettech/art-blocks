@@ -1,39 +1,44 @@
 <template>
   <div>
-    <h1>&nbsp;</h1>
-
     <div class="row mt-5">
       <div class="col">
-        <table class="table table-striped">
-          <tbody>
-          <tr v-if="contractAddress">
-            <td>Contract</td>
-            <td>
-              <clickable-address :eth-address="contractAddress"></clickable-address>
-            </td>
-          </tr>
-          <tr v-if="contractName">
-            <td>Name</td>
-            <td>
-              {{ contractName }}
-            </td>
-          </tr>
-          <tr v-if="contractSymbol">
-            <td>Symbol</td>
-            <td>{{ contractSymbol }}</td>
-          </tr>
-          <tr v-if="curatorAddress">
-            <td>Curator</td>
-            <td>
-              <clickable-address :eth-address="curatorAddress"></clickable-address>
-            </td>
-          </tr>
-          <tr v-if="totalSupply">
-            <td>Supply:</td>
-            <td>{{ totalSupply }}</td>
-          </tr>
-          </tbody>
-        </table>
+        <div v-for="obj, key in hashes" :key="key" class="alert alert-light" role="alert">
+          <span class="badge">#{{ key }}</span>
+          <clickable-blockhash :ethAddress="obj.hash" :blocknumber="key"></clickable-blockhash>
+          <span class="badge badge-primary float-right" v-if="getHashMatch(obj.hash)">{{ getHashMatch(obj.hash) }}</span>
+          <span class="badge badge-warning float-right" v-if="!getHashMatch(obj.hash)">Blockchain</span>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card text-center">
+          <div class="card-header">
+            Funding dART Tokens
+          </div>
+          <div class="card-body">
+            <p>
+              Contract: <code>{{contractAddress}}</code>
+            </p>
+            <p>
+              Call <code>fundDart(_tokenId)</code> or send ETH direct to contract address
+            </p>
+            <div class="row">
+              <div class="col">
+                Rate: <code>{{pricePerBlockInEth}}</code> per block.
+              </div>
+              <div class="col">
+                Max blocks: <code>{{maxBlockPurchaseInOneGo}}</code> per purchase
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col">
+                Current: <code>#{{ blocknumber }}</code>
+              </div>
+              <div class="col">
+                Next available: <code>#{{nextBlockToFund}}</code>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -69,9 +74,10 @@
 
 <script>
 
-  import {mapGetters, mapState} from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import LoadingSpinner from '../ui-controls/LoadingSpinner.vue';
   import ClickableAddress from '../ui-controls/ClickableAddress';
+  import ClickableBlockhash from '../ui-controls/ClickableBlockhash';
   import AddressIcon from '../ui-controls/AddressIcon';
   import * as actions from '../../store/actions';
   import CurrentNetwork from "../ui-controls/CurrentNetwork.vue";
@@ -82,16 +88,17 @@
       CurrentNetwork,
       LoadingSpinner,
       ClickableAddress,
+      ClickableBlockhash,
       AddressIcon
     },
     computed: {
       ...mapState([
         'assets',
-        'curatorAddress',
-        'totalSupply',
-        'contractName',
-        'contractSymbol',
         'account',
+        'blocknumber',
+        'pricePerBlockInEth',
+        'maxBlockPurchaseInOneGo',
+        'nextBlockToFund',
         'contractAddress',
         'hashes'
       ]),
