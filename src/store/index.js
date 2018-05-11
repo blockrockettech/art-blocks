@@ -110,7 +110,7 @@ const store = new Vuex.Store({
         hash: hash,
         blocknumber: blocknumber
       };
-
+      
       Vue.set(state, 'hashes', state.hashes);
     },
   },

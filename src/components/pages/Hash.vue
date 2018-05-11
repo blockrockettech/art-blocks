@@ -16,22 +16,25 @@
           </div>
           <div class="card-body">
             <p>
-              Call <span class="text-info">fundDart(_tokenId)</span> at the address: <code>{{contractAddress}}</code>
+              Contract: <code>{{contractAddress}}</code>
+            </p>
+            <p>
+              Call <code>fundDart(_tokenId)</code> or send ETH direct to contract address
             </p>
             <div class="row">
               <div class="col">
-                Rate: <strong>{{pricePerBlockInEth}}</strong> per block.
+                Rate: <code>{{pricePerBlockInEth}}</code> per block.
               </div>
               <div class="col">
-                Max blocks: <strong>{{maxBlockPurchaseInOneGo}}</strong> per purchase
+                Max blocks: <code>{{maxBlockPurchaseInOneGo}}</code> per purchase
               </div>
             </div>
             <div class="row mt-2">
               <div class="col">
-                Current blocknumber is: <strong>{{ blocknumber }}</strong>
+                Current: <code>#{{ blocknumber }}</code>
               </div>
               <div class="col">
-                Next available blocknumber is: <strong>{{nextBlockToFund}}</strong>
+                Next available: <code>#{{nextBlockToFund}}</code>
               </div>
             </div>
           </div>

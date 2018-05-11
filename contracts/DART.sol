@@ -73,8 +73,6 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   event BlocksPurchasedDART(address indexed _funder, uint256 indexed _tokenId, uint256 _blocksPurchased);
 
-  event Test(string name, uint256 now);
-
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
 
   // total wei sent to the  contract
@@ -100,10 +98,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   uint256 public lastPurchasedBlock = 0;
 
-  mapping (uint256 => uint256) internal blocknumberToTokenOwner;
-
-  // FIXME remove? Can use mapping above?
-  mapping (uint256 => bool) internal blocknumberToPurchased;
+  mapping (uint256 => uint256) internal blocknumberToTokenId;
 
   // Mapping tokenID to the blocks that have purchased
   mapping (uint256 => uint256[]) internal tokenIdToPurchasedBlocknumbers;
@@ -137,8 +132,9 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   // don't accept payment directly to contract
   function() public payable {
-    // FIXME HARD CODE ALERT
-    fundDart(161);
+    require(ownedTokens[msg.sender].length > 0);
+
+    fundDart(ownedTokens[msg.sender][0]);
   }
 
   /**
@@ -163,7 +159,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
     uint8 purchased = 0;
     while (purchased < blocksToPurchased) {
 
-      if (!isBlockPurchased(nextBlockToPurchase)) {
+      if (tokenIdOf(nextBlockToPurchase) == 0) {
         purchaseBlock(nextBlockToPurchase, _tokenId);
         purchased++;
       }
@@ -176,17 +172,13 @@ contract DART is ERC721Token, ERC165, Whitelist {
     lastPurchasedBlock = nextBlockToPurchase;
 
     // TODO splice monies to various parties
-
     BlocksPurchasedDART(msg.sender, _tokenId, blocksToPurchased);
   }
 
   function purchaseBlock(uint256 _blocknumber, uint256 _tokenId) internal {
 
-    // Set a boolean flag to identify this block is purchased
-    blocknumberToPurchased[_blocknumber] = true;
-
     // keep track of the token associated to the block
-    blocknumberToTokenOwner[_blocknumber] = _tokenId;
+    blocknumberToTokenId[_blocknumber] = _tokenId;
 
     // Keep track of the blocks purchased by the token
     tokenIdToPurchasedBlocknumbers[_tokenId].push(_blocknumber);
@@ -235,9 +227,9 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev Reverts if token is not unsold or not owned by management
    * @param _tokenId the DART token ID
    */
-  function burn(uint256 _tokenId) external onlyWhitelisted onlyDARTOwnedToken(_tokenId) {
+  function burn(uint256 _tokenId) external onlyWhitelisted {
     require(exists(_tokenId));
-    super._burn(ownerOf(_tokenId), _tokenId);
+    super._burn(msg.sender, _tokenId); // TODO presume owner of token can burn
     // TODO clear metadata
   }
 
@@ -279,15 +271,8 @@ contract DART is ERC721Token, ERC165, Whitelist {
   /**
    * @dev Return token ID for the provided block or 0 when not found
    */
-  function blockOwnerOf(uint256 _blockNumber) public view returns (uint256 _tokenId) {
-    return blocknumberToTokenOwner[_blockNumber];
-  }
-
-  /**
-   * @dev Returns whether the specified block has been purchased
-   */
-  function isBlockPurchased(uint256 _blockNumber) public view returns (bool) {
-    return blocknumberToPurchased[_blockNumber];
+  function tokenIdOf(uint256 _blockNumber) public view returns (uint256 _tokenId) {
+    return blocknumberToTokenId[_blockNumber];
   }
 
   /**
@@ -322,10 +307,10 @@ contract DART is ERC721Token, ERC165, Whitelist {
    */
   function generateHash(uint256 _blockNumber) public view returns (bytes32 _tokenHash) {
     // Dont allow this to be called for hashes which aren't purchased
-    require(isBlockPurchased(_blockNumber));
+    require(tokenIdOf(_blockNumber) != 0);
 
-    uint256 token = blockOwnerOf(_blockNumber);
-    return blockhashOf(token);
+    uint256 tokenId = tokenIdOf(_blockNumber);
+    return blockhashOf(tokenId);
   }
 
   /**
@@ -336,7 +321,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
     uint256 nextBlock = block.number - 1;
 
     // if current block number has been allocated then use it
-    if (blockOwnerOf(nextBlock) != 0) {
+    if (tokenIdOf(nextBlock) != 0) {
       return (
         generateHash(nextBlock),
         nextBlock
