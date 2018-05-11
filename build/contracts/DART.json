@@ -17418,6 +17418,196 @@
     "version": "0.4.21+commit.dfe3193c.Emscripten.clang"
   },
   "networks": {
+    "3": {
+      "events": {
+        "0x4453ce3000f70afbe0bcadf15f2ba7165d528adb6dffa06dd8aa0b89c6516e18": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "_owner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "_tokenId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "_blockhash",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "_nickname",
+              "type": "string"
+            }
+          ],
+          "name": "MintDART",
+          "type": "event"
+        },
+        "0x04649188eae35f52d46ae0040474804e761d09610a0ab8338319f35200bcbbb4": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "_funder",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "_tokenId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "_blockhash",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "name": "_block",
+              "type": "uint256"
+            }
+          ],
+          "name": "FundDART",
+          "type": "event"
+        },
+        "0x63b058983ba124fb07f181575aca82b9693554b4313354644491e21508304221": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "_funder",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "_tokenId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "_blocksPurchased",
+              "type": "uint256"
+            }
+          ],
+          "name": "BlocksPurchasedDART",
+          "type": "event"
+        },
+        "0xd1bba68c128cc3f427e5831b3c6f99f480b6efa6b9e80c757768f6124158cc3f": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "addr",
+              "type": "address"
+            }
+          ],
+          "name": "WhitelistedAddressAdded",
+          "type": "event"
+        },
+        "0xf1abf01a1043b7c244d128e8595cf0c1d10743b022b03a02dffd8ca3bf729f5a": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "addr",
+              "type": "address"
+            }
+          ],
+          "name": "WhitelistedAddressRemoved",
+          "type": "event"
+        },
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        },
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "_from",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "_to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "_tokenId",
+              "type": "uint256"
+            }
+          ],
+          "name": "Transfer",
+          "type": "event"
+        },
+        "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "_owner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "_approved",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "_tokenId",
+              "type": "uint256"
+            }
+          ],
+          "name": "Approval",
+          "type": "event"
+        },
+        "0x17307eab39ab6107e8899845ad3d59bd9653f200f220920489ca2b5937696c31": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "_owner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "_operator",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "_approved",
+              "type": "bool"
+            }
+          ],
+          "name": "ApprovalForAll",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x56d92c200bdb6ba77ff16e61da1e49f112bda1a3",
+      "transactionHash": "0x206f2a91d9243fb42126c6a309cc1c2343529c82511d41ce0085794a5a1e3b01"
+    },
     "5777": {
       "events": {
         "0x4453ce3000f70afbe0bcadf15f2ba7165d528adb6dffa06dd8aa0b89c6516e18": {
@@ -17627,5 +17817,5 @@
     }
   },
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-05-11T19:06:04.678Z"
+  "updatedAt": "2018-05-11T19:24:34.071Z"
 }
