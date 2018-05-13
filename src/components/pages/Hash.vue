@@ -1,15 +1,8 @@
 <template>
   <div>
     <div class="row mt-5">
-      <div class="col">
-        <div v-for="obj, key in hashes" :key="key" class="alert alert-light" role="alert">
-          <span class="badge">#{{ key }}</span>
-          <clickable-blockhash :ethAddress="obj.hash" :blocknumber="key"></clickable-blockhash>
-          <span class="badge badge-primary float-right" v-if="getHashMatch(obj.hash)">{{ getHashMatch(obj.hash) }}</span>
-          <span class="badge badge-warning float-right" v-if="!getHashMatch(obj.hash)">Blockchain</span>
-        </div>
-      </div>
-      <div class="col">
+
+      <div class="col-6">
         <div class="card text-center">
           <div class="card-header">
             Funding dART Tokens
@@ -40,21 +33,20 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="row mt-5">
-
-      <div class="col">
+      <div class="col-6">
         <loading-spinner v-if="!assets || assets.length == 0"></loading-spinner>
 
         <div class="card-columns">
           <div class="card" v-for="dART, key in assets" :key="key">
-            <div class="text-center">
-              <address-icon :ethAddress="dART.blockhash"></address-icon>
-            </div>
             <div class="card-body">
-              <h5 class="card-title">{{ dART.nickname }} <span class="badge badge-primary float-right">{{ dART.tokenId
-                }}</span></h5>
+              <p class="card-title">
+                {{ dART.nickname }}
+              </p>
+              <p>
+                <span class="badge badge-primary float-right">
+                {{ dART.tokenId}}
+                </span>
+              </p>
             </div>
             <ul class="list-group list-group-flush">
               <li class="list-group-item">
@@ -66,7 +58,24 @@
             </ul>
           </div>
         </div>
+      </div>
+    </div>
 
+    <div class="row mt-2">
+      <div class="col">
+        <div v-for="obj, key in hashes" :key="key" class="alert alert-light" role="alert">
+          <span class="badge">#{{ key }}</span>
+          <clickable-blockhash :ethAddress="obj.hash" :blocknumber="key"></clickable-blockhash>
+          <span class="badge badge-primary float-right" v-if="getHashMatch(obj.hash)">
+            {{ getHashMatch(obj.hash).nickname }}
+          </span>
+          <span class="badge badge-light float-right" v-if="getHashMatch(obj.hash)">
+            {{ getHashMatch(obj.hash).tokenId }}
+          </span>
+          <span class="badge badge-warning float-right" v-if="!getHashMatch(obj.hash)">
+            Blockchain
+          </span>
+        </div>
       </div>
     </div>
   </div>

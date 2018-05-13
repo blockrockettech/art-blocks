@@ -55,7 +55,7 @@ const store = new Vuex.Store({
       if (!matchAsset) {
         return false;
       }
-      return matchAsset.tokenId;
+      return matchAsset;
     }
   },
   mutations: {
@@ -110,7 +110,7 @@ const store = new Vuex.Store({
         hash: hash,
         blocknumber: blocknumber
       };
-      
+
       Vue.set(state, 'hashes', state.hashes);
     },
   },
