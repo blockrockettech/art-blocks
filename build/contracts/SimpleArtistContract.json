@@ -1,0 +1,595 @@
+{
+  "contractName": "SimpleArtistContract",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "token",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "_token",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x6060604052341561000f57600080fd5b6040516020806102028339810160405280805160008054600160a060020a03338116600160a060020a0319928316179092556001805492909316911617905550506101a38061005f6000396000f3006060604052600436106100565763ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416638da5cb5b811461005b578063f2fde38b1461008a578063fc0c546a146100ab575b600080fd5b341561006657600080fd5b61006e6100be565b604051600160a060020a03909116815260200160405180910390f35b341561009557600080fd5b6100a9600160a060020a03600435166100cd565b005b34156100b657600080fd5b61006e610168565b600054600160a060020a031681565b60005433600160a060020a039081169116146100e857600080fd5b600160a060020a03811615156100fd57600080fd5b600054600160a060020a0380831691167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e060405160405180910390a36000805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a0392909216919091179055565b600154600160a060020a0316815600a165627a7a72305820e3e7cd05b027b938cc830758fb9d020cc2ef75e658782e97790076fe3af4b3c70029",
+  "deployedBytecode": "0x6060604052600436106100565763ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416638da5cb5b811461005b578063f2fde38b1461008a578063fc0c546a146100ab575b600080fd5b341561006657600080fd5b61006e6100be565b604051600160a060020a03909116815260200160405180910390f35b341561009557600080fd5b6100a9600160a060020a03600435166100cd565b005b34156100b657600080fd5b61006e610168565b600054600160a060020a031681565b60005433600160a060020a039081169116146100e857600080fd5b600160a060020a03811615156100fd57600080fd5b600054600160a060020a0380831691167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e060405160405180910390a36000805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a0392909216919091179055565b600154600160a060020a0316815600a165627a7a72305820e3e7cd05b027b938cc830758fb9d020cc2ef75e658782e97790076fe3af4b3c70029",
+  "sourceMap": "110:175:8:-;;;208:75;;;;;;;;;;;;;;;;;;;;;;499:5:7;:18;;-1:-1:-1;;;;;507:10:7;499:18;;-1:-1:-1;;;;;;499:18:7;;;;;;;;264:14:8;;;;;;;;;;;-1:-1:-1;;110:175:8;;;;;;",
+  "deployedSourceMap": "110:175:8:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;238:20:7;;;;;;;;;;;;;;;-1:-1:-1;;;;;238:20:7;;;;;;;;;;;;;;830:169;;;;;;;;;;-1:-1:-1;;;;;830:169:7;;;;;;;186:17:8;;;;;;;;;;;;238:20:7;;;-1:-1:-1;;;;;238:20:7;;:::o;830:169::-;651:5;;637:10;-1:-1:-1;;;;;637:19:7;;;651:5;;637:19;629:28;;;;;;-1:-1:-1;;;;;906:22:7;;;;898:31;;;;;;956:5;;-1:-1:-1;;;;;935:37:7;;;;956:5;935:37;;;;;;;;;;978:5;:16;;-1:-1:-1;;978:16:7;-1:-1:-1;;;;;978:16:7;;;;;;;;;;830:169::o;186:17:8:-;;;-1:-1:-1;;;;;186:17:8;;:::o",
+  "source": "pragma solidity ^0.4.21;\n\nimport \"./DART.sol\";\n\nimport \"./Ownable.sol\";\n\n/**\n* @title SimpleArtistContract\n*/\ncontract SimpleArtistContract is Ownable {\n  using SafeMath for uint256;\n\n  DART public token;\n\n  function SimpleArtistContract(DART _token) public {\n    token = _token;\n  }\n}\n",
+  "sourcePath": "/Users/andy/workspace/art-blocks/contracts/SimpleArtistContract.sol",
+  "ast": {
+    "absolutePath": "/Users/andy/workspace/art-blocks/contracts/SimpleArtistContract.sol",
+    "exportedSymbols": {
+      "SimpleArtistContract": [
+        1859
+      ]
+    },
+    "id": 1860,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1839,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".21"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:8"
+      },
+      {
+        "absolutePath": "/Users/andy/workspace/art-blocks/contracts/DART.sol",
+        "file": "./DART.sol",
+        "id": 1840,
+        "nodeType": "ImportDirective",
+        "scope": 1860,
+        "sourceUnit": 641,
+        "src": "26:20:8",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/Users/andy/workspace/art-blocks/contracts/Ownable.sol",
+        "file": "./Ownable.sol",
+        "id": 1841,
+        "nodeType": "ImportDirective",
+        "scope": 1860,
+        "sourceUnit": 1838,
+        "src": "48:23:8",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": [],
+            "baseName": {
+              "contractScope": null,
+              "id": 1842,
+              "name": "Ownable",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 1837,
+              "src": "143:7:8",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_Ownable_$1837",
+                "typeString": "contract Ownable"
+              }
+            },
+            "id": 1843,
+            "nodeType": "InheritanceSpecifier",
+            "src": "143:7:8"
+          }
+        ],
+        "contractDependencies": [
+          1837
+        ],
+        "contractKind": "contract",
+        "documentation": "@title SimpleArtistContract",
+        "fullyImplemented": true,
+        "id": 1859,
+        "linearizedBaseContracts": [
+          1859,
+          1837
+        ],
+        "name": "SimpleArtistContract",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "id": 1846,
+            "libraryName": {
+              "contractScope": null,
+              "id": 1844,
+              "name": "SafeMath",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 2382,
+              "src": "161:8:8",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_SafeMath_$2382",
+                "typeString": "library SafeMath"
+              }
+            },
+            "nodeType": "UsingForDirective",
+            "src": "155:27:8",
+            "typeName": {
+              "id": 1845,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "174:7:8",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            }
+          },
+          {
+            "constant": false,
+            "id": 1848,
+            "name": "token",
+            "nodeType": "VariableDeclaration",
+            "scope": 1859,
+            "src": "186:17:8",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_contract$_DART_$640",
+              "typeString": "contract DART"
+            },
+            "typeName": {
+              "contractScope": null,
+              "id": 1847,
+              "name": "DART",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 640,
+              "src": "186:4:8",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_DART_$640",
+                "typeString": "contract DART"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 1857,
+              "nodeType": "Block",
+              "src": "258:25:8",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 1855,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 1853,
+                      "name": "token",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1848,
+                      "src": "264:5:8",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_DART_$640",
+                        "typeString": "contract DART"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 1854,
+                      "name": "_token",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1850,
+                      "src": "272:6:8",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_DART_$640",
+                        "typeString": "contract DART"
+                      }
+                    },
+                    "src": "264:14:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_DART_$640",
+                      "typeString": "contract DART"
+                    }
+                  },
+                  "id": 1856,
+                  "nodeType": "ExpressionStatement",
+                  "src": "264:14:8"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 1858,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "SimpleArtistContract",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 1851,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1850,
+                  "name": "_token",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1858,
+                  "src": "238:11:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_DART_$640",
+                    "typeString": "contract DART"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 1849,
+                    "name": "DART",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 640,
+                    "src": "238:4:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_DART_$640",
+                      "typeString": "contract DART"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "237:13:8"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 1852,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "258:0:8"
+            },
+            "scope": 1859,
+            "src": "208:75:8",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 1860,
+        "src": "110:175:8"
+      }
+    ],
+    "src": "0:286:8"
+  },
+  "legacyAST": {
+    "absolutePath": "/Users/andy/workspace/art-blocks/contracts/SimpleArtistContract.sol",
+    "exportedSymbols": {
+      "SimpleArtistContract": [
+        1859
+      ]
+    },
+    "id": 1860,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1839,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".21"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:8"
+      },
+      {
+        "absolutePath": "/Users/andy/workspace/art-blocks/contracts/DART.sol",
+        "file": "./DART.sol",
+        "id": 1840,
+        "nodeType": "ImportDirective",
+        "scope": 1860,
+        "sourceUnit": 641,
+        "src": "26:20:8",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/Users/andy/workspace/art-blocks/contracts/Ownable.sol",
+        "file": "./Ownable.sol",
+        "id": 1841,
+        "nodeType": "ImportDirective",
+        "scope": 1860,
+        "sourceUnit": 1838,
+        "src": "48:23:8",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": [],
+            "baseName": {
+              "contractScope": null,
+              "id": 1842,
+              "name": "Ownable",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 1837,
+              "src": "143:7:8",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_Ownable_$1837",
+                "typeString": "contract Ownable"
+              }
+            },
+            "id": 1843,
+            "nodeType": "InheritanceSpecifier",
+            "src": "143:7:8"
+          }
+        ],
+        "contractDependencies": [
+          1837
+        ],
+        "contractKind": "contract",
+        "documentation": "@title SimpleArtistContract",
+        "fullyImplemented": true,
+        "id": 1859,
+        "linearizedBaseContracts": [
+          1859,
+          1837
+        ],
+        "name": "SimpleArtistContract",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "id": 1846,
+            "libraryName": {
+              "contractScope": null,
+              "id": 1844,
+              "name": "SafeMath",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 2382,
+              "src": "161:8:8",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_SafeMath_$2382",
+                "typeString": "library SafeMath"
+              }
+            },
+            "nodeType": "UsingForDirective",
+            "src": "155:27:8",
+            "typeName": {
+              "id": 1845,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "174:7:8",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            }
+          },
+          {
+            "constant": false,
+            "id": 1848,
+            "name": "token",
+            "nodeType": "VariableDeclaration",
+            "scope": 1859,
+            "src": "186:17:8",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_contract$_DART_$640",
+              "typeString": "contract DART"
+            },
+            "typeName": {
+              "contractScope": null,
+              "id": 1847,
+              "name": "DART",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 640,
+              "src": "186:4:8",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_DART_$640",
+                "typeString": "contract DART"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 1857,
+              "nodeType": "Block",
+              "src": "258:25:8",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 1855,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 1853,
+                      "name": "token",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1848,
+                      "src": "264:5:8",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_DART_$640",
+                        "typeString": "contract DART"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 1854,
+                      "name": "_token",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1850,
+                      "src": "272:6:8",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_DART_$640",
+                        "typeString": "contract DART"
+                      }
+                    },
+                    "src": "264:14:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_DART_$640",
+                      "typeString": "contract DART"
+                    }
+                  },
+                  "id": 1856,
+                  "nodeType": "ExpressionStatement",
+                  "src": "264:14:8"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 1858,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "SimpleArtistContract",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 1851,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1850,
+                  "name": "_token",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1858,
+                  "src": "238:11:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_contract$_DART_$640",
+                    "typeString": "contract DART"
+                  },
+                  "typeName": {
+                    "contractScope": null,
+                    "id": 1849,
+                    "name": "DART",
+                    "nodeType": "UserDefinedTypeName",
+                    "referencedDeclaration": 640,
+                    "src": "238:4:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_DART_$640",
+                      "typeString": "contract DART"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "237:13:8"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 1852,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "258:0:8"
+            },
+            "scope": 1859,
+            "src": "208:75:8",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 1860,
+        "src": "110:175:8"
+      }
+    ],
+    "src": "0:286:8"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.21+commit.dfe3193c.Emscripten.clang"
+  },
+  "networks": {
+    "5777": {
+      "events": {},
+      "links": {},
+      "address": "0xb7fbd44c113c05fad310d15206d75c7a021bb687",
+      "transactionHash": "0x8e0bc3a0f7e2f6c9838d2eb445673ed5d205b4560243066cdefcedc9db378e0f"
+    }
+  },
+  "schemaVersion": "2.0.0",
+  "updatedAt": "2018-05-15T14:18:02.375Z"
+}
