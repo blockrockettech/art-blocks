@@ -224,7 +224,6 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   /**
    * @dev Burns a DART token
-   * @dev Reverts if token is not unsold or not owned by management
    * @param _tokenId the DART token ID
    */
   function burn(uint256 _tokenId) external onlyWhitelisted {
