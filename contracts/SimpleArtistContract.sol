@@ -112,7 +112,7 @@ contract SimpleArtistContract is Ownable {
   /**
    * @dev Attempts to work out the next block which will be funded
    */
-  function getNextBlockToFund() public view returns (uint256 _nextFundedBlock) {
+  function nextPurchasableBlocknumber() public view returns (uint256 _nextFundedBlock) {
     if (block.number < lastPurchasedBlock) {
       return lastPurchasedBlock;
     }
@@ -120,9 +120,9 @@ contract SimpleArtistContract is Ownable {
   }
 
   /**
-   * @dev Returns the blocks which the [provided token has purchased
+   * @dev Returns the blocks which the provided token has purchased
    */
-  function blocksPurchasedByToken(uint256 _tokenId) public view returns (uint256[] _blocks) {
+  function blocknumbersOf(uint256 _tokenId) public view returns (uint256[] _blocks) {
     return tokenIdToPurchasedBlocknumbers[_tokenId];
   }
 
