@@ -34,6 +34,7 @@ const store = new Vuex.Store({
 
     simpleArtistContractOwner: '',
     simpleArtistContractAddress: '',
+    simpleArtistContractBalance: null,
 
     // contract totals
     totalSupply: null,
@@ -105,11 +106,12 @@ const store = new Vuex.Store({
     [mutations.SET_WEB3](state, web3) {
       state.web3 = web3;
     },
-    [mutations.SET_HASH](state, {hash, blocknumber, nextBlockToFund}) {
+    [mutations.SET_HASH](state, {hash, blocknumber, nextBlockToFund, balance}) {
       console.log(`blocknumber: ${blocknumber} nextHash(): ${hash}`);
       state.hash = hash;
       state.blocknumber = blocknumber + 1;
       state.nextBlockToFund = nextBlockToFund;
+      state.simpleArtistContractBalance = balance;
 
       state.hashes[blocknumber] = {
         hash: hash,
@@ -279,7 +281,8 @@ const store = new Vuex.Store({
               commit(mutations.SET_HASH, {
                 hash: results[0][0],
                 blocknumber: results[0][1].toNumber(10),
-                nextBlockToFund: results[1].toNumber(10)
+                nextBlockToFund: results[1].toNumber(10),
+                balance: 0
               });
             });
         })

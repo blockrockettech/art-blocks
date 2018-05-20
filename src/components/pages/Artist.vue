@@ -15,6 +15,9 @@
               Owner: <code>{{simpleArtistContractOwner}}</code>
             </p>
             <p>
+              Balance: <code>{{simpleArtistContractBalance}}</code>
+            </p>
+            <p>
               Call <code>purchase(_tokenId)</code> or send ETH direct to contract address
             </p>
             <div class="row">
@@ -114,7 +117,8 @@
         'contractAddress',
         'hashes',
         'simpleArtistContractOwner',
-        'simpleArtistContractAddress'
+        'simpleArtistContractAddress',
+        'simpleArtistContractBalance'
       ]),
       ...mapGetters([
         'getHashMatch'
