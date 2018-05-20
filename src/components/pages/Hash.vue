@@ -5,14 +5,17 @@
       <div class="col-6">
         <div class="card text-center">
           <div class="card-header">
-            Funding dART Tokens
+            Simple Artist Contract
           </div>
           <div class="card-body">
             <p>
-              Contract: <code>{{contractAddress}}</code>
+              Contract: <code>{{simpleArtistContractAddress}}</code>
             </p>
             <p>
-              Call <code>fundDart(_tokenId)</code> or send ETH direct to contract address
+              Owner: <code>{{simpleArtistContractOwner}}</code>
+            </p>
+            <p>
+              Call <code>purchase(_tokenId)</code> or send ETH direct to contract address
             </p>
             <div class="row">
               <div class="col">
@@ -109,7 +112,9 @@
         'maxBlockPurchaseInOneGo',
         'nextBlockToFund',
         'contractAddress',
-        'hashes'
+        'hashes',
+        'simpleArtistContractOwner',
+        'simpleArtistContractAddress'
       ]),
       ...mapGetters([
         'getHashMatch'
