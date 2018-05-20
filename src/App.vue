@@ -14,7 +14,7 @@
             <router-link :to="{ name: 'mint' }" class="nav-link d-none d-sm-block">Mint</router-link>
           </li>
           <li class="nav-item">
-            <router-link :to="{ name: 'hash' }" class="nav-link d-none d-sm-block">Hash</router-link>
+            <router-link :to="{ name: 'artist' }" class="nav-link d-none d-sm-block">Artist</router-link>
           </li>
         </ul>
       </nav>
@@ -68,10 +68,10 @@
       // Bootstrap the full app
       this.$store.dispatch(actions.INIT_APP, bootStrappedWeb3);
 
-//      setInterval(function () {
-//        console.log('getting next hash');
-//        this.$store.dispatch(actions.NEXT_HASH);
-//      }.bind(this), 2000);
+      setInterval(function () {
+        console.log('getting next hash');
+        this.$store.dispatch(actions.NEXT_HASH);
+      }.bind(this), 2000);
     },
   };
 </script>

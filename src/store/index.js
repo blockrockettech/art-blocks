@@ -37,8 +37,7 @@ const store = new Vuex.Store({
 
     // contract totals
     totalSupply: null,
-    totalContributionsInWei: null,
-    totalContributionsEther: null,
+
     pricePerBlockInWei: null,
     pricePerBlockInEth: null,
     maxBlockPurchaseInOneGo: null,
@@ -77,10 +76,6 @@ const store = new Vuex.Store({
     [mutations.SET_ASSETS_PURCHASED_FROM_ACCOUNT](state, tokens) {
       Vue.set(state, 'assetsPurchasedByAccount', tokens);
     },
-    [mutations.SET_TOTAL_PURCHASED](state, {totalContributionsInWei, totalContributionsInEther}) {
-      state.totalContributionsInWei = totalContributionsInWei;
-      state.totalContributionsInEther = totalContributionsInEther;
-    },
     [mutations.SET_CONTRACT_DETAILS](state, {name, symbol, totalSupply, curatorAddress, contractAddress}) {
       state.totalSupply = totalSupply;
       state.contractSymbol = symbol;
@@ -88,9 +83,12 @@ const store = new Vuex.Store({
       state.curatorAddress = curatorAddress;
       state.contractAddress = contractAddress;
     },
-    [mutations.SET_ARTIST_CONTRACT_DETAILS](state, {owner, contractAddress}) {
+    [mutations.SET_ARTIST_CONTRACT_DETAILS](state, {owner, contractAddress, pricePerBlockInWei, pricePerBlockInEth, maxBlockPurchaseInOneGo}) {
       state.simpleArtistContractOwner = owner;
       state.simpleArtistContractAddress = contractAddress;
+      state.pricePerBlockInWei = pricePerBlockInWei;
+      state.pricePerBlockInEth = pricePerBlockInEth;
+      state.maxBlockPurchaseInOneGo = maxBlockPurchaseInOneGo;
     },
     [mutations.SET_ACCOUNT](state, {account, accountBalance}) {
       state.account = account;
@@ -252,9 +250,6 @@ const store = new Vuex.Store({
                 totalSupply: results[2].toString(),
                 curatorAddress: results[3],
                 contractAddress: results[4],
-                // pricePerBlockInWei: results[5],
-                // pricePerBlockInEth: Web3.utils.fromWei(results[5].toString(10), 'ether'),
-                // maxBlockPurchaseInOneGo: results[6].toNumber(10),
               });
 
               dispatch(actions.GET_ALL_ASSETS);
@@ -264,34 +259,34 @@ const store = new Vuex.Store({
       simpleArtistContract.deployed()
         .then((contract) => {
 
-          Promise.all([contract.owner(), contract.address])
+          Promise.all([contract.owner(), contract.address, contract.pricePerBlock(), contract.maxBlockPurchaseInOneGo()])
             .then((results) => {
               commit(mutations.SET_ARTIST_CONTRACT_DETAILS, {
                 owner: results[0],
                 contractAddress: results[1],
-                // pricePerBlockInWei: results[5],
-                // pricePerBlockInEth: Web3.utils.fromWei(results[5].toString(10), 'ether'),
-                // maxBlockPurchaseInOneGo: results[6].toNumber(10),
+                pricePerBlockInWei: results[2],
+                pricePerBlockInEth: Web3.utils.fromWei(results[2].toString(10), 'ether'),
+                maxBlockPurchaseInOneGo: results[3].toNumber(10),
               });
             });
         }).catch((error) => console.log('Something went bang!', error));
     },
-    // [actions.NEXT_HASH]({commit, dispatch, state}) {
-    //   dart.deployed()
-    //     .then((contract) => {
-    //       Promise.all([contract.nextHash(), contract.getNextBlockToFund()])
-    //         .then((results) => {
-    //           commit(mutations.SET_HASH, {
-    //             hash: results[0][0],
-    //             blocknumber: results[0][1].toNumber(10),
-    //             nextBlockToFund: results[1].toNumber(10)
-    //           });
-    //         });
-    //     })
-    //     .catch((e) => {
-    //       console.error(e);
-    //     });
-    // },
+    [actions.NEXT_HASH]({commit, dispatch, state}) {
+      simpleArtistContract.deployed()
+        .then((contract) => {
+          Promise.all([contract.nextHash(), contract.nextPurchasableBlocknumber()])
+            .then((results) => {
+              commit(mutations.SET_HASH, {
+                hash: results[0][0],
+                blocknumber: results[0][1].toNumber(10),
+                nextBlockToFund: results[1].toNumber(10)
+              });
+            });
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    },
     [actions.MINT]({commit, dispatch, state}, {blockhash, nickname, tokenId}) {
       dart.deployed()
         .then((contract) => {

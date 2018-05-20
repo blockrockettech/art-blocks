@@ -28,8 +28,8 @@ export default new Router({
       component: Mint
     },
     {
-      path: '/hash',
-      name: 'hash',
+      path: '/artist',
+      name: 'artist',
       component: Hash
     }
   ]
