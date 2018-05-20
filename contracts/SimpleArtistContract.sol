@@ -41,17 +41,6 @@ contract SimpleArtistContract is Ownable {
     lastPurchasedBlock = block.number;
   }
 
-  function purchaseBlock(uint256 _blocknumber, uint256 _tokenId) internal {
-    // keep track of the token associated to the block
-    blocknumberToTokenId[_blocknumber] = _tokenId;
-
-    // Keep track of the blocks purchased by the token
-    tokenIdToPurchasedBlocknumbers[_tokenId].push(_blocknumber);
-
-    // Emit event for logging/tracking
-    Purchase(msg.sender, _tokenId, getPurchasedBlockhash(_blocknumber), _blocknumber);
-  }
-
   /**
   * @dev allows payment direct to contract - if no token will store value on contract
   */
@@ -107,6 +96,17 @@ contract SimpleArtistContract is Ownable {
     // TODO splice monies to various parties
 
     Purchased(msg.sender, _tokenId, blocksToPurchased);
+  }
+
+  function purchaseBlock(uint256 _blocknumber, uint256 _tokenId) internal {
+    // keep track of the token associated to the block
+    blocknumberToTokenId[_blocknumber] = _tokenId;
+
+    // Keep track of the blocks purchased by the token
+    tokenIdToPurchasedBlocknumbers[_tokenId].push(_blocknumber);
+
+    // Emit event for logging/tracking
+    Purchase(msg.sender, _tokenId, getPurchasedBlockhash(_blocknumber), _blocknumber);
   }
 
   /**

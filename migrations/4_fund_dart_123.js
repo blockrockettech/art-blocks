@@ -1,4 +1,4 @@
-const DART = artifacts.require('DART');
+const SimpleArtistContract = artifacts.require('SimpleArtistContract');
 
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const infuraApikey = 'nbCbdzC6IG9CF6hmvAVQ';
@@ -6,7 +6,7 @@ let mnemonic = require('../mnemonic');
 
 module.exports = async function (deployer, network, accounts) {
 
-  console.log(`Funding a token on DART contract to ${network}...`);
+  console.log(`Purchase via SimpleArtistContract contract to ${network}...`);
 
   let _curatorAccount = accounts[0];
 
@@ -22,9 +22,9 @@ module.exports = async function (deployer, network, accounts) {
 
   console.log(`_curatorAccount = ${_curatorAccount}`);
 
-  let instance = await DART.deployed();
+  let instance = await SimpleArtistContract.deployed();
 
   if (network === 'ganache' || network === 'ropsten' || network === 'rinkeby' || network === 'live') {
-    await instance.fundDart(161, {value: web3.toWei(0.1, 'ether')}); // FUND 10 BLOCKS
+    await instance.purchase(123, {value: web3.toWei(0.1, 'ether')}); // FUND 10 BLOCKS
   }
 };
