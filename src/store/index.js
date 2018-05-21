@@ -261,7 +261,7 @@ const store = new Vuex.Store({
       simpleArtistContract.deployed()
         .then((contract) => {
 
-          Promise.all([contract.owner(), contract.address, contract.pricePerBlock(), contract.maxBlockPurchaseInOneGo()])
+          Promise.all([contract.owner(), contract.address, contract.pricePerBlockInWei(), contract.maxBlockPurchaseInOneGo()])
             .then((results) => {
               commit(mutations.SET_ARTIST_CONTRACT_DETAILS, {
                 owner: results[0],

@@ -28,6 +28,6 @@ module.exports = function (deployer, network, accounts) {
 
   deployer.deploy(DART)
     .then(function () {
-      return deployer.deploy(SimpleArtistContract, DART.address);
+      return deployer.deploy(SimpleArtistContract, DART.address, "10000000000000000", 20);
     });
 };

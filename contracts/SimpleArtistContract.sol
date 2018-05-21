@@ -17,25 +17,28 @@ contract SimpleArtistContract is Ownable {
     require(msg.value >= 0);
 
     // Min price
-    require(msg.value >= pricePerBlock);
+    require(msg.value >= pricePerBlockInWei);
 
     // max price
-    require(msg.value <= (pricePerBlock * maxBlockPurchaseInOneGo));
+    require(msg.value <= (pricePerBlockInWei * maxBlockPurchaseInOneGo));
     _;
   }
 
   DART public token;
 
-  uint256 public pricePerBlock = 0.01 ether;
-  uint256 public maxBlockPurchaseInOneGo = 20;
+  uint256 public pricePerBlockInWei;
+  uint256 public maxBlockPurchaseInOneGo;
 
   mapping(uint256 => uint256) internal blocknumberToTokenId;
   mapping(uint256 => uint256[]) internal tokenIdToPurchasedBlocknumbers;
 
   uint256 public lastPurchasedBlock = 0;
 
-  function SimpleArtistContract(DART _token) public {
+  function SimpleArtistContract(DART _token, uint256 _pricePerBlockInWei, uint256 _maxBlockPurchaseInOneGo) public {
     token = _token;
+
+    pricePerBlockInWei = _pricePerBlockInWei;
+    maxBlockPurchaseInOneGo = _maxBlockPurchaseInOneGo;
 
     // set to current block mined in
     lastPurchasedBlock = block.number;
@@ -67,7 +70,7 @@ contract SimpleArtistContract is Ownable {
     require(token.exists(_tokenId));
 
     // determine how many blocks purchased
-    uint256 blocksToPurchased = msg.value / pricePerBlock;
+    uint256 blocksToPurchased = msg.value / pricePerBlockInWei;
 
     // Start purchase from next block the current block is being mined
     uint256 nextBlockToPurchase = block.number + 1;
