@@ -77,8 +77,10 @@ contract DART is ERC721Token, ERC165, Whitelist {
   mapping(bytes32 => uint256) internal blockhashToTokenId;
 
   function DART() public ERC721Token("Digital Art", "DART") {
-    // FIXME - hardcoded?
+
     super.addAddressToWhitelist(msg.sender);
+
+    // FIXME - hardcoded?
     super.addAddressToWhitelist(0xf43aE50C468c3D3Fa0C3dC3454E797317EF53078);
     super.addAddressToWhitelist(0xe1023C112A39c58238929153F25364c11A33B729);
   }

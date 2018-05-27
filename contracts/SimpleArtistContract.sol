@@ -30,6 +30,9 @@ contract SimpleArtistContract is Ownable {
   uint256 public maxBlockPurchaseInOneGo;
   bool public onlyShowPurchased = false;
 
+  // FIXME - hardcoded?
+  address public foundationAddress = 0xf43aE50C468c3D3Fa0C3dC3454E797317EF53078;
+
   mapping(uint256 => uint256) internal blocknumberToTokenId;
   mapping(uint256 => uint256[]) internal tokenIdToPurchasedBlocknumbers;
 
@@ -51,6 +54,15 @@ contract SimpleArtistContract is Ownable {
   function() public payable {
     if (token.hasTokens(msg.sender)) {
       purchase(token.firstToken(msg.sender));
+    }
+    else {
+      // 4% to foundation
+      uint foundationShare = msg.value / 100 * 4;
+      foundationAddress.transfer(foundationShare);
+
+      // artists sent the remaining value
+      uint artistTotal = msg.value - foundationShare;
+      owner.transfer(artistTotal);
     }
   }
 
@@ -97,7 +109,15 @@ contract SimpleArtistContract is Ownable {
     // update last block once purchased
     lastPurchasedBlock = nextBlockToPurchase;
 
-    // TODO splice monies to various parties
+    // payments
+
+    // 4% to foundation
+    uint foundationShare = msg.value / 100 * 4;
+    foundationAddress.transfer(foundationShare);
+
+    // artists sent the remaining value
+    uint artistTotal = msg.value - foundationShare;
+    owner.transfer(artistTotal);
 
     Purchased(msg.sender, _tokenId, blocksToPurchased);
   }

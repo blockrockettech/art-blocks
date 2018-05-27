@@ -836,8 +836,10 @@ contract DART is ERC721Token, ERC165, Whitelist {
   mapping(bytes32 => uint256) internal blockhashToTokenId;
 
   function DART() public ERC721Token("Digital Art", "DART") {
-    // FIXME - hardcoded?
+
     super.addAddressToWhitelist(msg.sender);
+
+    // FIXME - hardcoded?
     super.addAddressToWhitelist(0xf43aE50C468c3D3Fa0C3dC3454E797317EF53078);
     super.addAddressToWhitelist(0xe1023C112A39c58238929153F25364c11A33B729);
   }
@@ -971,6 +973,9 @@ contract SimpleArtistContract is Ownable {
   uint256 public maxBlockPurchaseInOneGo;
   bool public onlyShowPurchased = false;
 
+  // FIXME - hardcoded?
+  address public foundationAddress = 0xf43aE50C468c3D3Fa0C3dC3454E797317EF53078;
+
   mapping(uint256 => uint256) internal blocknumberToTokenId;
   mapping(uint256 => uint256[]) internal tokenIdToPurchasedBlocknumbers;
 
@@ -992,6 +997,15 @@ contract SimpleArtistContract is Ownable {
   function() public payable {
     if (token.hasTokens(msg.sender)) {
       purchase(token.firstToken(msg.sender));
+    }
+    else {
+      // 4% to foundation
+      uint foundationShare = msg.value / 100 * 4;
+      foundationAddress.transfer(foundationShare);
+
+      // artists sent the remaining value
+      uint artistTotal = msg.value - foundationShare;
+      owner.transfer(artistTotal);
     }
   }
 
@@ -1038,7 +1052,15 @@ contract SimpleArtistContract is Ownable {
     // update last block once purchased
     lastPurchasedBlock = nextBlockToPurchase;
 
-    // TODO splice monies to various parties
+    // payments
+
+    // 4% to foundation
+    uint foundationShare = msg.value / 100 * 4;
+    foundationAddress.transfer(foundationShare);
+
+    // artists sent the remaining value
+    uint artistTotal = msg.value - foundationShare;
+    owner.transfer(artistTotal);
 
     Purchased(msg.sender, _tokenId, blocksToPurchased);
   }
