@@ -28,6 +28,7 @@ contract SimpleArtistContract is Ownable {
 
   uint256 public pricePerBlockInWei;
   uint256 public maxBlockPurchaseInOneGo;
+  bool public onlyShowPurchased = false;
 
   mapping(uint256 => uint256) internal blocknumberToTokenId;
   mapping(uint256 => uint256[]) internal tokenIdToPurchasedBlocknumbers;
@@ -167,6 +168,10 @@ contract SimpleArtistContract is Ownable {
       return (getPurchasedBlockhash(nextBlocknumber), nextBlocknumber);
     }
 
+    if (onlyShowPurchased) {
+      return (0x0, 0x0);
+    }
+
     // if no one own the current blockhash return current
     return (nativeBlockhash(nextBlocknumber), nextBlocknumber);
   }
@@ -176,5 +181,29 @@ contract SimpleArtistContract is Ownable {
    */
   function blocknumber() public view returns (uint256 _blockNumber) {
     return block.number;
+  }
+
+  /**
+   * @dev Utility function for updating price per block
+   * @param _priceInWei the price in wei
+   */
+  function setPricePerBlockInWei( uint256 _priceInWei) external onlyOwner {
+    pricePerBlockInWei = _priceInWei;
+  }
+
+  /**
+   * @dev Utility function for updating max blocks
+   * @param _maxBlockPurchaseInOneGo max blocks per purchase
+   */
+  function setMaxBlockPurchaseInOneGo( uint256 _maxBlockPurchaseInOneGo) external onlyOwner {
+    maxBlockPurchaseInOneGo = _maxBlockPurchaseInOneGo;
+  }
+
+  /**
+ * @dev Utility function for only show purchased
+ * @param _onlyShowPurchased flag for only showing purchased hashes
+ */
+  function setOnlyShowPurchased(bool _onlyShowPurchased) external onlyOwner {
+    onlyShowPurchased = _onlyShowPurchased;
   }
 }

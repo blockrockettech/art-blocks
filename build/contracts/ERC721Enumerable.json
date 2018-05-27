@@ -376,7 +376,7 @@
       {
         "baseContracts": [
           {
-            "arguments": [],
+            "arguments": null,
             "baseName": {
               "contractScope": null,
               "id": 328,
@@ -663,7 +663,7 @@
       {
         "baseContracts": [
           {
-            "arguments": [],
+            "arguments": null,
             "baseName": {
               "contractScope": null,
               "id": 352,
@@ -727,7 +727,7 @@
                   "storageLocation": "default",
                   "typeDescriptions": {
                     "typeIdentifier": "t_string_memory_ptr",
-                    "typeString": "string memory"
+                    "typeString": "string"
                   },
                   "typeName": {
                     "id": 355,
@@ -736,7 +736,7 @@
                     "src": "726:6:2",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
-                      "typeString": "string storage pointer"
+                      "typeString": "string"
                     }
                   },
                   "value": null,
@@ -783,7 +783,7 @@
                   "storageLocation": "default",
                   "typeDescriptions": {
                     "typeIdentifier": "t_string_memory_ptr",
-                    "typeString": "string memory"
+                    "typeString": "string"
                   },
                   "typeName": {
                     "id": 360,
@@ -792,7 +792,7 @@
                     "src": "782:6:2",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
-                      "typeString": "string storage pointer"
+                      "typeString": "string"
                     }
                   },
                   "value": null,
@@ -866,7 +866,7 @@
                   "storageLocation": "default",
                   "typeDescriptions": {
                     "typeIdentifier": "t_string_memory_ptr",
-                    "typeString": "string memory"
+                    "typeString": "string"
                   },
                   "typeName": {
                     "id": 367,
@@ -875,7 +875,7 @@
                     "src": "858:6:2",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
-                      "typeString": "string storage pointer"
+                      "typeString": "string"
                     }
                   },
                   "value": null,
@@ -897,7 +897,7 @@
       {
         "baseContracts": [
           {
-            "arguments": [],
+            "arguments": null,
             "baseName": {
               "contractScope": null,
               "id": 372,
@@ -915,7 +915,7 @@
             "src": "1047:11:2"
           },
           {
-            "arguments": [],
+            "arguments": null,
             "baseName": {
               "contractScope": null,
               "id": 374,
@@ -933,7 +933,7 @@
             "src": "1060:16:2"
           },
           {
-            "arguments": [],
+            "arguments": null,
             "baseName": {
               "contractScope": null,
               "id": 376,
@@ -1016,7 +1016,7 @@
       {
         "baseContracts": [
           {
-            "arguments": [],
+            "arguments": null,
             "baseName": {
               "contractScope": null,
               "id": 328,
@@ -1303,7 +1303,7 @@
       {
         "baseContracts": [
           {
-            "arguments": [],
+            "arguments": null,
             "baseName": {
               "contractScope": null,
               "id": 352,
@@ -1367,7 +1367,7 @@
                   "storageLocation": "default",
                   "typeDescriptions": {
                     "typeIdentifier": "t_string_memory_ptr",
-                    "typeString": "string memory"
+                    "typeString": "string"
                   },
                   "typeName": {
                     "id": 355,
@@ -1376,7 +1376,7 @@
                     "src": "726:6:2",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
-                      "typeString": "string storage pointer"
+                      "typeString": "string"
                     }
                   },
                   "value": null,
@@ -1423,7 +1423,7 @@
                   "storageLocation": "default",
                   "typeDescriptions": {
                     "typeIdentifier": "t_string_memory_ptr",
-                    "typeString": "string memory"
+                    "typeString": "string"
                   },
                   "typeName": {
                     "id": 360,
@@ -1432,7 +1432,7 @@
                     "src": "782:6:2",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
-                      "typeString": "string storage pointer"
+                      "typeString": "string"
                     }
                   },
                   "value": null,
@@ -1506,7 +1506,7 @@
                   "storageLocation": "default",
                   "typeDescriptions": {
                     "typeIdentifier": "t_string_memory_ptr",
-                    "typeString": "string memory"
+                    "typeString": "string"
                   },
                   "typeName": {
                     "id": 367,
@@ -1515,7 +1515,7 @@
                     "src": "858:6:2",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
-                      "typeString": "string storage pointer"
+                      "typeString": "string"
                     }
                   },
                   "value": null,
@@ -1537,7 +1537,7 @@
       {
         "baseContracts": [
           {
-            "arguments": [],
+            "arguments": null,
             "baseName": {
               "contractScope": null,
               "id": 372,
@@ -1555,7 +1555,7 @@
             "src": "1047:11:2"
           },
           {
-            "arguments": [],
+            "arguments": null,
             "baseName": {
               "contractScope": null,
               "id": 374,
@@ -1573,7 +1573,7 @@
             "src": "1060:16:2"
           },
           {
-            "arguments": [],
+            "arguments": null,
             "baseName": {
               "contractScope": null,
               "id": 376,
@@ -1617,9 +1617,9 @@
   },
   "compiler": {
     "name": "solc",
-    "version": "0.4.21+commit.dfe3193c.Emscripten.clang"
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-05-21T08:18:54.607Z"
+  "updatedAt": "2018-05-27T08:53:47.297Z"
 }

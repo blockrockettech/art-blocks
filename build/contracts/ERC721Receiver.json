@@ -189,7 +189,7 @@
                   "storageLocation": "default",
                   "typeDescriptions": {
                     "typeIdentifier": "t_bytes_memory_ptr",
-                    "typeString": "bytes memory"
+                    "typeString": "bytes"
                   },
                   "typeName": {
                     "id": 1078,
@@ -198,7 +198,7 @@
                     "src": "1220:5:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
-                      "typeString": "bytes storage pointer"
+                      "typeString": "bytes"
                     }
                   },
                   "value": null,
@@ -408,7 +408,7 @@
                   "storageLocation": "default",
                   "typeDescriptions": {
                     "typeIdentifier": "t_bytes_memory_ptr",
-                    "typeString": "bytes memory"
+                    "typeString": "bytes"
                   },
                   "typeName": {
                     "id": 1078,
@@ -417,7 +417,7 @@
                     "src": "1220:5:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
-                      "typeString": "bytes storage pointer"
+                      "typeString": "bytes"
                     }
                   },
                   "value": null,
@@ -475,9 +475,9 @@
   },
   "compiler": {
     "name": "solc",
-    "version": "0.4.21+commit.dfe3193c.Emscripten.clang"
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-05-21T08:18:54.614Z"
+  "updatedAt": "2018-05-27T08:53:47.299Z"
 }
