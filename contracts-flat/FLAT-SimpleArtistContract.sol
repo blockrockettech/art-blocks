@@ -1043,6 +1043,7 @@ contract SimpleArtistContract is Ownable {
       if (tokenIdOf(nextBlockToPurchase) == 0) {
         purchaseBlock(nextBlockToPurchase, _tokenId);
         purchased++;
+        purchased++;
       }
 
       // move next block on to find another free space

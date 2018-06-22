@@ -2,12 +2,10 @@ pragma solidity ^0.4.21;
 
 import "./DART.sol";
 
-import "./Ownable.sol";
-
 /**
 * @title SimpleArtistContract
 */
-contract SimpleArtistContract is Ownable {
+contract SimpleArtistContract  {
   using SafeMath for uint256;
 
   event Purchase(address indexed _funder, uint256 indexed _tokenId, bytes32 _blockhash, uint256 _block);
@@ -24,21 +22,34 @@ contract SimpleArtistContract is Ownable {
     _;
   }
 
+  /**
+   * @dev Throws if called by any account other than the artist.
+   */
+  modifier onlyArtist() {
+    require(msg.sender == artist);
+    _;
+  }
+
+  address public artist;
+
   DART public token;
 
   uint256 public pricePerBlockInWei;
   uint256 public maxBlockPurchaseInOneGo;
   bool public onlyShowPurchased = false;
 
-  // FIXME - hardcoded?
   address public foundationAddress = 0xf43aE50C468c3D3Fa0C3dC3454E797317EF53078;
+  uint256 public foundationPercentage = 5; // 5% to foundation
 
   mapping(uint256 => uint256) internal blocknumberToTokenId;
   mapping(uint256 => uint256[]) internal tokenIdToPurchasedBlocknumbers;
 
   uint256 public lastPurchasedBlock = 0;
 
-  function SimpleArtistContract(DART _token, uint256 _pricePerBlockInWei, uint256 _maxBlockPurchaseInOneGo) public {
+  function SimpleArtistContract(DART _token, uint256 _pricePerBlockInWei, uint256 _maxBlockPurchaseInOneGo, address _artist) public {
+    require(_artist != address(0));
+    artist = _artist;
+
     token = _token;
 
     pricePerBlockInWei = _pricePerBlockInWei;
@@ -57,22 +68,13 @@ contract SimpleArtistContract is Ownable {
     }
     else {
       // 4% to foundation
-      uint foundationShare = msg.value / 100 * 4;
+      uint foundationShare = msg.value / 100 * foundationPercentage;
       foundationAddress.transfer(foundationShare);
 
       // artists sent the remaining value
       uint artistTotal = msg.value - foundationShare;
-      owner.transfer(artistTotal);
+      artist.transfer(artistTotal);
     }
-  }
-
-  /**
-  * @dev allows artist to withdraw funds sent by non-token holders
-  */
-  function withdraw() public onlyOwner {
-    require(this.balance > 0);
-
-    owner.transfer(this.balance);
   }
 
   /**
@@ -112,12 +114,12 @@ contract SimpleArtistContract is Ownable {
     // payments
 
     // 4% to foundation
-    uint foundationShare = msg.value / 100 * 4;
+    uint foundationShare = msg.value / 100 * foundationPercentage;
     foundationAddress.transfer(foundationShare);
 
     // artists sent the remaining value
     uint artistTotal = msg.value - foundationShare;
-    owner.transfer(artistTotal);
+    artist.transfer(artistTotal);
 
     Purchased(msg.sender, _tokenId, blocksToPurchased);
   }
@@ -158,9 +160,9 @@ contract SimpleArtistContract is Ownable {
   }
 
   /**
- * @dev Get the block hash the given block number
- * @param _blocknumber the block to generate hash for
- */
+    * @dev Get the block hash the given block number
+    * @param _blocknumber the block to generate hash for
+    */
   function getPurchasedBlockhash(uint256 _blocknumber) public view returns (bytes32 _tokenHash) {
     // Do not allow this to be called for hashes which aren't purchased
     require(tokenIdOf(_blocknumber) != 0);
@@ -207,7 +209,7 @@ contract SimpleArtistContract is Ownable {
    * @dev Utility function for updating price per block
    * @param _priceInWei the price in wei
    */
-  function setPricePerBlockInWei( uint256 _priceInWei) external onlyOwner {
+  function setPricePerBlockInWei( uint256 _priceInWei) external onlyArtist {
     pricePerBlockInWei = _priceInWei;
   }
 
@@ -215,7 +217,7 @@ contract SimpleArtistContract is Ownable {
    * @dev Utility function for updating max blocks
    * @param _maxBlockPurchaseInOneGo max blocks per purchase
    */
-  function setMaxBlockPurchaseInOneGo( uint256 _maxBlockPurchaseInOneGo) external onlyOwner {
+  function setMaxBlockPurchaseInOneGo( uint256 _maxBlockPurchaseInOneGo) external onlyArtist {
     maxBlockPurchaseInOneGo = _maxBlockPurchaseInOneGo;
   }
 
@@ -223,7 +225,7 @@ contract SimpleArtistContract is Ownable {
  * @dev Utility function for only show purchased
  * @param _onlyShowPurchased flag for only showing purchased hashes
  */
-  function setOnlyShowPurchased(bool _onlyShowPurchased) external onlyOwner {
+  function setOnlyShowPurchased(bool _onlyShowPurchased) external onlyArtist {
     onlyShowPurchased = _onlyShowPurchased;
   }
 }

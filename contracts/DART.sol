@@ -69,6 +69,14 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   event MintDART(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, string _nickname);
 
+  /**
+   * @dev Throws if not called by a dART token holder
+   */
+  modifier onlyTokenOwners() {
+    require(hasTokens(msg.sender));
+    _;
+  }
+
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
 
   mapping (uint256 => string) internal tokenIdToNickname;
@@ -76,7 +84,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
   mapping(uint256 => bytes32) internal tokenIdToBlockhash;
   mapping(bytes32 => uint256) internal blockhashToTokenId;
 
-  function DART() public ERC721Token("Digital Art", "DART") {
+  function DART() public ERC721Token("Decentralized Art", "DART") {
 
     super.addAddressToWhitelist(msg.sender);
 
@@ -124,6 +132,16 @@ contract DART is ERC721Token, ERC165, Whitelist {
   function setTokenURI(uint256 _tokenId, string _uri) external onlyWhitelisted {
     require(exists(_tokenId));
     _setTokenURI(_tokenId, _uri);
+  }
+
+  /**
+   * @dev Utility function for updating a nickname if you own the token
+   * @dev Reverts if not called by owner
+   * @param _tokenId the DART token ID
+   * @param _nickname char stamp of token owner
+   */
+  function setNickname(uint256 _tokenId, string _nickname) external onlyOwnerOf(_tokenId) {
+    tokenIdToNickname[_tokenId] = _nickname;
   }
 
   /**
