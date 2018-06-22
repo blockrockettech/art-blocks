@@ -1,6 +1,6 @@
 pragma solidity ^0.4.18;
 
-import "../ERC721Receiver.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/ERC721Receiver.sol";
 
 contract ERC721ReceiverMock is ERC721Receiver {
   bytes4 retval;
