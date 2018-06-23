@@ -78,19 +78,15 @@ contract DART is ERC721Token, ERC165, Whitelist {
   }
 
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
+  string internal constant defaultTokenURI = "QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk";
 
   mapping (uint256 => bytes32) internal tokenIdToNickname;
 
   mapping(uint256 => bytes32) internal tokenIdToBlockhash;
   mapping(bytes32 => uint256) internal blockhashToTokenId;
 
-  function DART() public ERC721Token("Decentralized Art", "DART") {
-
+  constructor() public ERC721Token("Decentralized Art", "DART") {
     super.addAddressToWhitelist(msg.sender);
-
-    // FIXME - hardcoded?
-    super.addAddressToWhitelist(0xf43aE50C468c3D3Fa0C3dC3454E797317EF53078);
-    super.addAddressToWhitelist(0xe1023C112A39c58238929153F25364c11A33B729);
   }
 
   // don't accept payment directly to contract
@@ -106,21 +102,18 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @param _nickname char stamp of token owner
    */
   function mint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname) external onlyWhitelisted {
-    require(blockhashToTokenId[_blockhash] == 0);
-    require(tokenIdToBlockhash[_tokenId] == 0);
+    require(blockhashToTokenId[_blockhash] == 0 && tokenIdToBlockhash[_tokenId] == 0);
 
     // actually mint the token
     super._mint(msg.sender, _tokenId);
 
-    // Use default artblock.io IPFS hash
-    super._setTokenURI(_tokenId, "QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk");
-
     // set data
     tokenIdToBlockhash[_tokenId] = _blockhash;
     blockhashToTokenId[_blockhash] = _tokenId;
+
     tokenIdToNickname[_tokenId] = _nickname;
 
-    MintDART(msg.sender, _tokenId, _blockhash, _nickname);
+    emit MintDART(msg.sender, _tokenId, _blockhash, _nickname);
   }
 
   /**
@@ -183,6 +176,9 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @return the token ID or only the base URI if not found
    */
   function tokenURI(uint256 _tokenId) public view returns (string) {
+    if (bytes(tokenURIs[_tokenId]).length == 0) {
+      return Strings.strConcat(tokenBaseURI, defaultTokenURI);
+    }
     return Strings.strConcat(tokenBaseURI, tokenURIs[_tokenId]);
   }
 

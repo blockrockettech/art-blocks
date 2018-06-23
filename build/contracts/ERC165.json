@@ -31,14 +31,14 @@
     "absolutePath": "/Users/andy/workspace/art-blocks/contracts/ERC165.sol",
     "exportedSymbols": {
       "ERC165": [
-        352
+        350
       ]
     },
-    "id": 353,
+    "id": 351,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 344,
+        "id": 342,
         "literals": [
           "solidity",
           "^",
@@ -54,9 +54,9 @@
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 352,
+        "id": 350,
         "linearizedBaseContracts": [
-          352
+          350
         ],
         "name": "ERC165",
         "nodeType": "ContractDefinition",
@@ -64,7 +64,7 @@
           {
             "body": null,
             "documentation": "@notice Query if a contract implements an interface\n @param interfaceID The interface identifier, as specified in ERC-165\n @dev Interface identification is specified in ERC-165. This function\n  uses less than 30,000 gas.\n @return `true` if the contract implements `interfaceID` and\n  `interfaceID` is not 0xffffffff, `false` otherwise",
-            "id": 351,
+            "id": 349,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": true,
@@ -72,15 +72,15 @@
             "name": "supportsInterface",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 347,
+              "id": 345,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 346,
+                  "id": 344,
                   "name": "interfaceID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 351,
+                  "scope": 349,
                   "src": "440:18:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -89,7 +89,7 @@
                     "typeString": "bytes4"
                   },
                   "typeName": {
-                    "id": 345,
+                    "id": 343,
                     "name": "bytes4",
                     "nodeType": "ElementaryTypeName",
                     "src": "440:6:1",
@@ -106,15 +106,15 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 350,
+              "id": 348,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 349,
+                  "id": 347,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 351,
+                  "scope": 349,
                   "src": "483:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -123,7 +123,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 348,
+                    "id": 346,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "483:4:1",
@@ -138,14 +138,14 @@
               ],
               "src": "482:6:1"
             },
-            "scope": 352,
+            "scope": 350,
             "src": "413:76:1",
             "stateMutability": "pure",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 353,
+        "scope": 351,
         "src": "26:465:1"
       }
     ],
@@ -155,14 +155,14 @@
     "absolutePath": "/Users/andy/workspace/art-blocks/contracts/ERC165.sol",
     "exportedSymbols": {
       "ERC165": [
-        352
+        350
       ]
     },
-    "id": 353,
+    "id": 351,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 344,
+        "id": 342,
         "literals": [
           "solidity",
           "^",
@@ -178,9 +178,9 @@
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 352,
+        "id": 350,
         "linearizedBaseContracts": [
-          352
+          350
         ],
         "name": "ERC165",
         "nodeType": "ContractDefinition",
@@ -188,7 +188,7 @@
           {
             "body": null,
             "documentation": "@notice Query if a contract implements an interface\n @param interfaceID The interface identifier, as specified in ERC-165\n @dev Interface identification is specified in ERC-165. This function\n  uses less than 30,000 gas.\n @return `true` if the contract implements `interfaceID` and\n  `interfaceID` is not 0xffffffff, `false` otherwise",
-            "id": 351,
+            "id": 349,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": true,
@@ -196,15 +196,15 @@
             "name": "supportsInterface",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 347,
+              "id": 345,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 346,
+                  "id": 344,
                   "name": "interfaceID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 351,
+                  "scope": 349,
                   "src": "440:18:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -213,7 +213,7 @@
                     "typeString": "bytes4"
                   },
                   "typeName": {
-                    "id": 345,
+                    "id": 343,
                     "name": "bytes4",
                     "nodeType": "ElementaryTypeName",
                     "src": "440:6:1",
@@ -230,15 +230,15 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 350,
+              "id": 348,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 349,
+                  "id": 347,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 351,
+                  "scope": 349,
                   "src": "483:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -247,7 +247,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 348,
+                    "id": 346,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "483:4:1",
@@ -262,14 +262,14 @@
               ],
               "src": "482:6:1"
             },
-            "scope": 352,
+            "scope": 350,
             "src": "413:76:1",
             "stateMutability": "pure",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 353,
+        "scope": 351,
         "src": "26:465:1"
       }
     ],
@@ -281,5 +281,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-06-22T13:00:44.331Z"
+  "updatedAt": "2018-06-23T09:54:37.369Z"
 }
