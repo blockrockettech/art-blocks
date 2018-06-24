@@ -1,3 +1,4 @@
+
 const assertRevert = require('../helpers/assertRevert');
 const sendTransaction = require('../helpers/sendTransaction').sendTransaction;
 const etherToWei = require('../helpers/etherToWei');
@@ -6,6 +7,8 @@ const advanceBlock = require('../helpers/advanceToBlock');
 const increaseTimeTo = require('../helpers/increaseTime').increaseTimeTo;
 const duration = require('../helpers/increaseTime').duration;
 const latestTime = require('../helpers/latestTime');
+
+const Web3 = require('web3');
 
 const _ = require('lodash');
 
@@ -18,7 +21,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract.only('DART', function (accounts) {
+contract('DART', function (accounts) {
   const _dartOwner = accounts[0];
 
   const _buyerOne = accounts[1];
@@ -56,7 +59,8 @@ contract.only('DART', function (accounts) {
 
     describe('checking token lookup methods', async function () {
       it('nicknameOf is set for initial token', async function () {
-        const nickname = await this.token.nicknameOf(_tokenIdOne);
+        let nickname = await this.token.nicknameOf(_tokenIdOne);
+        nickname = Web3.utils.hexToAscii(nickname);
         nickname.should.be.equal(_nicknameOne);
       });
 
