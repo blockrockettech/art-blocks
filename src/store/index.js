@@ -7,9 +7,12 @@ import Web3 from 'web3';
 import createLogger from 'vuex/dist/logger';
 import {getEtherscanAddress, getNetIdString} from '../utils';
 import contract from 'truffle-contract';
+
 import dARTJson from '../../build/contracts/DART.json';
+import simpleArtistContractJson from '../../build/contracts/SimpleArtistContract.json';
 
 const dart = contract(dARTJson);
+const simpleArtistContract = contract(simpleArtistContractJson);
 
 Vue.use(Vuex);
 
@@ -29,10 +32,13 @@ const store = new Vuex.Store({
     contractSymbol: '',
     contractAddress: '',
 
+    simpleArtistContractOwner: '',
+    simpleArtistContractAddress: '',
+    simpleArtistContractBalance: null,
+
     // contract totals
     totalSupply: null,
-    totalContributionsInWei: null,
-    totalContributionsEther: null,
+
     pricePerBlockInWei: null,
     pricePerBlockInEth: null,
     maxBlockPurchaseInOneGo: null,
@@ -71,16 +77,16 @@ const store = new Vuex.Store({
     [mutations.SET_ASSETS_PURCHASED_FROM_ACCOUNT](state, tokens) {
       Vue.set(state, 'assetsPurchasedByAccount', tokens);
     },
-    [mutations.SET_TOTAL_PURCHASED](state, {totalContributionsInWei, totalContributionsInEther}) {
-      state.totalContributionsInWei = totalContributionsInWei;
-      state.totalContributionsInEther = totalContributionsInEther;
-    },
-    [mutations.SET_CONTRACT_DETAILS](state, {name, symbol, totalSupply, curatorAddress, contractAddress, pricePerBlockInWei, pricePerBlockInEth, maxBlockPurchaseInOneGo}) {
+    [mutations.SET_CONTRACT_DETAILS](state, {name, symbol, totalSupply, curatorAddress, contractAddress}) {
       state.totalSupply = totalSupply;
       state.contractSymbol = symbol;
       state.contractName = name;
       state.curatorAddress = curatorAddress;
       state.contractAddress = contractAddress;
+    },
+    [mutations.SET_ARTIST_CONTRACT_DETAILS](state, {owner, contractAddress, pricePerBlockInWei, pricePerBlockInEth, maxBlockPurchaseInOneGo}) {
+      state.simpleArtistContractOwner = owner;
+      state.simpleArtistContractAddress = contractAddress;
       state.pricePerBlockInWei = pricePerBlockInWei;
       state.pricePerBlockInEth = pricePerBlockInEth;
       state.maxBlockPurchaseInOneGo = maxBlockPurchaseInOneGo;
@@ -100,11 +106,12 @@ const store = new Vuex.Store({
     [mutations.SET_WEB3](state, web3) {
       state.web3 = web3;
     },
-    [mutations.SET_HASH](state, {hash, blocknumber, nextBlockToFund}) {
+    [mutations.SET_HASH](state, {hash, blocknumber, nextBlockToFund, balance}) {
       console.log(`blocknumber: ${blocknumber} nextHash(): ${hash}`);
       state.hash = hash;
       state.blocknumber = blocknumber + 1;
       state.nextBlockToFund = nextBlockToFund;
+      state.simpleArtistContractBalance = balance;
 
       state.hashes[blocknumber] = {
         hash: hash,
@@ -151,6 +158,18 @@ const store = new Vuex.Store({
         };
       }
 
+      // NON-ASYNC action - set web3 provider on init
+      simpleArtistContract.setProvider(web3.currentProvider);
+
+      //dirty hack for web3@1.0.0 support for localhost testrpc, see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530
+      if (typeof simpleArtistContract.currentProvider.sendAsync !== 'function') {
+        simpleArtistContract.currentProvider.sendAsync = function () {
+          return simpleArtistContract.currentProvider.send.apply(
+            simpleArtistContract.currentProvider, arguments
+          );
+        };
+      }
+
       // Set the web3 instance
       commit(mutations.SET_WEB3, web3);
 
@@ -184,7 +203,7 @@ const store = new Vuex.Store({
           // Every second check if the main account has changed
           setInterval(refreshHandler, 1000);
 
-          // init the KODA contract
+          // init the contract
           dispatch(actions.REFRESH_CONTRACT_DETAILS);
 
           if (account) {
@@ -221,10 +240,11 @@ const store = new Vuex.Store({
         });
     },
     [actions.REFRESH_CONTRACT_DETAILS]({commit, dispatch, state}) {
+
       dart.deployed()
         .then((contract) => {
 
-          Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.owner(), contract.address, contract.pricePerBlock(), contract.maxBlockPurchaseInOneGo()])
+          Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.owner(), contract.address])
             .then((results) => {
               commit(mutations.SET_CONTRACT_DETAILS, {
                 name: results[0],
@@ -232,32 +252,37 @@ const store = new Vuex.Store({
                 totalSupply: results[2].toString(),
                 curatorAddress: results[3],
                 contractAddress: results[4],
-                pricePerBlockInWei: results[5],
-                pricePerBlockInEth: Web3.utils.fromWei(results[5].toString(10), 'ether'),
-                maxBlockPurchaseInOneGo: results[6].toNumber(10),
               });
 
               dispatch(actions.GET_ALL_ASSETS);
             });
+        }).catch((error) => console.log('Something went bang!', error));
 
-          Promise.all([contract.totalContributionsInWei()])
+      simpleArtistContract.deployed()
+        .then((contract) => {
+
+          Promise.all([contract.owner(), contract.address, contract.pricePerBlockInWei(), contract.maxBlockPurchaseInOneGo()])
             .then((results) => {
-              commit(mutations.SET_TOTAL_PURCHASED, {
-                totalContributionsInEther: Web3.utils.fromWei(results[0].toString(10), 'ether'),
-                totalContributionsInWei: results[0].toString(10)
+              commit(mutations.SET_ARTIST_CONTRACT_DETAILS, {
+                owner: results[0],
+                contractAddress: results[1],
+                pricePerBlockInWei: results[2],
+                pricePerBlockInEth: Web3.utils.fromWei(results[2].toString(10), 'ether'),
+                maxBlockPurchaseInOneGo: results[3].toNumber(10),
               });
             });
         }).catch((error) => console.log('Something went bang!', error));
     },
     [actions.NEXT_HASH]({commit, dispatch, state}) {
-      dart.deployed()
+      simpleArtistContract.deployed()
         .then((contract) => {
-          Promise.all([contract.nextHash(), contract.getNextBlockToFund()])
+          Promise.all([contract.nextHash(), contract.nextPurchasableBlocknumber()])
             .then((results) => {
               commit(mutations.SET_HASH, {
                 hash: results[0][0],
                 blocknumber: results[0][1].toNumber(10),
-                nextBlockToFund: results[1].toNumber(10)
+                nextBlockToFund: results[1].toNumber(10),
+                balance: 0
               });
             });
         })

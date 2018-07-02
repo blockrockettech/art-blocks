@@ -14,7 +14,7 @@
             <router-link :to="{ name: 'mint' }" class="nav-link d-none d-sm-block">Mint</router-link>
           </li>
           <li class="nav-item">
-            <router-link :to="{ name: 'hash' }" class="nav-link d-none d-sm-block">Hash</router-link>
+            <router-link :to="{ name: 'artist' }" class="nav-link d-none d-sm-block">Artist</router-link>
           </li>
         </ul>
       </nav>
