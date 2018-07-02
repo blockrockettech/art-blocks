@@ -1,16 +1,6 @@
-
-const assertRevert = require('../helpers/assertRevert');
-const sendTransaction = require('../helpers/sendTransaction').sendTransaction;
-const etherToWei = require('../helpers/etherToWei');
-
 const advanceBlock = require('../helpers/advanceToBlock');
-const increaseTimeTo = require('../helpers/increaseTime').increaseTimeTo;
-const duration = require('../helpers/increaseTime').duration;
-const latestTime = require('../helpers/latestTime');
 
 const Web3 = require('web3');
-
-const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 
@@ -24,9 +14,6 @@ require('chai')
 contract('DART', function (accounts) {
   const _dartOwner = accounts[0];
 
-  const _buyerOne = accounts[1];
-  const _buyerTwo = accounts[2];
-
   const _tokenIdOne = 1;
   const _tokenIdTwo = 2;
   const _tokenIdThree = 3;
@@ -38,8 +25,6 @@ contract('DART', function (accounts) {
   const _nicknameOne = "jimmy";
   const _nicknameTwo = "jammy";
   const _nicknameThree = "jeremy";
-
-  const unknownTokenId = 99;
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc

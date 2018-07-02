@@ -1,14 +1,11 @@
 pragma solidity ^0.4.24;
 
 
+import "openzeppelin-solidity/contracts/ownership/Whitelist.sol";
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 
 import "./Strings.sol";
-
 import "./ERC165.sol";
-
-import "openzeppelin-solidity/contracts/ownership/Whitelist.sol";
-
 
 /**
 * @title DART
@@ -149,7 +146,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev checks for owned tokens
    * @param _owner address to query
    */
-  function hasTokens(address _owner) constant returns (bool) {
+  function hasTokens(address _owner) public view returns (bool) {
     return ownedTokens[_owner].length > 0;
   }
 
@@ -157,7 +154,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev checks for owned tokens
    * @param _owner address to query
    */
-  function firstToken(address _owner) constant returns (uint256 _tokenId) {
+  function firstToken(address _owner) public view returns (uint256 _tokenId) {
     require(hasTokens(_owner));
     return ownedTokens[_owner][0];
   }

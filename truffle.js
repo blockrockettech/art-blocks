@@ -32,8 +32,8 @@ module.exports = {
     },
     live: {
       provider: function () {
-        let mnemonic_live = require('./mnemonic_live');
-        return new HDWalletProvider(mnemonic_live, `https://mainnet.infura.io/${infuraApikey}`);
+        let mnemonicLive = require('./mnemonic_live');
+        return new HDWalletProvider(mnemonicLive, `https://mainnet.infura.io/${infuraApikey}`);
       },
       network_id: 1,
       gas: 4075039, // default = 4712388

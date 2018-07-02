@@ -45,7 +45,7 @@ contract('SimpleArtistContract', function (accounts) {
 
   beforeEach(async function () {
     this.token = await DART.new({from: _dartOwner});
-    this.simpleArtistContract = await SimpleArtistContract.new(this.token.address, {from: _artist});
+    this.simpleArtistContract = await SimpleArtistContract.new(this.token.address, etherToWei(0.01), 20, _artist, {from: _artist});
   });
 
   describe('purchase functions', function () {
@@ -113,7 +113,7 @@ contract('SimpleArtistContract', function (accounts) {
 
           // Keep track of the blocks funded and hashes for test purposes
           firstFundLogs.forEach((log) => {
-            if (log.event === 'Purchase') {
+            if (log.event === 'PurchaseBlock') {
               let {_block, _blockhash} = log.args;
               fundedBlocks.push(_block);
               fundedBlockHashes.push(_blockhash);
@@ -139,7 +139,7 @@ contract('SimpleArtistContract', function (accounts) {
         it('should emit FundDART event for each block', async function () {
           let validatePurchaseEvent = (log, token) => {
             let {_funder, _tokenId, _block} = log.args;
-            log.event.should.be.eq('Purchase');
+            log.event.should.be.eq('PurchaseBlock');
             _funder.should.be.equal(_dartOwner);
             _tokenId.should.be.bignumber.equal(_tokenIdOne);
             // TODO how to validate event _block args?
@@ -197,7 +197,7 @@ contract('SimpleArtistContract', function (accounts) {
 
             // Keep track of the blocks funded and hashes for test purposes
             secondFundLogs.forEach((log) => {
-              if (log.event === 'Purchase') {
+              if (log.event === 'PurchaseBlock') {
                 let {_block, _blockhash} = log.args;
                 secondFundedBlocks.push(_block);
                 secondFundedBlockHashes.push(_blockhash);
@@ -218,10 +218,10 @@ contract('SimpleArtistContract', function (accounts) {
             secondFundedBlockHashes[0].should.be.equal(_blockhashTwo);
           });
 
-          it('should emit FundDART event for each block', async function () {
+          it('should emit PurchaseBlock event for each block', async function () {
             let validatePurchaseEvent = (log, token) => {
               let {_funder, _tokenId, _block} = log.args;
-              log.event.should.be.eq('Purchase');
+              log.event.should.be.eq('PurchaseBlock');
               _funder.should.be.equal(_dartOwner);
               _tokenId.should.be.bignumber.equal(_tokenIdTwo);
               // TODO how to validate event _block args?
@@ -266,7 +266,7 @@ contract('SimpleArtistContract', function (accounts) {
           });
         });
 
-        describe.skip('ensuring that multiple funds dont buy the same blocks', async function () {
+        describe('ensuring that multiple funds dont buy the same blocks', async function () {
 
           let allBlocks = null;
           let allBlockHashes = null;
@@ -276,7 +276,7 @@ contract('SimpleArtistContract', function (accounts) {
             allBlockHashes = [];
 
             let populateCounters = (log) => {
-              if (log.event === 'FundDART') {
+              if (log.event === 'PurchaseBlock') {
                 let {_block, _blockhash} = log.args;
                 allBlocks.push(parseInt(_block));
                 allBlockHashes.push(_blockhash);

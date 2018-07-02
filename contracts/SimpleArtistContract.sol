@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "./DART.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 /**
 * @title SimpleArtistContract
@@ -8,8 +9,8 @@ import "./DART.sol";
 contract SimpleArtistContract  {
   using SafeMath for uint256;
 
-  event Purchase(address indexed _funder, uint256 indexed _tokenId, bytes32 _blockhash, uint256 _block);
-  event Purchased(address indexed _funder, uint256 indexed _tokenId, uint256 _blocksPurchased);
+  event Purchased(address indexed _funder, uint256 indexed _tokenId, uint256 _blocksPurchased, uint256 _totalValue);
+  event PurchaseBlock(address indexed _funder, uint256 indexed _tokenId, bytes32 _blockhash, uint256 _block);
 
   modifier onlyValidAmounts() {
     require(msg.value >= 0);
@@ -121,7 +122,7 @@ contract SimpleArtistContract  {
     uint artistTotal = msg.value - foundationShare;
     artist.transfer(artistTotal);
 
-    emit Purchased(msg.sender, _tokenId, blocksToPurchased);
+    Purchased(msg.sender, _tokenId, blocksToPurchased, msg.value);
   }
 
   function purchaseBlock(uint256 _blocknumber, uint256 _tokenId) internal {
@@ -132,7 +133,7 @@ contract SimpleArtistContract  {
     tokenIdToPurchasedBlocknumbers[_tokenId].push(_blocknumber);
 
     // Emit event for logging/tracking
-    emit Purchase(msg.sender, _tokenId, getPurchasedBlockhash(_blocknumber), _blocknumber);
+    emit PurchaseBlock(msg.sender, _tokenId, getPurchasedBlockhash(_blocknumber), _blocknumber);
   }
 
   /**
