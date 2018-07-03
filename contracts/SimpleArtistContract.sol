@@ -1,6 +1,7 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 import "./DART.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 /**
 * @title SimpleArtistContract
@@ -46,7 +47,7 @@ contract SimpleArtistContract  {
 
   uint256 public lastPurchasedBlock = 0;
 
-  function SimpleArtistContract(DART _token, uint256 _pricePerBlockInWei, uint256 _maxBlockPurchaseInOneGo, address _artist) public {
+  constructor(DART _token, uint256 _pricePerBlockInWei, uint256 _maxBlockPurchaseInOneGo, address _artist) public {
     require(_artist != address(0));
     artist = _artist;
 
@@ -132,7 +133,7 @@ contract SimpleArtistContract  {
     tokenIdToPurchasedBlocknumbers[_tokenId].push(_blocknumber);
 
     // Emit event for logging/tracking
-    PurchaseBlock(msg.sender, _tokenId, getPurchasedBlockhash(_blocknumber), _blocknumber);
+    emit PurchaseBlock(msg.sender, _tokenId, getPurchasedBlockhash(_blocknumber), _blocknumber);
   }
 
   /**
@@ -175,7 +176,7 @@ contract SimpleArtistContract  {
    * @dev Generates default block hash behaviour - helps with tests
    */
   function nativeBlockhash(uint256 _blocknumber) public view returns (bytes32 _tokenHash) {
-    return block.blockhash(_blocknumber);
+    return blockhash(_blocknumber);
   }
 
   /**

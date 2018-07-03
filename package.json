@@ -39,8 +39,8 @@
     "vue-swal": "^0.1.0",
     "vuejs-logger": "1.3.4",
     "vuex": "^3.0.1",
-    "web3": "^1.0.0-beta.30",
-    "zeppelin-solidity": "^1.8.0"
+    "web3": "^1.0.0-beta.34",
+    "openzeppelin-solidity": "^v1.10.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
@@ -107,7 +107,7 @@
     "sinon": "^2.1.0",
     "sinon-chai": "^2.8.0",
     "solidity-coverage": "^0.4.12",
-    "truffle": "^4.1.5",
+    "truffle": "^4.1.13",
     "truffle-flattener": "^1.2.5",
     "truffle-hdwallet-provider": "0.0.3",
     "url-loader": "^0.5.8",

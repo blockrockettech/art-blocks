@@ -19,7 +19,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract.only('SimpleArtistContract', function (accounts) {
+contract('SimpleArtistContract', function (accounts) {
   const _dartOwner = accounts[0];
 
   const _artist = accounts[1];

@@ -28,6 +28,6 @@ module.exports = function (deployer, network, accounts) {
 
   deployer.deploy(DART)
     .then(function () {
-      return deployer.deploy(SimpleArtistContract, DART.address, "10000000000000000", 20, 0xe1023C112A39c58238929153F25364c11A33B729);
+      return deployer.deploy(SimpleArtistContract, DART.address, "10000000000000000", 20, "0xe1023C112A39c58238929153F25364c11A33B729");
     });
 };

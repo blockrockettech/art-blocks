@@ -1,14 +1,11 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 
-import "./ERC721Token.sol";
+import "openzeppelin-solidity/contracts/ownership/Whitelist.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 
 import "./Strings.sol";
-
 import "./ERC165.sol";
-
-import "./Whitelist.sol";
-
 
 /**
 * @title DART
@@ -67,7 +64,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
     || (_interfaceID == InterfaceSignature_ERC721Metadata));
   }
 
-  event MintDART(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, string _nickname);
+  event MintDART(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, bytes32 _nickname);
 
   /**
    * @dev Throws if not called by a dART token holder
@@ -78,19 +75,15 @@ contract DART is ERC721Token, ERC165, Whitelist {
   }
 
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
+  string internal constant defaultTokenURI = "QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk";
 
-  mapping (uint256 => string) internal tokenIdToNickname;
+  mapping (uint256 => bytes32) internal tokenIdToNickname;
 
   mapping(uint256 => bytes32) internal tokenIdToBlockhash;
   mapping(bytes32 => uint256) internal blockhashToTokenId;
 
-  function DART() public ERC721Token("Decentralized Art", "DART") {
-
+  constructor() public ERC721Token("Decentralized Art", "DART") {
     super.addAddressToWhitelist(msg.sender);
-
-    // FIXME - hardcoded?
-    super.addAddressToWhitelist(0xf43aE50C468c3D3Fa0C3dC3454E797317EF53078);
-    super.addAddressToWhitelist(0xe1023C112A39c58238929153F25364c11A33B729);
   }
 
   // don't accept payment directly to contract
@@ -105,22 +98,19 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @param _tokenId unique token ID
    * @param _nickname char stamp of token owner
    */
-  function mint(bytes32 _blockhash, uint256 _tokenId, string _nickname) external onlyWhitelisted {
-    require(blockhashToTokenId[_blockhash] == 0);
-    require(tokenIdToBlockhash[_tokenId] == 0);
+  function mint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname) external onlyWhitelisted {
+    require(blockhashToTokenId[_blockhash] == 0 && tokenIdToBlockhash[_tokenId] == 0);
 
     // actually mint the token
     super._mint(msg.sender, _tokenId);
 
-    // Use default
-    super._setTokenURI(_tokenId, "WIP");
-
     // set data
     tokenIdToBlockhash[_tokenId] = _blockhash;
     blockhashToTokenId[_blockhash] = _tokenId;
+
     tokenIdToNickname[_tokenId] = _nickname;
 
-    MintDART(msg.sender, _tokenId, _blockhash, _nickname);
+    emit MintDART(msg.sender, _tokenId, _blockhash, _nickname);
   }
 
   /**
@@ -140,7 +130,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @param _tokenId the DART token ID
    * @param _nickname char stamp of token owner
    */
-  function setNickname(uint256 _tokenId, string _nickname) external onlyOwnerOf(_tokenId) {
+  function setNickname(uint256 _tokenId, bytes32 _nickname) external onlyOwnerOf(_tokenId) {
     tokenIdToNickname[_tokenId] = _nickname;
   }
 
@@ -156,7 +146,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev checks for owned tokens
    * @param _owner address to query
    */
-  function hasTokens(address _owner) constant returns (bool) {
+  function hasTokens(address _owner) public view returns (bool) {
     return ownedTokens[_owner].length > 0;
   }
 
@@ -164,7 +154,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev checks for owned tokens
    * @param _owner address to query
    */
-  function firstToken(address _owner) constant returns (uint256 _tokenId) {
+  function firstToken(address _owner) public view returns (uint256 _tokenId) {
     require(hasTokens(_owner));
     return ownedTokens[_owner][0];
   }
@@ -173,7 +163,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev Return handle of token
    * @param _tokenId token ID for handle lookup
    */
-  function nicknameOf(uint256 _tokenId) public view returns (string _nickname) {
+  function nicknameOf(uint256 _tokenId) public view returns (bytes32 _nickname) {
     return tokenIdToNickname[_tokenId];
   }
 
@@ -183,6 +173,9 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @return the token ID or only the base URI if not found
    */
   function tokenURI(uint256 _tokenId) public view returns (string) {
+    if (bytes(tokenURIs[_tokenId]).length == 0) {
+      return Strings.strConcat(tokenBaseURI, defaultTokenURI);
+    }
     return Strings.strConcat(tokenBaseURI, tokenURIs[_tokenId]);
   }
 
