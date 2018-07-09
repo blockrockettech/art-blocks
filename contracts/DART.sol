@@ -67,7 +67,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
     || (_interfaceID == InterfaceSignature_ERC721Metadata));
   }
 
-  event MintDART(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, string _nickname);
+  event MintDART(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, bytes32 _nickname);
 
   /**
    * @dev Throws if not called by a dART token holder
@@ -79,7 +79,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
 
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
 
-  mapping (uint256 => string) internal tokenIdToNickname;
+  mapping (uint256 => bytes32) internal tokenIdToNickname;
 
   mapping(uint256 => bytes32) internal tokenIdToBlockhash;
   mapping(bytes32 => uint256) internal blockhashToTokenId;
@@ -105,15 +105,15 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @param _tokenId unique token ID
    * @param _nickname char stamp of token owner
    */
-  function mint(bytes32 _blockhash, uint256 _tokenId, string _nickname) external onlyWhitelisted {
+  function mint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname) external onlyWhitelisted {
     require(blockhashToTokenId[_blockhash] == 0);
     require(tokenIdToBlockhash[_tokenId] == 0);
 
     // actually mint the token
     super._mint(msg.sender, _tokenId);
 
-    // Use default
-    super._setTokenURI(_tokenId, "WIP");
+    // Use default artblock.io IPFS hash
+    super._setTokenURI(_tokenId, "QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk");
 
     // set data
     tokenIdToBlockhash[_tokenId] = _blockhash;
@@ -140,7 +140,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @param _tokenId the DART token ID
    * @param _nickname char stamp of token owner
    */
-  function setNickname(uint256 _tokenId, string _nickname) external onlyOwnerOf(_tokenId) {
+  function setNickname(uint256 _tokenId, bytes32 _nickname) external onlyOwnerOf(_tokenId) {
     tokenIdToNickname[_tokenId] = _nickname;
   }
 
@@ -173,7 +173,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev Return handle of token
    * @param _tokenId token ID for handle lookup
    */
-  function nicknameOf(uint256 _tokenId) public view returns (string _nickname) {
+  function nicknameOf(uint256 _tokenId) public view returns (bytes32 _nickname) {
     return tokenIdToNickname[_tokenId];
   }
 

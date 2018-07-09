@@ -231,7 +231,7 @@ const store = new Vuex.Store({
                 owner: result.args._owner,
                 tokenId: result.args._tokenId.toNumber(10),
                 blockhash: result.args._blockhash,
-                nickname: result.args._nickname,
+                nickname: Web3.utils.hexToAscii(result.args._nickname),
               });
             } else {
               console.log('Failure', error);

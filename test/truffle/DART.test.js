@@ -28,15 +28,17 @@ contract('DART', function (accounts) {
   const _tokenIdTwo = 2;
   const _tokenIdThree = 3;
 
-  const _blockhashOne = "0x88e96d4537bea4d9c05d12549907b32561d3bf31f45aae734cdc119f13406cb6";
-  const _blockhashTwo = "0xb495a1d7e6663152ae92708da4843337b958146015a2802f4193a410044698c9";
-  const _blockhashThree = "0x3d6122660cc824376f11ee842f83addc3525e2dd6756b9bcf0affa6aa88cf741";
+  const _blockhashOne = '0x88e96d4537bea4d9c05d12549907b32561d3bf31f45aae734cdc119f13406cb6';
+  const _blockhashTwo = '0xb495a1d7e6663152ae92708da4843337b958146015a2802f4193a410044698c9';
+  const _blockhashThree = '0x3d6122660cc824376f11ee842f83addc3525e2dd6756b9bcf0affa6aa88cf741';
 
-  const _nicknameOne = "jimmy";
-  const _nicknameTwo = "jammy";
-  const _nicknameThree = "jeremy";
+  const _nicknameOne = 'jimmy';
+  const _nicknameTwo = 'jammy';
+  const _nicknameThree = 'jeremy';
 
   const unknownTokenId = 99;
+
+  const defaultUri = 'QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk';
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
@@ -57,12 +59,19 @@ contract('DART', function (accounts) {
     describe('checking token lookup methods', async function () {
       it('nicknameOf is set for initial token', async function () {
         const nickname = await this.token.nicknameOf(_tokenIdOne);
-        nickname.should.be.equal(_nicknameOne);
+        web3.toAscii(nickname).replace(/\u0000/g, '').should.be.equal(_nicknameOne);
       });
 
       it('blockhashOf is set for initial token', async function () {
         const blockhash = await this.token.blockhashOf(_tokenIdOne);
         blockhash.should.be.equal(_blockhashOne);
+      });
+    });
+
+    describe('ensure token URI is set to default', async function () {
+      it('should be default art-block URI', async function () {
+        const tokenUri = await this.token.tokenURI(_tokenIdOne);
+        tokenUri.should.be.equal(`https://ipfs.infura.io/ipfs/${defaultUri}`);
       });
     });
   });
