@@ -105,7 +105,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
     require(blockhashToTokenId[_blockhash] == 0);
     require(tokenIdToBlockhash[_tokenId] == 0);
 
-    // actually mint the token
+    // mint the token with sender as owner
     super._mint(msg.sender, _tokenId);
 
     // set data
@@ -114,6 +114,29 @@ contract DART is ERC721Token, ERC165, Whitelist {
     tokenIdToNickname[_tokenId] = _nickname;
 
     MintDART(msg.sender, _tokenId, _blockhash, _nickname);
+  }
+
+  /**
+   * @dev Mint a new DART token (with recipient)
+   * @dev Reverts if not called by curator
+   * @param _blockhash an Ethereum block hash
+   * @param _tokenId unique token ID
+   * @param _nickname char stamp of token owner
+   * @param _recipient owner of the newly minted token
+   */
+  function recipientMint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname, address _recipient) external onlyWhitelisted {
+    require(blockhashToTokenId[_blockhash] == 0);
+    require(tokenIdToBlockhash[_tokenId] == 0);
+
+    // mint the token setting the _recipient as owner
+    super._mint(_recipient, _tokenId);
+
+    // set data
+    tokenIdToBlockhash[_tokenId] = _blockhash;
+    blockhashToTokenId[_blockhash] = _tokenId;
+    tokenIdToNickname[_tokenId] = _nickname;
+
+    MintDART(_recipient, _tokenId, _blockhash, _nickname);
   }
 
   /**

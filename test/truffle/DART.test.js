@@ -18,7 +18,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('DART', function (accounts) {
+contract.only('DART', function (accounts) {
   const _dartOwner = accounts[0];
 
   const _buyerOne = accounts[1];
@@ -53,7 +53,17 @@ contract('DART', function (accounts) {
     beforeEach(async function () {
       await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _dartOwner});
       await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _dartOwner});
-      await this.token.mint(_blockhashThree, _tokenIdThree, _nicknameThree, {from: _dartOwner});
+    });
+
+    describe('checking recipient mint', async function () {
+      beforeEach(async function () {
+        await this.token.recipientMint(_blockhashThree, _tokenIdThree, _nicknameThree, _buyerOne, {from: _dartOwner});
+      });
+
+      it('should set the owner to be the recipient', async function () {
+        const owner = await this.token.ownerOf(_tokenIdThree);
+        owner.should.be.equal(_buyerOne);
+      });
     });
 
     describe('checking token lookup methods', async function () {
