@@ -767,12 +767,12 @@ contract Whitelist is Ownable {
 
 }
 
-// File: contracts/DART.sol
+// File: contracts/InterfaceToken.sol
 
 /**
-* @title DART
+* @title InterfaceToken
 */
-contract DART is ERC721Token, ERC165, Whitelist {
+contract InterfaceToken is ERC721Token, ERC165, Whitelist {
   using SafeMath for uint256;
 
   bytes4 constant InterfaceSignature_ERC165 = 0x01ffc9a7;
@@ -826,22 +826,26 @@ contract DART is ERC721Token, ERC165, Whitelist {
     || (_interfaceID == InterfaceSignature_ERC721Metadata));
   }
 
-  event MintDART(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, string _nickname);
+  event Minted(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, bytes32 _nickname);
+
+  /**
+   * @dev Throws if not called by a dART token holder
+   */
+  modifier onlyTokenOwners() {
+    require(hasTokens(msg.sender));
+    _;
+  }
 
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
+  string internal constant defaultTokenURI = "QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk";
 
-  mapping (uint256 => string) internal tokenIdToNickname;
+  mapping(uint256 => bytes32) internal tokenIdToNickname;
 
   mapping(uint256 => bytes32) internal tokenIdToBlockhash;
   mapping(bytes32 => uint256) internal blockhashToTokenId;
 
-  function DART() public ERC721Token("Digital Art", "DART") {
-
+  function InterfaceToken() public ERC721Token("Interface Token", "IFTK") {
     super.addAddressToWhitelist(msg.sender);
-
-    // FIXME - hardcoded?
-    super.addAddressToWhitelist(0xf43aE50C468c3D3Fa0C3dC3454E797317EF53078);
-    super.addAddressToWhitelist(0xe1023C112A39c58238929153F25364c11A33B729);
   }
 
   // don't accept payment directly to contract
@@ -850,28 +854,48 @@ contract DART is ERC721Token, ERC165, Whitelist {
   }
 
   /**
-   * @dev Mint a new DART token
+   * @dev Mint a new InterfaceToken token
    * @dev Reverts if not called by curator
    * @param _blockhash an Ethereum block hash
    * @param _tokenId unique token ID
    * @param _nickname char stamp of token owner
    */
-  function mint(bytes32 _blockhash, uint256 _tokenId, string _nickname) external onlyWhitelisted {
+  function mint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname) external onlyWhitelisted {
     require(blockhashToTokenId[_blockhash] == 0);
     require(tokenIdToBlockhash[_tokenId] == 0);
 
-    // actually mint the token
+    // mint the token with sender as owner
     super._mint(msg.sender, _tokenId);
-
-    // Use default
-    super._setTokenURI(_tokenId, "WIP");
 
     // set data
     tokenIdToBlockhash[_tokenId] = _blockhash;
     blockhashToTokenId[_blockhash] = _tokenId;
     tokenIdToNickname[_tokenId] = _nickname;
 
-    MintDART(msg.sender, _tokenId, _blockhash, _nickname);
+    Minted(msg.sender, _tokenId, _blockhash, _nickname);
+  }
+
+  /**
+   * @dev Mint a new InterfaceToken token (with recipient)
+   * @dev Reverts if not called by curator
+   * @param _blockhash an Ethereum block hash
+   * @param _tokenId unique token ID
+   * @param _nickname char stamp of token owner
+   * @param _recipient owner of the newly minted token
+   */
+  function mintTransfer(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname, address _recipient) external onlyWhitelisted {
+    require(blockhashToTokenId[_blockhash] == 0);
+    require(tokenIdToBlockhash[_tokenId] == 0);
+
+    // mint the token setting the _recipient as owner
+    super._mint(_recipient, _tokenId);
+
+    // set data
+    tokenIdToBlockhash[_tokenId] = _blockhash;
+    blockhashToTokenId[_blockhash] = _tokenId;
+    tokenIdToNickname[_tokenId] = _nickname;
+
+    Minted(_recipient, _tokenId, _blockhash, _nickname);
   }
 
   /**
@@ -883,6 +907,16 @@ contract DART is ERC721Token, ERC165, Whitelist {
   function setTokenURI(uint256 _tokenId, string _uri) external onlyWhitelisted {
     require(exists(_tokenId));
     _setTokenURI(_tokenId, _uri);
+  }
+
+  /**
+   * @dev Utility function for updating a nickname if you own the token
+   * @dev Reverts if not called by owner
+   * @param _tokenId the DART token ID
+   * @param _nickname char stamp of token owner
+   */
+  function setNickname(uint256 _tokenId, bytes32 _nickname) external onlyOwnerOf(_tokenId) {
+    tokenIdToNickname[_tokenId] = _nickname;
   }
 
   /**
@@ -914,7 +948,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @dev Return handle of token
    * @param _tokenId token ID for handle lookup
    */
-  function nicknameOf(uint256 _tokenId) public view returns (string _nickname) {
+  function nicknameOf(uint256 _tokenId) public view returns (bytes32 _nickname) {
     return tokenIdToNickname[_tokenId];
   }
 
@@ -924,6 +958,10 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @return the token ID or only the base URI if not found
    */
   function tokenURI(uint256 _tokenId) public view returns (string) {
+    if (bytes(tokenURIs[_tokenId]).length == 0) {
+      return Strings.strConcat(tokenBaseURI, defaultTokenURI);
+    }
+
     return Strings.strConcat(tokenBaseURI, tokenURIs[_tokenId]);
   }
 
@@ -950,11 +988,11 @@ contract DART is ERC721Token, ERC165, Whitelist {
 /**
 * @title SimpleArtistContract
 */
-contract SimpleArtistContract is Ownable {
+contract SimpleArtistContract  {
   using SafeMath for uint256;
 
-  event Purchase(address indexed _funder, uint256 indexed _tokenId, bytes32 _blockhash, uint256 _block);
-  event Purchased(address indexed _funder, uint256 indexed _tokenId, uint256 _blocksPurchased);
+  event Purchased(address indexed _funder, uint256 indexed _tokenId, uint256 _blocksPurchased, uint256 _totalValue);
+  event PurchaseBlock(address indexed _funder, uint256 indexed _tokenId, bytes32 _blockhash, uint256 _block);
 
   modifier onlyValidAmounts() {
     require(msg.value >= 0);
@@ -967,21 +1005,34 @@ contract SimpleArtistContract is Ownable {
     _;
   }
 
-  DART public token;
+  /**
+   * @dev Throws if called by any account other than the artist.
+   */
+  modifier onlyArtist() {
+    require(msg.sender == artist);
+    _;
+  }
+
+  address public artist;
+
+  InterfaceToken public token;
 
   uint256 public pricePerBlockInWei;
   uint256 public maxBlockPurchaseInOneGo;
   bool public onlyShowPurchased = false;
 
-  // FIXME - hardcoded?
   address public foundationAddress = 0xf43aE50C468c3D3Fa0C3dC3454E797317EF53078;
+  uint256 public foundationPercentage = 5; // 5% to foundation
 
   mapping(uint256 => uint256) internal blocknumberToTokenId;
   mapping(uint256 => uint256[]) internal tokenIdToPurchasedBlocknumbers;
 
   uint256 public lastPurchasedBlock = 0;
 
-  function SimpleArtistContract(DART _token, uint256 _pricePerBlockInWei, uint256 _maxBlockPurchaseInOneGo) public {
+  function SimpleArtistContract(InterfaceToken _token, uint256 _pricePerBlockInWei, uint256 _maxBlockPurchaseInOneGo, address _artist) public {
+    require(_artist != address(0));
+    artist = _artist;
+
     token = _token;
 
     pricePerBlockInWei = _pricePerBlockInWei;
@@ -1000,27 +1051,18 @@ contract SimpleArtistContract is Ownable {
     }
     else {
       // 4% to foundation
-      uint foundationShare = msg.value / 100 * 4;
+      uint foundationShare = msg.value / 100 * foundationPercentage;
       foundationAddress.transfer(foundationShare);
 
       // artists sent the remaining value
       uint artistTotal = msg.value - foundationShare;
-      owner.transfer(artistTotal);
+      artist.transfer(artistTotal);
     }
   }
 
   /**
-  * @dev allows artist to withdraw funds sent by non-token holders
-  */
-  function withdraw() public onlyOwner {
-    require(this.balance > 0);
-
-    owner.transfer(this.balance);
-  }
-
-  /**
    * @dev purchase blocks with your Token ID to be displayed for a specific amount of blocks
-   * @param _tokenId the DART token ID
+   * @param _tokenId the InterfaceToken token ID
    */
   function purchase(uint256 _tokenId) public payable onlyValidAmounts {
     require(token.exists(_tokenId));
@@ -1043,7 +1085,6 @@ contract SimpleArtistContract is Ownable {
       if (tokenIdOf(nextBlockToPurchase) == 0) {
         purchaseBlock(nextBlockToPurchase, _tokenId);
         purchased++;
-        purchased++;
       }
 
       // move next block on to find another free space
@@ -1056,14 +1097,14 @@ contract SimpleArtistContract is Ownable {
     // payments
 
     // 4% to foundation
-    uint foundationShare = msg.value / 100 * 4;
+    uint foundationShare = msg.value / 100 * foundationPercentage;
     foundationAddress.transfer(foundationShare);
 
     // artists sent the remaining value
     uint artistTotal = msg.value - foundationShare;
-    owner.transfer(artistTotal);
+    artist.transfer(artistTotal);
 
-    Purchased(msg.sender, _tokenId, blocksToPurchased);
+    Purchased(msg.sender, _tokenId, blocksToPurchased, msg.value);
   }
 
   function purchaseBlock(uint256 _blocknumber, uint256 _tokenId) internal {
@@ -1074,7 +1115,7 @@ contract SimpleArtistContract is Ownable {
     tokenIdToPurchasedBlocknumbers[_tokenId].push(_blocknumber);
 
     // Emit event for logging/tracking
-    Purchase(msg.sender, _tokenId, getPurchasedBlockhash(_blocknumber), _blocknumber);
+    PurchaseBlock(msg.sender, _tokenId, getPurchasedBlockhash(_blocknumber), _blocknumber);
   }
 
   /**
@@ -1102,9 +1143,9 @@ contract SimpleArtistContract is Ownable {
   }
 
   /**
- * @dev Get the block hash the given block number
- * @param _blocknumber the block to generate hash for
- */
+    * @dev Get the block hash the given block number
+    * @param _blocknumber the block to generate hash for
+    */
   function getPurchasedBlockhash(uint256 _blocknumber) public view returns (bytes32 _tokenHash) {
     // Do not allow this to be called for hashes which aren't purchased
     require(tokenIdOf(_blocknumber) != 0);
@@ -1151,7 +1192,7 @@ contract SimpleArtistContract is Ownable {
    * @dev Utility function for updating price per block
    * @param _priceInWei the price in wei
    */
-  function setPricePerBlockInWei( uint256 _priceInWei) external onlyOwner {
+  function setPricePerBlockInWei( uint256 _priceInWei) external onlyArtist {
     pricePerBlockInWei = _priceInWei;
   }
 
@@ -1159,7 +1200,7 @@ contract SimpleArtistContract is Ownable {
    * @dev Utility function for updating max blocks
    * @param _maxBlockPurchaseInOneGo max blocks per purchase
    */
-  function setMaxBlockPurchaseInOneGo( uint256 _maxBlockPurchaseInOneGo) external onlyOwner {
+  function setMaxBlockPurchaseInOneGo( uint256 _maxBlockPurchaseInOneGo) external onlyArtist {
     maxBlockPurchaseInOneGo = _maxBlockPurchaseInOneGo;
   }
 
@@ -1167,7 +1208,7 @@ contract SimpleArtistContract is Ownable {
  * @dev Utility function for only show purchased
  * @param _onlyShowPurchased flag for only showing purchased hashes
  */
-  function setOnlyShowPurchased(bool _onlyShowPurchased) external onlyOwner {
+  function setOnlyShowPurchased(bool _onlyShowPurchased) external onlyArtist {
     onlyShowPurchased = _onlyShowPurchased;
   }
 }
