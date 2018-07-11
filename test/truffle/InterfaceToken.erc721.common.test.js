@@ -12,7 +12,7 @@ const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 
-const DART = artifacts.require('DART');
+const InterfaceToken = artifacts.require('InterfaceToken');
 const ERC721Receiver = artifacts.require('ERC721ReceiverMock');
 
 require('chai')
@@ -20,7 +20,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('DART', function (accounts) {
+contract('InterfaceToken common ERC721 tests', function (accounts) {
   const _dartOwner = accounts[0];
 
   const _buyerOne = accounts[1];
@@ -51,7 +51,7 @@ contract('DART', function (accounts) {
   });
 
   beforeEach(async function () {
-    this.token = await DART.new({from: _dartOwner});
+    this.token = await InterfaceToken.new({from: _dartOwner});
   });
 
   describe('like a ERC721BasicToken', function () {
@@ -600,7 +600,7 @@ contract('DART', function (accounts) {
           logs[0].args._to.should.be.equal(_dartOwner);
           logs[0].args._tokenId.should.be.bignumber.equal(_tokenIdThree);
 
-          logs[1].event.should.be.eq('MintDART');
+          logs[1].event.should.be.eq('Minted');
           logs[1].args._owner.should.be.equal(_dartOwner);
           logs[1].args._tokenId.should.be.bignumber.equal(_tokenIdThree);
           logs[1].args._blockhash.should.be.equal(_blockhashThree);

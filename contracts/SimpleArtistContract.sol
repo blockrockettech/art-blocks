@@ -1,6 +1,6 @@
 pragma solidity ^0.4.21;
 
-import "./DART.sol";
+import "./InterfaceToken.sol";
 
 /**
 * @title SimpleArtistContract
@@ -32,7 +32,7 @@ contract SimpleArtistContract  {
 
   address public artist;
 
-  DART public token;
+  InterfaceToken public token;
 
   uint256 public pricePerBlockInWei;
   uint256 public maxBlockPurchaseInOneGo;
@@ -46,7 +46,7 @@ contract SimpleArtistContract  {
 
   uint256 public lastPurchasedBlock = 0;
 
-  function SimpleArtistContract(DART _token, uint256 _pricePerBlockInWei, uint256 _maxBlockPurchaseInOneGo, address _artist) public {
+  function SimpleArtistContract(InterfaceToken _token, uint256 _pricePerBlockInWei, uint256 _maxBlockPurchaseInOneGo, address _artist) public {
     require(_artist != address(0));
     artist = _artist;
 
@@ -79,7 +79,7 @@ contract SimpleArtistContract  {
 
   /**
    * @dev purchase blocks with your Token ID to be displayed for a specific amount of blocks
-   * @param _tokenId the DART token ID
+   * @param _tokenId the InterfaceToken token ID
    */
   function purchase(uint256 _tokenId) public payable onlyValidAmounts {
     require(token.exists(_tokenId));

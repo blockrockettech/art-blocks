@@ -11,7 +11,7 @@ const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 
-const DART = artifacts.require('DART');
+const InterfaceToken = artifacts.require('InterfaceToken');
 const SimpleArtistContract = artifacts.require('SimpleArtistContract');
 
 require('chai')
@@ -44,7 +44,7 @@ contract('SimpleArtistContract', function (accounts) {
   });
 
   beforeEach(async function () {
-    this.token = await DART.new({from: _dartOwner});
+    this.token = await InterfaceToken.new({from: _dartOwner});
     this.simpleArtistContract = await SimpleArtistContract.new(this.token.address, etherToWei(0.01), 20, _artist, {from: _artist});
   });
 

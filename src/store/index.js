@@ -219,7 +219,7 @@ const store = new Vuex.Store({
       dart.deployed()
         .then((contract) => {
 
-          let mintEvent = contract.MintDART({}, {
+          let mintEvent = contract.Minted({}, {
             fromBlock: 0, // FIXME use contract deployed blocknumber?! or maybe expose some method to get all tokens ... is this possible ?
             toBlock: 'latest' // wait until event comes through
           });

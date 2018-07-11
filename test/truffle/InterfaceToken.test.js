@@ -11,14 +11,14 @@ const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
 
-const DART = artifacts.require('DART');
+const InterfaceToken = artifacts.require('InterfaceToken');
 
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract.only('DART', function (accounts) {
+contract('InterfaceToken', function (accounts) {
   const _dartOwner = accounts[0];
 
   const _buyerOne = accounts[1];
@@ -46,7 +46,7 @@ contract.only('DART', function (accounts) {
   });
 
   beforeEach(async function () {
-    this.token = await DART.new({from: _dartOwner});
+    this.token = await InterfaceToken.new({from: _dartOwner});
   });
 
   describe('custom functions', function () {

@@ -1,4 +1,4 @@
-const DART = artifacts.require('DART');
+const InterfaceToken = artifacts.require('InterfaceToken');
 const SimpleArtistContract = artifacts.require('SimpleArtistContract');
 
 const HDWalletProvider = require('truffle-hdwallet-provider');
@@ -7,7 +7,7 @@ let mnemonic = require('../mnemonic');
 
 module.exports = function (deployer, network, accounts) {
 
-  console.log(`Deploying DART contract to ${network}...`);
+  console.log(`Deploying InterfaceToken contract to ${network}...`);
 
   let _curatorAccount = accounts[0];
   let _artist = accounts[1];
@@ -26,8 +26,8 @@ module.exports = function (deployer, network, accounts) {
   console.log(`_curatorAccount = ${_curatorAccount}`);
   console.log(`_artist = ${_artist}`);
 
-  deployer.deploy(DART)
+  deployer.deploy(InterfaceToken)
     .then(function () {
-      return deployer.deploy(SimpleArtistContract, DART.address, "10000000000000000", 20, 0xe1023C112A39c58238929153F25364c11A33B729);
+      return deployer.deploy(SimpleArtistContract, InterfaceToken.address, "10000000000000000", 20, 0xe1023C112A39c58238929153F25364c11A33B729);
     });
 };

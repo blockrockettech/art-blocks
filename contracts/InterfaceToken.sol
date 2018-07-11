@@ -11,9 +11,9 @@ import "./Whitelist.sol";
 
 
 /**
-* @title DART
+* @title InterfaceToken
 */
-contract DART is ERC721Token, ERC165, Whitelist {
+contract InterfaceToken is ERC721Token, ERC165, Whitelist {
   using SafeMath for uint256;
 
   bytes4 constant InterfaceSignature_ERC165 = 0x01ffc9a7;
@@ -67,7 +67,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
     || (_interfaceID == InterfaceSignature_ERC721Metadata));
   }
 
-  event MintDART(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, bytes32 _nickname);
+  event Minted(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, bytes32 _nickname);
 
   /**
    * @dev Throws if not called by a dART token holder
@@ -85,7 +85,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
   mapping(uint256 => bytes32) internal tokenIdToBlockhash;
   mapping(bytes32 => uint256) internal blockhashToTokenId;
 
-  function DART() public ERC721Token("Interface Token", "IFTK") {
+  function InterfaceToken() public ERC721Token("Interface Token", "IFTK") {
     super.addAddressToWhitelist(msg.sender);
   }
 
@@ -95,7 +95,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
   }
 
   /**
-   * @dev Mint a new DART token
+   * @dev Mint a new InterfaceToken token
    * @dev Reverts if not called by curator
    * @param _blockhash an Ethereum block hash
    * @param _tokenId unique token ID
@@ -113,11 +113,11 @@ contract DART is ERC721Token, ERC165, Whitelist {
     blockhashToTokenId[_blockhash] = _tokenId;
     tokenIdToNickname[_tokenId] = _nickname;
 
-    MintDART(msg.sender, _tokenId, _blockhash, _nickname);
+    Minted(msg.sender, _tokenId, _blockhash, _nickname);
   }
 
   /**
-   * @dev Mint a new DART token (with recipient)
+   * @dev Mint a new InterfaceToken token (with recipient)
    * @dev Reverts if not called by curator
    * @param _blockhash an Ethereum block hash
    * @param _tokenId unique token ID
@@ -136,7 +136,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
     blockhashToTokenId[_blockhash] = _tokenId;
     tokenIdToNickname[_tokenId] = _nickname;
 
-    MintDART(_recipient, _tokenId, _blockhash, _nickname);
+    Minted(_recipient, _tokenId, _blockhash, _nickname);
   }
 
   /**

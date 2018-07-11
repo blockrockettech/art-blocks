@@ -5,14 +5,14 @@ const latestTime = require('../helpers/latestTime');
 
 const BigNumber = web3.BigNumber;
 
-const DART = artifacts.require('DART');
+const InterfaceToken = artifacts.require('InterfaceToken');
 
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('DART', function (accounts) {
+contract('InterfaceToken 165 tests', function (accounts) {
   const _dartOwner = accounts[0];
 
   let _purchaseFromTime;
@@ -24,7 +24,7 @@ contract('DART', function (accounts) {
 
   beforeEach(async function () {
     // developers will mine the contract and pass the curator account into it...
-    this.token = await DART.new({from: _dartOwner});
+    this.token = await InterfaceToken.new({from: _dartOwner});
     _purchaseFromTime = latestTime(); // opens immediately
 
     await increaseTimeTo(_purchaseFromTime + duration.seconds(1)); // force time to move 1 seconds so normal tests pass
