@@ -124,7 +124,7 @@ contract DART is ERC721Token, ERC165, Whitelist {
    * @param _nickname char stamp of token owner
    * @param _recipient owner of the newly minted token
    */
-  function recipientMint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname, address _recipient) external onlyWhitelisted {
+  function mintTransfer(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname, address _recipient) external onlyWhitelisted {
     require(blockhashToTokenId[_blockhash] == 0);
     require(tokenIdToBlockhash[_tokenId] == 0);
 

@@ -57,7 +57,7 @@ contract.only('DART', function (accounts) {
 
     describe('checking recipient mint', async function () {
       beforeEach(async function () {
-        await this.token.recipientMint(_blockhashThree, _tokenIdThree, _nicknameThree, _buyerOne, {from: _dartOwner});
+        await this.token.mintTransfer(_blockhashThree, _tokenIdThree, _nicknameThree, _buyerOne, {from: _dartOwner});
       });
 
       it('should set the owner to be the recipient', async function () {
