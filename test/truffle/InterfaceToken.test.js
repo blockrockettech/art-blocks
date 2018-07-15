@@ -79,20 +79,61 @@ contract('InterfaceToken', function (accounts) {
     });
 
     describe('ensure token URI is set to default', async function () {
+
       it('should be default art-block URI', async function () {
         const tokenUri = await this.token.tokenURI(_tokenIdOne);
         tokenUri.should.be.equal(`https://ipfs.infura.io/ipfs/${defaultUri}`);
       });
     });
 
-    describe.only('buy a single token direct', async function () {
-      it('should be give random hash and incremented token ID', async function () {
-        const pointer = await this.token.purchaseTokenPointer();
-        await this.token.buyToken('andy gray', {from: _buyerOne, value: 1000000000000000000});
-        const tokenId = await this.token.tokenOfOwnerByIndex(_buyerOne, 0);
-        pointer.toString(10).should.be.equal(tokenId.toString(10));
+    describe('buying tokens', async function () {
 
-        const hash = await this.token.blockhashOf(tokenId);
+      let costOfToken;
+
+      beforeEach(async function () {
+        // cost is 0.01 eth
+        costOfToken = await this.token.costOfToken();
+      });
+
+      describe('buy a single token direct', async function () {
+        it('should be give random hash and incremented token ID', async function () {
+          const pointer = await this.token.purchaseTokenPointer();
+
+          // 0.01 eth
+          await this.token.buyToken('andy gray', {from: _buyerOne, value: costOfToken});
+          const tokenId = await this.token.tokenOfOwnerByIndex(_buyerOne, 0);
+          pointer.toString(10).should.be.equal(tokenId.toString(10));
+        });
+      });
+
+      describe('buy a multiple tokens direct', async function () {
+        it('should mint x tokens in relation to value sent', async function () {
+          const pointer = await this.token.purchaseTokenPointer();
+
+          // 0.04 eth
+          await this.token.buyTokens('andy gray', {from: _buyerOne, value: costOfToken.times(4)});
+          const tokenIds = await this.token.tokensOf(_buyerOne);
+
+          // bought 4
+          tokenIds.length.should.be.equal(4);
+
+          const newPointer = await this.token.purchaseTokenPointer();
+          pointer.plus(4).toString(10).should.be.equal(newPointer.toString(10));
+        });
+
+        it('should mint x tokens in relation to value sent direct to contract', async function () {
+          const pointer = await this.token.purchaseTokenPointer();
+
+          // 0.04 eth
+          await this.token.sendTransaction({from: _buyerOne, value: costOfToken.times(4)});
+          const tokenIds = await this.token.tokensOf(_buyerOne);
+
+          // bought 4
+          tokenIds.length.should.be.equal(4);
+
+          const newPointer = await this.token.purchaseTokenPointer();
+          pointer.plus(4).toString(10).should.be.equal(newPointer.toString(10));
+        });
       });
     });
   });
