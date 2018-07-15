@@ -83,8 +83,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
   function InterfaceToken() public ERC721Token("Interface Token", "TOKN") {
     super.addAddressToWhitelist(msg.sender);
   }
-
-  // attempt to buy last block
+  
   function() public payable {
     buyToken("");
   }
