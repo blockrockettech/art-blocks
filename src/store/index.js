@@ -8,7 +8,7 @@ import createLogger from 'vuex/dist/logger';
 import {getEtherscanAddress, getNetIdString} from '../utils';
 import contract from 'truffle-contract';
 
-import dARTJson from '../../build/contracts/DART.json';
+import dARTJson from '../../build/contracts/InterfaceToken.json';
 import simpleArtistContractJson from '../../build/contracts/SimpleArtistContract.json';
 
 const dart = contract(dARTJson);

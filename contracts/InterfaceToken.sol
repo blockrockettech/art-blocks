@@ -9,7 +9,6 @@ import "./ERC165.sol";
 
 import "./Whitelist.sol";
 
-
 /**
 * @title InterfaceToken
 */
@@ -69,29 +68,25 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
 
   event Minted(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, bytes32 _nickname);
 
-  /**
-   * @dev Throws if not called by a dART token holder
-   */
-  modifier onlyTokenOwners() {
-    require(hasTokens(msg.sender));
-    _;
-  }
-
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
-  string internal constant defaultTokenURI = "QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk";
+  string internal defaultTokenURI = "QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk";
+
+  uint256 public purchaseTokenPointer =  1000000000;
+  uint256 public costOfToken = 0.01 ether;
+
 
   mapping(uint256 => bytes32) internal tokenIdToNickname;
 
   mapping(uint256 => bytes32) internal tokenIdToBlockhash;
   mapping(bytes32 => uint256) internal blockhashToTokenId;
 
-  function InterfaceToken() public ERC721Token("Interface Token", "IFTK") {
+  function InterfaceToken() public ERC721Token("Interface Token", "TOKN") {
     super.addAddressToWhitelist(msg.sender);
   }
 
-  // don't accept payment directly to contract
+  // attempt to buy last block
   function() public payable {
-    revert();
+    buyToken("");
   }
 
   /**
@@ -102,18 +97,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
    * @param _nickname char stamp of token owner
    */
   function mint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname) external onlyWhitelisted {
-    require(blockhashToTokenId[_blockhash] == 0);
-    require(tokenIdToBlockhash[_tokenId] == 0);
-
-    // mint the token with sender as owner
-    super._mint(msg.sender, _tokenId);
-
-    // set data
-    tokenIdToBlockhash[_tokenId] = _blockhash;
-    blockhashToTokenId[_blockhash] = _tokenId;
-    tokenIdToNickname[_tokenId] = _nickname;
-
-    Minted(msg.sender, _tokenId, _blockhash, _nickname);
+    _mint(_blockhash, _tokenId, _nickname, msg.sender);
   }
 
   /**
@@ -125,10 +109,31 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
    * @param _recipient owner of the newly minted token
    */
   function mintTransfer(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname, address _recipient) external onlyWhitelisted {
+    _mint(_blockhash, _tokenId, _nickname, _recipient);
+  }
+
+  /**
+   * @dev Purchases a new InterfaceToken token
+   * @dev Reverts if not called by curator
+   * @param _nickname char stamp of token owner
+   */
+  function buyToken(bytes32 _nickname) public payable {
+    require(msg.value >= costOfToken);
+
+    _mint(keccak256(purchaseTokenPointer), purchaseTokenPointer, _nickname, msg.sender);
+
+    purchaseTokenPointer = purchaseTokenPointer.add(1);
+
+    // reconcile payments
+    msg.sender.transfer(msg.value - costOfToken);
+    owner.transfer(costOfToken);
+  }
+
+  function _mint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname, address _recipient) internal {
     require(blockhashToTokenId[_blockhash] == 0);
     require(tokenIdToBlockhash[_tokenId] == 0);
 
-    // mint the token setting the _recipient as owner
+    // mint the token with sender as owner
     super._mint(_recipient, _tokenId);
 
     // set data
@@ -140,14 +145,12 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
   }
 
   /**
-   * @dev Utility function for updating a DART assets token URI
-   * @dev Reverts if not called by management
-   * @param _tokenId the DART token ID
-   * @param _uri the token URI, will be concatenated with baseUri
+   * @dev Utility function changing the cost of the token
+   * @dev Reverts if not called by owner
+   * @param _costOfToken cost in wei
    */
-  function setTokenURI(uint256 _tokenId, string _uri) external onlyWhitelisted {
-    require(exists(_tokenId));
-    _setTokenURI(_tokenId, _uri);
+  function setCostOfToken(uint256 _costOfToken) external onlyOwner {
+    costOfToken = _costOfToken;
   }
 
   /**
@@ -208,11 +211,31 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
 
   /**
    * @dev Allows management to update the base tokenURI path
-   * @dev Reverts if not called by management
+   * @dev Reverts if not called by owner
    * @param _newBaseURI the new base URI to set
    */
   function setTokenBaseURI(string _newBaseURI) external onlyOwner {
     tokenBaseURI = _newBaseURI;
+  }
+
+  /**
+   * @dev Allows management to update the default token URI
+   * @dev Reverts if not called by owner
+   * @param _defaultTokenURI the new default URI to set
+   */
+  function setDefaultTokenURI(string _defaultTokenURI) external onlyOwner {
+    defaultTokenURI = _defaultTokenURI;
+  }
+
+  /**
+   * @dev Utility function for updating a DART assets token URI
+   * @dev Reverts if not called by management
+   * @param _tokenId the DART token ID
+   * @param _uri the token URI, will be concatenated with baseUri
+   */
+  function setTokenURI(uint256 _tokenId, string _uri) external onlyWhitelisted {
+    require(exists(_tokenId));
+    _setTokenURI(_tokenId, _uri);
   }
 
   /**

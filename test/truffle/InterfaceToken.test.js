@@ -84,6 +84,17 @@ contract('InterfaceToken', function (accounts) {
         tokenUri.should.be.equal(`https://ipfs.infura.io/ipfs/${defaultUri}`);
       });
     });
+
+    describe.only('buy a single token direct', async function () {
+      it('should be give random hash and incremented token ID', async function () {
+        const pointer = await this.token.purchaseTokenPointer();
+        await this.token.buyToken('andy gray', {from: _buyerOne, value: 1000000000000000000});
+        const tokenId = await this.token.tokenOfOwnerByIndex(_buyerOne, 0);
+        pointer.toString(10).should.be.equal(tokenId.toString(10));
+
+        const hash = await this.token.blockhashOf(tokenId);
+      });
+    });
   });
 
 });
