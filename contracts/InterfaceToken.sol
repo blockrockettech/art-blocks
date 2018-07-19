@@ -10,8 +10,9 @@ import "./ERC165.sol";
 import "./Whitelist.sol";
 
 /**
-* @title InterfaceToken
-*/
+  * @title InterfaceToken
+  * https://www.interfacetoken.com/
+  */
 contract InterfaceToken is ERC721Token, ERC165, Whitelist {
   using SafeMath for uint256;
 
@@ -71,7 +72,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
   string internal defaultTokenURI = "QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk";
 
-  uint256 public purchaseTokenPointer =  1000000000;
+  uint256 public purchaseTokenPointer = 1000000000;
   uint256 public costOfToken = 0.01 ether;
 
 
@@ -119,7 +120,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
   function buyToken(bytes32 _nickname) public payable {
     require(msg.value >= costOfToken);
 
-    _mint(keccak256(purchaseTokenPointer), purchaseTokenPointer, _nickname, msg.sender);
+    _mint(keccak256(purchaseTokenPointer, _nickname), purchaseTokenPointer, _nickname, msg.sender);
     purchaseTokenPointer = purchaseTokenPointer.add(1);
 
     // reconcile payments
@@ -137,7 +138,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
 
     uint i = 0;
     for (i; i < (msg.value / costOfToken); i++) {
-      _mint(keccak256(purchaseTokenPointer), purchaseTokenPointer, _nickname, msg.sender);
+      _mint(keccak256(purchaseTokenPointer, _nickname), purchaseTokenPointer, _nickname, msg.sender);
       purchaseTokenPointer = purchaseTokenPointer.add(1);
     }
 
@@ -166,7 +167,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
    * @dev Reverts if not called by owner
    * @param _costOfToken cost in wei
    */
-  function setCostOfToken(uint256 _costOfToken) external onlyOwner {
+  function setCostOfToken(uint256 _costOfToken) external onlyWhitelisted {
     costOfToken = _costOfToken;
   }
 
