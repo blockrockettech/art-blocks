@@ -95,6 +95,7 @@ contract InterfaceToken is ERC721Token, Whitelist {
   }
 
   function _mint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname, address _recipient) internal {
+    require(_recipient !=  address(0));
     require(blockhashToTokenId[_blockhash] == 0);
     require(tokenIdToBlockhash[_tokenId] == 0);
 
