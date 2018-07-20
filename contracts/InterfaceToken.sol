@@ -42,6 +42,7 @@ contract InterfaceToken is ERC721Token, Whitelist {
    * @param _nickname char stamp of token owner
    */
   function mint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname) external onlyIfWhitelisted(msg.sender) {
+    require(_tokenId < purchaseTokenPointer); // ensure under number where buying tokens takes place
     _mint(_blockhash, _tokenId, _nickname, msg.sender);
   }
 
@@ -54,6 +55,7 @@ contract InterfaceToken is ERC721Token, Whitelist {
    * @param _recipient owner of the newly minted token
    */
   function mintTransfer(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname, address _recipient) external onlyIfWhitelisted(msg.sender) {
+    require(_tokenId < purchaseTokenPointer); // ensure under number where buying tokens takes place
     _mint(_blockhash, _tokenId, _nickname, _recipient);
   }
 
@@ -119,7 +121,7 @@ contract InterfaceToken is ERC721Token, Whitelist {
   /**
    * @dev Utility function for updating a nickname if you own the token
    * @dev Reverts if not called by owner
-   * @param _tokenId the DART token ID
+   * @param _tokenId the  token ID
    * @param _nickname char stamp of token owner
    */
   function setNickname(uint256 _tokenId, bytes32 _nickname) external onlyOwnerOf(_tokenId) {
@@ -161,7 +163,7 @@ contract InterfaceToken is ERC721Token, Whitelist {
 
   /**
    * @dev Get token URI fro the given token, useful for testing purposes
-   * @param _tokenId the DART token ID
+   * @param _tokenId the token ID
    * @return the token ID or only the base URI if not found
    */
   function tokenURI(uint256 _tokenId) public view returns (string) {
@@ -191,9 +193,9 @@ contract InterfaceToken is ERC721Token, Whitelist {
   }
 
   /**
-   * @dev Utility function for updating a DART assets token URI
+   * @dev Utility function for updating an assets token URI
    * @dev Reverts if not called by management
-   * @param _tokenId the DART token ID
+   * @param _tokenId the token ID
    * @param _uri the token URI, will be concatenated with baseUri
    */
   function setTokenURI(uint256 _tokenId, string _uri) external onlyIfWhitelisted(msg.sender) {
@@ -202,10 +204,18 @@ contract InterfaceToken is ERC721Token, Whitelist {
   }
 
   /**
-   * @dev Return blockhash of the DART token
-   * @param _tokenId the DART token ID
+   * @dev Return blockhash of the  token
+   * @param _tokenId the token ID
    */
   function blockhashOf(uint256 _tokenId) public view returns (bytes32 hash) {
     return tokenIdToBlockhash[_tokenId];
+  }
+
+  /**
+   * @dev Return blockhash of the  token
+   * @param _tokenId the token ID
+   */
+  function burn(uint256 _tokenId) public {
+    super._burn(ownerOf(_tokenId), _tokenId);
   }
 }
