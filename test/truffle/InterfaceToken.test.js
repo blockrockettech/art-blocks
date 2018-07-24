@@ -19,7 +19,7 @@ require('chai')
   .should();
 
 contract('InterfaceToken', function (accounts) {
-  const _dartOwner = accounts[0];
+  const _owner = accounts[0];
 
   const _buyerOne = accounts[1];
   const _buyerTwo = accounts[2];
@@ -40,24 +40,26 @@ contract('InterfaceToken', function (accounts) {
 
   const defaultUri = 'QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk';
 
+  const ZERO_ADDRESS = '-0x000000000000000000000000000000000000000000000000000000000000000';
+
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
     await advanceBlock();
   });
 
   beforeEach(async function () {
-    this.token = await InterfaceToken.new({from: _dartOwner});
+    this.token = await InterfaceToken.new({from: _owner});
   });
 
   describe('custom functions', function () {
     beforeEach(async function () {
-      await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _dartOwner});
-      await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _dartOwner});
+      await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _owner});
+      await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _owner});
     });
 
     describe('checking recipient mint', async function () {
       beforeEach(async function () {
-        await this.token.mintTransfer(_blockhashThree, _tokenIdThree, _nicknameThree, _buyerOne, {from: _dartOwner});
+        await this.token.mintTransfer(_blockhashThree, _tokenIdThree, _nicknameThree, _buyerOne, {from: _owner});
       });
 
       it('should set the owner to be the recipient', async function () {
@@ -134,6 +136,36 @@ contract('InterfaceToken', function (accounts) {
           const newPointer = await this.token.purchaseTokenPointer();
           pointer.plus(4).toString(10).should.be.equal(newPointer.toString(10));
         });
+      });
+    });
+
+    describe('burn', function () {
+
+      let originalNick = '';
+      let originalBlockhash = '';
+      let originalTokenId = '';
+
+      beforeEach(async function () {
+        originalNick = await this.token.nicknameOf(_tokenIdOne);
+        originalBlockhash = await this.token.blockhashOf(_tokenIdOne);
+        originalTokenId = await this.token.tokenIdOf(originalBlockhash);
+
+        await this.token.burn(_tokenIdOne, {from: _owner});
+      });
+
+      it('removes InterfaceToken data', async function () {
+        const nickname = await this.token.nicknameOf(_tokenIdOne);
+        web3.toAscii(nickname).replace(/\u0000/g, '').should.be.equal('');
+
+        const bh = await this.token.blockhashOf(_tokenIdOne);
+        web3.toAscii(bh).replace(/\u0000/g, '').should.be.equal('');
+
+        const id = await this.token.tokenIdOf(originalBlockhash);
+        id.toString(10).should.be.equal('0');
+      });
+
+      it('reverts if not owner', async function () {
+        await assertRevert(this.token.burn(_tokenIdTwo, {from: _buyerOne}));
       });
     });
   });
