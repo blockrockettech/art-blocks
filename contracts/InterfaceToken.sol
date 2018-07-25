@@ -16,7 +16,7 @@ contract InterfaceToken is ERC721Token, Whitelist {
   event Minted(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, bytes32 _nickname);
 
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
-  string internal defaultTokenURI = "QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk";
+  string internal defaultTokenURI = "Qma4QoWXq7YzFUkREXW9wKVYPZmKzS5pkckaSjwY8Gc489";
 
   uint256 public purchaseTokenPointer = 1000000000;
   uint256 public costOfToken = 0.01 ether;
