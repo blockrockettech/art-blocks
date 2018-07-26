@@ -29,7 +29,6 @@
     "lodash": "^4.17.5",
     "qr-image": "^3.2.0",
     "qrcode": "^1.2.0",
-    "truffle-contract": "^3.0.5",
     "vue": "^2.5.2",
     "vue-async-computed": "^3.3.1",
     "vue-fullscreen": "^2.1.3",
@@ -40,7 +39,8 @@
     "vuejs-logger": "1.3.4",
     "vuex": "^3.0.1",
     "web3": "^1.0.0-beta.30",
-    "zeppelin-solidity": "^1.8.0"
+    "openzeppelin-solidity": "^1.11.0",
+    "truffle-contract": "^3.0.5"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
@@ -107,7 +107,7 @@
     "sinon": "^2.1.0",
     "sinon-chai": "^2.8.0",
     "solidity-coverage": "^0.4.12",
-    "truffle": "^4.1.5",
+    "truffle": "^4.1.8",
     "truffle-flattener": "^1.2.5",
     "truffle-hdwallet-provider": "0.0.3",
     "url-loader": "^0.5.8",
@@ -118,7 +118,8 @@
     "webpack-bundle-analyzer": "^2.2.1",
     "webpack-dev-middleware": "^1.10.0",
     "webpack-hot-middleware": "^2.18.0",
-    "webpack-merge": "^4.1.0"
+    "webpack-merge": "^4.1.0",
+    "web3-utils": "^1.0.0-beta.34"
   },
   "engines": {
     "node": ">= 8.0.0",

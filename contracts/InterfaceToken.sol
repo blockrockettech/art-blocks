@@ -1,86 +1,32 @@
-pragma solidity ^0.4.21;
-
-
-import "./ERC721Token.sol";
+pragma solidity ^0.4.24;
 
 import "./Strings.sol";
 
-import "./ERC165.sol";
-
-import "./Whitelist.sol";
+import 'openzeppelin-solidity/contracts/access/Whitelist.sol';
+import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
+import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol';
 
 /**
-* @title InterfaceToken
-*/
-contract InterfaceToken is ERC721Token, ERC165, Whitelist {
+  * @title InterfaceToken
+  * https://www.interfacetoken.com/
+  */
+contract InterfaceToken is ERC721Token, Whitelist {
   using SafeMath for uint256;
-
-  bytes4 constant InterfaceSignature_ERC165 = 0x01ffc9a7;
-  /*
-  bytes4(keccak256('supportsInterface(bytes4)'));
-  */
-
-  bytes4 constant InterfaceSignature_ERC721Enumerable = 0x780e9d63;
-  /*
-  bytes4(keccak256('totalSupply()')) ^
-  bytes4(keccak256('tokenOfOwnerByIndex(address,uint256)')) ^
-  bytes4(keccak256('tokenByIndex(uint256)'));
-  */
-
-  bytes4 constant InterfaceSignature_ERC721Metadata = 0x5b5e139f;
-  /*
-  bytes4(keccak256('name()')) ^
-  bytes4(keccak256('symbol()')) ^
-  bytes4(keccak256('tokenURI(uint256)'));
-  */
-
-  bytes4 constant InterfaceSignature_ERC721 = 0x80ac58cd;
-  /*
-  bytes4(keccak256('balanceOf(address)')) ^
-  bytes4(keccak256('ownerOf(uint256)')) ^
-  bytes4(keccak256('approve(address,uint256)')) ^
-  bytes4(keccak256('getApproved(uint256)')) ^
-  bytes4(keccak256('setApprovalForAll(address,bool)')) ^
-  bytes4(keccak256('isApprovedForAll(address,address)')) ^
-  bytes4(keccak256('transferFrom(address,address,uint256)')) ^
-  bytes4(keccak256('safeTransferFrom(address,address,uint256)')) ^
-  bytes4(keccak256('safeTransferFrom(address,address,uint256,bytes)'));
-  */
-
-  bytes4 public constant InterfaceSignature_ERC721Optional = - 0x4f558e79;
-  /*
-  bytes4(keccak256('exists(uint256)'));
-  */
-
-  /**
-   * @notice Introspection interface as per ERC-165 (https://github.com/ethereum/EIPs/issues/165).
-   * @dev Returns true for any standardized interfaces implemented by this contract.
-   * @param _interfaceID bytes4 the interface to check for
-   * @return true for any standardized interfaces implemented by this contract.
-   */
-  function supportsInterface(bytes4 _interfaceID) external pure returns (bool) {
-    return ((_interfaceID == InterfaceSignature_ERC165)
-    || (_interfaceID == InterfaceSignature_ERC721)
-    || (_interfaceID == InterfaceSignature_ERC721Optional)
-    || (_interfaceID == InterfaceSignature_ERC721Enumerable)
-    || (_interfaceID == InterfaceSignature_ERC721Metadata));
-  }
 
   event Minted(address indexed _owner, uint256 indexed _tokenId, bytes32 _blockhash, bytes32 _nickname);
 
   string internal tokenBaseURI = "https://ipfs.infura.io/ipfs/";
-  string internal defaultTokenURI = "QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk";
+  string internal defaultTokenURI = "Qma4QoWXq7YzFUkREXW9wKVYPZmKzS5pkckaSjwY8Gc489";
 
-  uint256 public purchaseTokenPointer =  1000000000;
+  uint256 public purchaseTokenPointer = 1000000000;
   uint256 public costOfToken = 0.01 ether;
-
 
   mapping(uint256 => bytes32) internal tokenIdToNickname;
 
   mapping(uint256 => bytes32) internal tokenIdToBlockhash;
   mapping(bytes32 => uint256) internal blockhashToTokenId;
 
-  function InterfaceToken() public ERC721Token("Interface Token", "TOKN") {
+  constructor() public ERC721Token("Interface Token", "TOKN") {
     super.addAddressToWhitelist(msg.sender);
   }
 
@@ -95,7 +41,8 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
    * @param _tokenId unique token ID
    * @param _nickname char stamp of token owner
    */
-  function mint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname) external onlyWhitelisted {
+  function mint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname) external onlyIfWhitelisted(msg.sender) {
+    require(_tokenId < purchaseTokenPointer); // ensure under number where buying tokens takes place
     _mint(_blockhash, _tokenId, _nickname, msg.sender);
   }
 
@@ -107,7 +54,8 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
    * @param _nickname char stamp of token owner
    * @param _recipient owner of the newly minted token
    */
-  function mintTransfer(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname, address _recipient) external onlyWhitelisted {
+  function mintTransfer(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname, address _recipient) external onlyIfWhitelisted(msg.sender) {
+    require(_tokenId < purchaseTokenPointer); // ensure under number where buying tokens takes place
     _mint(_blockhash, _tokenId, _nickname, _recipient);
   }
 
@@ -119,7 +67,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
   function buyToken(bytes32 _nickname) public payable {
     require(msg.value >= costOfToken);
 
-    _mint(keccak256(purchaseTokenPointer), purchaseTokenPointer, _nickname, msg.sender);
+    _mint(keccak256(abi.encodePacked(purchaseTokenPointer, _nickname)), purchaseTokenPointer, _nickname, msg.sender);
     purchaseTokenPointer = purchaseTokenPointer.add(1);
 
     // reconcile payments
@@ -137,7 +85,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
 
     uint i = 0;
     for (i; i < (msg.value / costOfToken); i++) {
-      _mint(keccak256(purchaseTokenPointer), purchaseTokenPointer, _nickname, msg.sender);
+      _mint(keccak256(abi.encodePacked(purchaseTokenPointer, _nickname)), purchaseTokenPointer, _nickname, msg.sender);
       purchaseTokenPointer = purchaseTokenPointer.add(1);
     }
 
@@ -147,6 +95,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
   }
 
   function _mint(bytes32 _blockhash, uint256 _tokenId, bytes32 _nickname, address _recipient) internal {
+    require(_recipient !=  address(0));
     require(blockhashToTokenId[_blockhash] == 0);
     require(tokenIdToBlockhash[_tokenId] == 0);
 
@@ -158,7 +107,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
     blockhashToTokenId[_blockhash] = _tokenId;
     tokenIdToNickname[_tokenId] = _nickname;
 
-    Minted(_recipient, _tokenId, _blockhash, _nickname);
+    emit Minted(_recipient, _tokenId, _blockhash, _nickname);
   }
 
   /**
@@ -166,14 +115,14 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
    * @dev Reverts if not called by owner
    * @param _costOfToken cost in wei
    */
-  function setCostOfToken(uint256 _costOfToken) external onlyOwner {
+  function setCostOfToken(uint256 _costOfToken) external onlyIfWhitelisted(msg.sender) {
     costOfToken = _costOfToken;
   }
 
   /**
    * @dev Utility function for updating a nickname if you own the token
    * @dev Reverts if not called by owner
-   * @param _tokenId the DART token ID
+   * @param _tokenId the  token ID
    * @param _nickname char stamp of token owner
    */
   function setNickname(uint256 _tokenId, bytes32 _nickname) external onlyOwnerOf(_tokenId) {
@@ -192,7 +141,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
    * @dev checks for owned tokens
    * @param _owner address to query
    */
-  function hasTokens(address _owner) constant returns (bool) {
+  function hasTokens(address _owner) public view returns (bool) {
     return ownedTokens[_owner].length > 0;
   }
 
@@ -200,7 +149,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
    * @dev checks for owned tokens
    * @param _owner address to query
    */
-  function firstToken(address _owner) constant returns (uint256 _tokenId) {
+  function firstToken(address _owner) public view returns (uint256 _tokenId) {
     require(hasTokens(_owner));
     return ownedTokens[_owner][0];
   }
@@ -215,7 +164,7 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
 
   /**
    * @dev Get token URI fro the given token, useful for testing purposes
-   * @param _tokenId the DART token ID
+   * @param _tokenId the token ID
    * @return the token ID or only the base URI if not found
    */
   function tokenURI(uint256 _tokenId) public view returns (string) {
@@ -245,21 +194,51 @@ contract InterfaceToken is ERC721Token, ERC165, Whitelist {
   }
 
   /**
-   * @dev Utility function for updating a DART assets token URI
+   * @dev Utility function for updating an assets token URI
    * @dev Reverts if not called by management
-   * @param _tokenId the DART token ID
+   * @param _tokenId the token ID
    * @param _uri the token URI, will be concatenated with baseUri
    */
-  function setTokenURI(uint256 _tokenId, string _uri) external onlyWhitelisted {
+  function setTokenURI(uint256 _tokenId, string _uri) external onlyIfWhitelisted(msg.sender) {
     require(exists(_tokenId));
     _setTokenURI(_tokenId, _uri);
   }
 
   /**
-   * @dev Return blockhash of the DART token
-   * @param _tokenId the DART token ID
+   * @dev Return blockhash of the  token
+   * @param _tokenId the token ID
    */
   function blockhashOf(uint256 _tokenId) public view returns (bytes32 hash) {
     return tokenIdToBlockhash[_tokenId];
+  }
+
+  /**
+ * @dev Return token ID of a Blockhash
+ * @param _blockhash blockhash reference
+ */
+  function tokenIdOf(bytes32 _blockhash) public view returns (uint256 hash) {
+    return blockhashToTokenId[_blockhash];
+  }
+
+  /**
+   * @dev Return blockhash of the  token
+   * @param _tokenId the token ID
+   */
+  function burn(uint256 _tokenId) public {
+    super._burn(msg.sender, _tokenId);
+
+    bytes32 tokenBlockhash = tokenIdToBlockhash[_tokenId];
+
+    if (tokenIdToBlockhash[_tokenId].length != 0) {
+      delete tokenIdToBlockhash[_tokenId];
+    }
+
+    if (tokenIdToNickname[_tokenId].length != 0) {
+      delete tokenIdToNickname[_tokenId];
+    }
+
+    if (blockhashToTokenId[tokenBlockhash] != 0) {
+      delete blockhashToTokenId[tokenBlockhash];
+    }
   }
 }

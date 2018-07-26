@@ -1,49 +1,41 @@
-
 const assertRevert = require('../helpers/assertRevert');
 const sendTransaction = require('../helpers/sendTransaction').sendTransaction;
-const etherToWei = require('../helpers/etherToWei');
 
 const advanceBlock = require('../helpers/advanceToBlock');
-const increaseTimeTo = require('../helpers/increaseTime').increaseTimeTo;
-const duration = require('../helpers/increaseTime').duration;
-const latestTime = require('../helpers/latestTime');
 
 const _ = require('lodash');
 
 const BigNumber = web3.BigNumber;
-
 const InterfaceToken = artifacts.require('InterfaceToken');
-const ERC721Receiver = artifacts.require('ERC721ReceiverMock');
 
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('InterfaceToken common ERC721 tests', function (accounts) {
-  const _dartOwner = accounts[0];
+contract('ERC721Token', function (accounts) {
+  const _owner = accounts[0];
 
-  const _buyerOne = accounts[1];
-  const _buyerTwo = accounts[2];
-
-  const _tokenIdOne = 0;
-  const _tokenIdTwo = 1;
-  const _tokenIdThree = 2;
-
-  const _blockhashOne = "0x88e96d4537bea4d9c05d12549907b32561d3bf31f45aae734cdc119f13406cb6";
-  const _blockhashTwo = "0xb495a1d7e6663152ae92708da4843337b958146015a2802f4193a410044698c9";
-  const _blockhashThree = "0x3d6122660cc824376f11ee842f83addc3525e2dd6756b9bcf0affa6aa88cf741";
-
-  const _nicknameOne = "jimmy";
-  const _nicknameTwo = "jammy";
-  const _nicknameThree = "jeremy";
-
-  const unknownTokenId = 99;
+  const name = 'Interface Token';
+  const symbol = 'TOKN';
 
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-  const RECEIVER_MAGIC_VALUE = '0xf0b9e5ba';
+  const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
-  const _halfOfOneEther = etherToWei(0.5);
+  const _tokenIdOne = 1;
+  const _tokenIdTwo = 2;
+  const _tokenIdThree = 3;
+  const _tokenIdFour = 4;
+
+  const _blockhashOne = '0x88e96d4537bea4d9c05d12549907b32561d3bf31f45aae734cdc119f13406cb6';
+  const _blockhashTwo = '0xb495a1d7e6663152ae92708da4843337b958146015a2802f4193a410044698c9';
+  const _blockhashThree = '0x3d6122660cc824376f11ee842f83addc3525e2dd6756b9bcf0affa6aa88cf741';
+  const _blockhashFour = '0x73e5dac1f53ba85e6ce8e1c411560cdbbc4efb9a8e26606e8d0225f14281b64c';
+
+  const _nicknameOne = 'jimmy';
+  const _nicknameTwo = 'jammy';
+  const _nicknameThree = 'jeremy';
+  const _nicknameFour = 'jane';
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
@@ -51,31 +43,195 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
   });
 
   beforeEach(async function () {
-    this.token = await InterfaceToken.new({from: _dartOwner});
+    this.token = await InterfaceToken.new({from: _owner});
   });
 
-  describe('like a ERC721BasicToken', function () {
+  describe('like a full ERC721', function () {
     beforeEach(async function () {
-      await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _dartOwner});
-      await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _dartOwner});
+      await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _owner});
+      await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _owner});
+    });
+
+    describe('mint', function () {
+      const to = accounts[1];
+      const tokenId = _tokenIdThree;
+
+      beforeEach(async function () {
+        await this.token.mintTransfer(_blockhashThree, _tokenIdThree, _nicknameThree, to, {from: _owner});
+      });
+
+      it('adjusts owner tokens by index', async function () {
+        const token = await this.token.tokenOfOwnerByIndex(to, 0);
+        token.toNumber().should.be.equal(tokenId);
+      });
+
+      it('adjusts all tokens list', async function () {
+        const newToken = await this.token.tokenByIndex(2);
+        newToken.toNumber().should.be.equal(tokenId);
+      });
+    });
+
+    describe('burn', function () {
+      const tokenId = _tokenIdOne;
+      const sender = _owner;
+
+      beforeEach(async function () {
+        await this.token.burn(tokenId, {from: sender});
+      });
+
+      it('removes that token from the token list of the owner', async function () {
+        const token = await this.token.tokenOfOwnerByIndex(sender, 0);
+        token.toNumber().should.be.equal(_tokenIdTwo);
+      });
+
+      it('adjusts all tokens list', async function () {
+        const token = await this.token.tokenByIndex(0);
+        token.toNumber().should.be.equal(_tokenIdTwo);
+      });
+
+      it('burns all tokens', async function () {
+        await this.token.burn(_tokenIdTwo, {from: sender});
+        const total = await this.token.totalSupply();
+        total.toNumber().should.be.equal(0);
+        await assertRevert(this.token.tokenByIndex(0));
+      });
+    });
+
+    describe('metadata', function () {
+      const sampleUri = 'mock://mytoken';
+
+      it('has a name', async function () {
+        const tokenName = await this.token.name();
+        tokenName.should.be.equal(name);
+      });
+
+      it('has a symbol', async function () {
+        const tokenSymbol = await this.token.symbol();
+        tokenSymbol.should.be.equal(symbol);
+      });
+
+      it('returns metadata for a token id', async function () {
+        const uri = await this.token.tokenURI(_tokenIdOne);
+        uri.should.be.equal('https://ipfs.infura.io/ipfs/' + 'QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk');
+      });
+
+      it('can burn token with metadata', async function () {
+        await this.token.burn(_tokenIdOne);
+        const exists = await this.token.exists(_tokenIdOne);
+        exists.should.be.false;
+      });
+
+      it('when querying metadata for non existant token id return default IPFS URI', async function () {
+        const uri = await this.token.tokenURI(500);
+        uri.should.be.equal('https://ipfs.infura.io/ipfs/' + 'QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk');
+      });
+    });
+
+    describe('totalSupply', function () {
+      it('returns total token supply', async function () {
+        const totalSupply = await this.token.totalSupply();
+        totalSupply.should.be.bignumber.equal(2);
+      });
+    });
+
+    describe('tokenOfOwnerByIndex', function () {
+      const owner = _owner;
+      const another = accounts[1];
+
+      describe('when the given index is lower than the amount of tokens owned by the given address', function () {
+        it('returns the token ID placed at the given index', async function () {
+          const tokenId = await this.token.tokenOfOwnerByIndex(owner, 0);
+          tokenId.should.be.bignumber.equal(_tokenIdOne);
+        });
+      });
+
+      describe('when the index is greater than or equal to the total tokens owned by the given address', function () {
+        it('reverts', async function () {
+          await assertRevert(this.token.tokenOfOwnerByIndex(owner, 2));
+        });
+      });
+
+      describe('when the given address does not own any token', function () {
+        it('reverts', async function () {
+          await assertRevert(this.token.tokenOfOwnerByIndex(another, 0));
+        });
+      });
+
+      describe('after transferring all tokens to another user', function () {
+        beforeEach(async function () {
+          await this.token.transferFrom(owner, another, _tokenIdOne, {from: owner});
+          await this.token.transferFrom(owner, another, _tokenIdTwo, {from: owner});
+        });
+
+        it('returns correct token IDs for target', async function () {
+          const count = await this.token.balanceOf(another);
+          count.toNumber().should.be.equal(2);
+          const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenOfOwnerByIndex(another, i)));
+          tokensListed.map(t => t.toNumber()).should.have.members([_tokenIdOne, _tokenIdTwo]);
+        });
+
+        it('returns empty collection for original owner', async function () {
+          const count = await this.token.balanceOf(owner);
+          count.toNumber().should.be.equal(0);
+          await assertRevert(this.token.tokenOfOwnerByIndex(owner, 0));
+        });
+      });
+    });
+
+    describe('tokenByIndex', function () {
+      it('should return all tokens', async function () {
+        const tokensListed = await Promise.all(_.range(2).map(i => this.token.tokenByIndex(i)));
+        tokensListed.map(t => t.toNumber()).should.have.members([_tokenIdOne, _tokenIdTwo]);
+      });
+
+      it('should revert if index is greater than supply', async function () {
+        await assertRevert(this.token.tokenByIndex(2));
+      });
+
+      [_tokenIdOne, _tokenIdTwo].forEach(function (tokenId) {
+        it(`should return all tokens after burning token ${tokenId} and minting new tokens`, async function () {
+          const owner = accounts[0];
+
+          await this.token.burn(tokenId, {from: owner});
+          await this.token.mint(_blockhashThree, _tokenIdThree, _nicknameThree, {from: _owner});
+          await this.token.mint(_blockhashFour, _tokenIdFour, _nicknameFour, {from: _owner});
+
+          const count = await this.token.totalSupply();
+          count.toNumber().should.be.equal(3);
+
+          const tokensListed = await Promise.all(_.range(3).map(i => this.token.tokenByIndex(i)));
+          const expectedTokens = _.filter(
+            [_tokenIdOne, _tokenIdTwo, _tokenIdThree, _tokenIdFour],
+            x => (x !== tokenId)
+          );
+          tokensListed.map(t => t.toNumber()).should.have.members(expectedTokens);
+        });
+      });
+    });
+  });
+
+  describe('like an ERC721BasicToken', function () {
+    beforeEach(async function () {
+      await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _owner});
+      await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _owner});
     });
 
     describe('balanceOf', function () {
-      describe('when the given address owns some tokens', function () {
+      context('when the given address owns some tokens', function () {
         it('returns the amount of tokens owned by the given address', async function () {
-          const balance = await this.token.balanceOf(_dartOwner);
+          const balance = await this.token.balanceOf(_owner);
           balance.should.be.bignumber.equal(2);
         });
       });
 
-      describe('when the given address does not own any tokens', function () {
+      context('when the given address does not own any tokens', function () {
         it('returns 0', async function () {
-          const balance = await this.token.balanceOf(_buyerTwo);
+          const balance = await this.token.balanceOf(accounts[1]);
           balance.should.be.bignumber.equal(0);
         });
       });
 
-      describe('when querying the zero address', function () {
+      context('when querying the zero address', function () {
         it('throws', async function () {
           await assertRevert(this.token.balanceOf(0));
         });
@@ -83,41 +239,49 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
     });
 
     describe('exists', function () {
-      describe('when the token exists', function () {
+      context('when the token exists', function () {
+        const tokenId = _tokenIdOne;
+
         it('should return true', async function () {
-          const result = await this.token.exists(_tokenIdOne);
+          const result = await this.token.exists(tokenId);
           result.should.be.true;
         });
       });
 
-      describe('when the token does not exist', function () {
+      context('when the token does not exist', function () {
+        const tokenId = '999';
+
         it('should return false', async function () {
-          const result = await this.token.exists(unknownTokenId);
+          const result = await this.token.exists(tokenId);
           result.should.be.false;
         });
       });
     });
 
     describe('ownerOf', function () {
-      describe('when the given token ID was tracked by this token', function () {
+      context('when the given token ID was tracked by this token', function () {
+        const tokenId = _tokenIdOne;
+
         it('returns the owner of the given token ID', async function () {
-          const owner = await this.token.ownerOf(_tokenIdOne);
-          owner.should.be.equal(_dartOwner);
+          const owner = await this.token.ownerOf(tokenId);
+          owner.should.be.equal(_owner);
         });
       });
 
-      describe('when the given token ID was not tracked by this token', function () {
+      context('when the given token ID was not tracked by this token', function () {
+        const tokenId = '999';
+
         it('reverts', async function () {
-          await assertRevert(this.token.ownerOf(unknownTokenId));
+          await assertRevert(this.token.ownerOf(tokenId));
         });
       });
     });
 
     describe('transfers', function () {
-      const owner = _dartOwner;
-      const approved = accounts[1];
-      const operator = accounts[2];
-      const unauthorized = accounts[3];
+      const owner = accounts[0];
+      const approved = accounts[2];
+      const operator = accounts[3];
+      const unauthorized = accounts[4];
       const tokenId = _tokenIdOne;
       const data = '0x42';
 
@@ -141,17 +305,12 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
         });
 
         if (approved) {
-          it('emits an approval and transfer events', async function () {
-            logs.length.should.be.equal(2);
-            logs[0].event.should.be.eq('Approval');
-            logs[0].args._owner.should.be.equal(owner);
-            logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
+          it('emit only a transfer event', async function () {
+            logs.length.should.be.equal(1);
+            logs[0].event.should.be.eq('Transfer');
+            logs[0].args._from.should.be.equal(owner);
+            logs[0].args._to.should.be.equal(this.to);
             logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-
-            logs[1].event.should.be.eq('Transfer');
-            logs[1].args._from.should.be.equal(owner);
-            logs[1].args._to.should.be.equal(this.to);
-            logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
           });
         } else {
           it('emits only a transfer event', async function () {
@@ -183,28 +342,28 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
       };
 
       const shouldTransferTokensByUsers = function (transferFunction) {
-        describe('when called by the owner', function () {
+        context('when called by the owner', function () {
           beforeEach(async function () {
             ({logs} = await transferFunction.call(this, owner, this.to, tokenId, {from: owner}));
           });
           transferWasSuccessful({owner, tokenId, approved});
         });
 
-        describe('when called by the approved individual', function () {
+        context('when called by the approved individual', function () {
           beforeEach(async function () {
             ({logs} = await transferFunction.call(this, owner, this.to, tokenId, {from: approved}));
           });
           transferWasSuccessful({owner, tokenId, approved});
         });
 
-        describe('when called by the operator', function () {
+        context('when called by the operator', function () {
           beforeEach(async function () {
             ({logs} = await transferFunction.call(this, owner, this.to, tokenId, {from: operator}));
           });
           transferWasSuccessful({owner, tokenId, approved});
         });
 
-        describe('when called by the owner without an approved user', function () {
+        context('when called by the owner without an approved user', function () {
           beforeEach(async function () {
             await this.token.approve(ZERO_ADDRESS, tokenId, {from: owner});
             ({logs} = await transferFunction.call(this, owner, this.to, tokenId, {from: operator}));
@@ -212,7 +371,7 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
           transferWasSuccessful({owner, tokenId, approved: null});
         });
 
-        describe('when sent to the owner', function () {
+        context('when sent to the owner', function () {
           beforeEach(async function () {
             ({logs} = await transferFunction.call(this, owner, owner, tokenId, {from: owner}));
           });
@@ -227,17 +386,12 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
             approvedAccount.should.be.equal(ZERO_ADDRESS);
           });
 
-          it('emits an approval and transfer events', async function () {
-            logs.length.should.be.equal(2);
-            logs[0].event.should.be.eq('Approval');
-            logs[0].args._owner.should.be.equal(owner);
-            logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
+          it('emits only a transfer event', async function () {
+            logs.length.should.be.equal(1);
+            logs[0].event.should.be.eq('Transfer');
+            logs[0].args._from.should.be.equal(owner);
+            logs[0].args._to.should.be.equal(owner);
             logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-
-            logs[1].event.should.be.eq('Transfer');
-            logs[1].args._from.should.be.equal(owner);
-            logs[1].args._to.should.be.equal(owner);
-            logs[1].args._tokenId.should.be.bignumber.equal(tokenId);
           });
 
           it('keeps the owner balance', async function () {
@@ -252,25 +406,25 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
           });
         });
 
-        describe('when the address of the previous owner is incorrect', function () {
+        context('when the address of the previous owner is incorrect', function () {
           it('reverts', async function () {
             await assertRevert(transferFunction.call(this, unauthorized, this.to, tokenId, {from: owner}));
           });
         });
 
-        describe('when the sender is not authorized for the token id', function () {
+        context('when the sender is not authorized for the token id', function () {
           it('reverts', async function () {
             await assertRevert(transferFunction.call(this, owner, this.to, tokenId, {from: unauthorized}));
           });
         });
 
-        describe('when the given token ID does not exist', function () {
+        context('when the given token ID does not exist', function () {
           it('reverts', async function () {
-            await assertRevert(transferFunction.call(this, owner, this.to, unknownTokenId, {from: owner}));
+            await assertRevert(transferFunction.call(this, owner, this.to, '999', {from: owner}));
           });
         });
 
-        describe('when the address to transfer the token to is the zero address', function () {
+        context('when the address to transfer the token to is the zero address', function () {
           it('reverts', async function () {
             await assertRevert(transferFunction.call(this, owner, ZERO_ADDRESS, tokenId, {from: owner}));
           });
@@ -302,26 +456,6 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
           describe('to a user account', function () {
             shouldTransferTokensByUsers(transferFun);
           });
-
-          describe('to a valid receiver contract', function () {
-            beforeEach(async function () {
-              this.receiver = await ERC721Receiver.new(RECEIVER_MAGIC_VALUE, false);
-              this.to = this.receiver.address;
-            });
-
-            shouldTransferTokensByUsers(transferFun);
-
-            // TODO find solution to decodeLogs
-            it.skip('should call onERC721Received', async function () {
-              const result = await transferFun.call(this, owner, this.to, tokenId, {from: owner});
-              result.receipt.logs.length.should.be.equal(3);
-              const [log] = decodeLogs([result.receipt.logs[2]], ERC721Receiver, this.receiver.address);
-              log.event.should.be.eq('Received');
-              log.args._address.should.be.equal(owner);
-              log.args._tokenId.toNumber().should.be.equal(tokenId);
-              log.args._data.should.be.equal(data);
-            });
-          });
         };
 
         describe('with data', function () {
@@ -332,19 +466,19 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
           shouldTransferSafely(safeTransferFromWithoutData, '0x');
         });
 
-        describe('to a receiver contract returning unexpected value', function () {
-          it('reverts', async function () {
-            const invalidReceiver = await ERC721Receiver.new('0x42', false);
-            await assertRevert(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, {from: owner}));
-          });
-        });
-
-        describe('to a receiver contract that throws', function () {
-          it('reverts', async function () {
-            const invalidReceiver = await ERC721Receiver.new(RECEIVER_MAGIC_VALUE, true);
-            await assertRevert(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, {from: owner}));
-          });
-        });
+        // describe('to a receiver contract returning unexpected value', function () {
+        //   it('reverts', async function () {
+        //     const invalidReceiver = await ERC721Receiver.new('0x42', false);
+        //     await assertRevert(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, {from: owner}));
+        //   });
+        // });
+        //
+        // describe('to a receiver contract that throws', function () {
+        //   it('reverts', async function () {
+        //     const invalidReceiver = await ERC721Receiver.new(RECEIVER_MAGIC_VALUE, true);
+        //     await assertRevert(this.token.safeTransferFrom(owner, invalidReceiver.address, tokenId, {from: owner}));
+        //   });
+        // });
 
         describe('to a contract that does not implement the required function', function () {
           it('reverts', async function () {
@@ -357,7 +491,7 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
 
     describe('approve', function () {
       const tokenId = _tokenIdOne;
-      const sender = _dartOwner;
+      const sender = _owner;
       const to = accounts[1];
 
       let logs = null;
@@ -386,20 +520,17 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
         });
       };
 
-      describe('when clearing approval', function () {
-        describe('when there was no prior approval', function () {
+      context('when clearing approval', function () {
+        context('when there was no prior approval', function () {
           beforeEach(async function () {
             ({logs} = await this.token.approve(ZERO_ADDRESS, tokenId, {from: sender}));
           });
 
           itClearsApproval();
-
-          it('does not emit an approval event', async function () {
-            logs.length.should.be.equal(0);
-          });
+          itEmitsApprovalEvent(ZERO_ADDRESS);
         });
 
-        describe('when there was a prior approval', function () {
+        context('when there was a prior approval', function () {
           beforeEach(async function () {
             await this.token.approve(to, tokenId, {from: sender});
             ({logs} = await this.token.approve(ZERO_ADDRESS, tokenId, {from: sender}));
@@ -410,8 +541,8 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
         });
       });
 
-      describe('when approving a non-zero address', function () {
-        describe('when there was no prior approval', function () {
+      context('when approving a non-zero address', function () {
+        context('when there was no prior approval', function () {
           beforeEach(async function () {
             ({logs} = await this.token.approve(to, tokenId, {from: sender}));
           });
@@ -420,7 +551,7 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
           itEmitsApprovalEvent(to);
         });
 
-        describe('when there was a prior approval to the same address', function () {
+        context('when there was a prior approval to the same address', function () {
           beforeEach(async function () {
             await this.token.approve(to, tokenId, {from: sender});
             ({logs} = await this.token.approve(to, tokenId, {from: sender}));
@@ -430,7 +561,7 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
           itEmitsApprovalEvent(to);
         });
 
-        describe('when there was a prior approval to a different address', function () {
+        context('when there was a prior approval to a different address', function () {
           beforeEach(async function () {
             await this.token.approve(accounts[2], tokenId, {from: sender});
             ({logs} = await this.token.approve(to, tokenId, {from: sender}));
@@ -441,26 +572,26 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
         });
       });
 
-      describe('when the address that receives the approval is the owner', function () {
+      context('when the address that receives the approval is the owner', function () {
         it('reverts', async function () {
           await assertRevert(this.token.approve(sender, tokenId, {from: sender}));
         });
       });
 
-      describe('when the sender does not own the given token ID', function () {
+      context('when the sender does not own the given token ID', function () {
         it('reverts', async function () {
           await assertRevert(this.token.approve(to, tokenId, {from: accounts[2]}));
         });
       });
 
-      describe('when the sender is approved for the given token ID', function () {
+      context('when the sender is approved for the given token ID', function () {
         it('reverts', async function () {
           await this.token.approve(accounts[2], tokenId, {from: sender});
           await assertRevert(this.token.approve(to, tokenId, {from: accounts[2]}));
         });
       });
 
-      describe('when the sender is an operator', function () {
+      context('when the sender is an operator', function () {
         const operator = accounts[2];
         beforeEach(async function () {
           await this.token.setApprovalForAll(operator, true, {from: sender});
@@ -471,20 +602,20 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
         itEmitsApprovalEvent(to);
       });
 
-      describe('when the given token ID does not exist', function () {
+      context('when the given token ID does not exist', function () {
         it('reverts', async function () {
-          await assertRevert(this.token.approve(to, unknownTokenId, {from: sender}));
+          await assertRevert(this.token.approve(to, '999', {from: sender}));
         });
       });
     });
 
     describe('setApprovalForAll', function () {
-      const sender = _dartOwner;
+      const sender = _owner;
 
-      describe('when the operator willing to approve is not the owner', function () {
+      context('when the operator willing to approve is not the owner', function () {
         const operator = accounts[1];
 
-        describe('when there is no operator approval set by the sender', function () {
+        context('when there is no operator approval set by the sender', function () {
           it('approves the operator', async function () {
             await this.token.setApprovalForAll(operator, true, {from: sender});
 
@@ -503,7 +634,7 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
           });
         });
 
-        describe('when the operator was set as not approved', function () {
+        context('when the operator was set as not approved', function () {
           beforeEach(async function () {
             await this.token.setApprovalForAll(operator, false, {from: sender});
           });
@@ -533,7 +664,7 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
           });
         });
 
-        describe('when the operator was already approved', function () {
+        context('when the operator was already approved', function () {
           beforeEach(async function () {
             await this.token.setApprovalForAll(operator, true, {from: sender});
           });
@@ -557,8 +688,8 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
         });
       });
 
-      describe('when the operator is the owner', function () {
-        const operator = _dartOwner;
+      context('when the operator is the owner', function () {
+        const operator = _owner;
 
         it('reverts', async function () {
           await assertRevert(this.token.setApprovalForAll(operator, true, {from: sender}));
@@ -568,104 +699,98 @@ contract('InterfaceToken common ERC721 tests', function (accounts) {
   });
 
   describe('like a mintable and burnable ERC721Token', function () {
-
     beforeEach(async function () {
-      await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _dartOwner});
-      await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _dartOwner});
+      await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _owner});
+      await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _owner});
     });
 
     describe('mint', function () {
+      const to = accounts[1];
+      const tokenId = _tokenIdThree; // two already minted (therefore 3)
       let logs = null;
 
       describe('when successful', function () {
         beforeEach(async function () {
-          const result = await this.token.mint(_blockhashThree, _tokenIdThree, _nicknameThree, {from: _dartOwner});
+          const result = await this.token.mintTransfer(_blockhashThree, _tokenIdThree, _nicknameThree, to, {from: _owner});
           logs = result.logs;
         });
 
         it('assigns the token to the new owner', async function () {
-          const owner = await this.token.ownerOf(_tokenIdThree);
-          owner.should.be.equal(_dartOwner);
+          const owner = await this.token.ownerOf(tokenId);
+          owner.should.be.equal(to);
         });
 
         it('increases the balance of its owner', async function () {
-          const balance = await this.token.balanceOf(_dartOwner);
-          balance.should.be.bignumber.equal(3);
+          const balance = await this.token.balanceOf(to);
+          balance.should.be.bignumber.equal(1);
         });
 
         it('emits a transfer event', async function () {
           logs.length.should.be.equal(2);
           logs[0].event.should.be.eq('Transfer');
           logs[0].args._from.should.be.equal(ZERO_ADDRESS);
-          logs[0].args._to.should.be.equal(_dartOwner);
-          logs[0].args._tokenId.should.be.bignumber.equal(_tokenIdThree);
+          logs[0].args._to.should.be.equal(to);
+          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+        });
+      });
 
-          logs[1].event.should.be.eq('Minted');
-          logs[1].args._owner.should.be.equal(_dartOwner);
-          logs[1].args._tokenId.should.be.bignumber.equal(_tokenIdThree);
-          logs[1].args._blockhash.should.be.equal(_blockhashThree);
-          web3.toAscii(logs[1].args._nickname).replace(/\u0000/g, '').should.be.equal(_nicknameThree);
+      describe('when the given owner address is the zero address', function () {
+        it('reverts', async function () {
+          await assertRevert(this.token.mintTransfer(_blockhashFour, _tokenIdFour, _nicknameFour, ZERO_ADDRESS, {from: _owner}));
+        });
+      });
+
+      describe('when the given token ID was already tracked by this contract', function () {
+        it('reverts', async function () {
+          await assertRevert(this.token.mintTransfer(_blockhashOne, _tokenIdOne, _nicknameOne, to, {from: _owner}));
         });
       });
     });
 
-    // FIXME required?
-    // describe('burn', function () {
-    //   const tokenId = _tokenIdOne;
-    //   const sender = _dartOwner;
-    //   let logs = null;
-    //
-    //   describe('when successful', function () {
-    //     beforeEach(async function () {
-    //       const result = await this.token.burn(tokenId, {from: sender});
-    //       logs = result.logs;
-    //     });
-    //
-    //     it('burns the given token ID and adjusts the balance of the owner', async function () {
-    //       await assertRevert(this.token.ownerOf(tokenId));
-    //       const balance = await this.token.balanceOf(sender);
-    //       balance.should.be.bignumber.equal(1);
-    //     });
-    //
-    //     it('emits a burn event', async function () {
-    //       logs.length.should.be.equal(1);
-    //       logs[0].event.should.be.eq('Transfer');
-    //       logs[0].args._from.should.be.equal(sender);
-    //       logs[0].args._to.should.be.equal(ZERO_ADDRESS);
-    //       logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-    //     });
-    //   });
-    //
-    //   describe('when there is a previous approval', function () {
-    //     beforeEach(async function () {
-    //       await this.token.approve(_buyerTwo, tokenId, {from: sender});
-    //       const result = await this.token.burn(tokenId, {from: sender});
-    //       logs = result.logs;
-    //     });
-    //
-    //     it('clears the approval', async function () {
-    //       const approvedAccount = await this.token.getApproved(tokenId);
-    //       approvedAccount.should.be.equal(ZERO_ADDRESS);
-    //     });
-    //
-    //     it('emits an approval event', async function () {
-    //       logs.length.should.be.equal(2);
-    //
-    //       logs[0].event.should.be.eq('Approval');
-    //       logs[0].args._owner.should.be.equal(sender);
-    //       logs[0].args._approved.should.be.equal(ZERO_ADDRESS);
-    //       logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
-    //
-    //       logs[1].event.should.be.eq('Transfer');
-    //     });
-    //   });
-    //
-    //   describe('when the given token ID was not tracked by this contract', function () {
-    //     it('reverts', async function () {
-    //       await assertRevert(this.token.burn(unknownTokenId, {from: _buyerOne}));
-    //     });
-    //   });
-    // });
-  });
+    describe('burn', function () {
+      const tokenId = _tokenIdOne;
+      const sender = _owner;
+      let logs = null;
 
+      describe('when successful', function () {
+        beforeEach(async function () {
+          const result = await this.token.burn(tokenId, {from: sender});
+          logs = result.logs;
+        });
+
+        it('burns the given token ID and adjusts the balance of the owner', async function () {
+          await assertRevert(this.token.ownerOf(tokenId));
+          const balance = await this.token.balanceOf(sender);
+          balance.should.be.bignumber.equal(1);
+        });
+
+        it('emits a burn event', async function () {
+          logs.length.should.be.equal(1);
+          logs[0].event.should.be.eq('Transfer');
+          logs[0].args._from.should.be.equal(sender);
+          logs[0].args._to.should.be.equal(ZERO_ADDRESS);
+          logs[0].args._tokenId.should.be.bignumber.equal(tokenId);
+        });
+      });
+
+      describe('when there is a previous approval', function () {
+        beforeEach(async function () {
+          await this.token.approve(accounts[1], tokenId, {from: sender});
+          const result = await this.token.burn(tokenId, {from: sender});
+          logs = result.logs;
+        });
+
+        it('clears the approval', async function () {
+          const approvedAccount = await this.token.getApproved(tokenId);
+          approvedAccount.should.be.equal(ZERO_ADDRESS);
+        });
+      });
+
+      describe('when the given token ID was not tracked by this contract', function () {
+        it('reverts', async function () {
+          await assertRevert(this.token.burn('999', {from: _owner}));
+        });
+      });
+    });
+  });
 });
