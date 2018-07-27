@@ -27,20 +27,23 @@ contract('InterfaceToken', function (accounts) {
   const _tokenIdOne = 1;
   const _tokenIdTwo = 2;
   const _tokenIdThree = 3;
+  const _tokenIdFour = 4;
 
   const _blockhashOne = '0x88e96d4537bea4d9c05d12549907b32561d3bf31f45aae734cdc119f13406cb6';
   const _blockhashTwo = '0xb495a1d7e6663152ae92708da4843337b958146015a2802f4193a410044698c9';
   const _blockhashThree = '0x3d6122660cc824376f11ee842f83addc3525e2dd6756b9bcf0affa6aa88cf741';
+  const _blockhashFour = '0xc790287e584193fb6cb1871c0da0fa5ba216145ce0c098d3979ac232309881bd';
 
   const _nicknameOne = 'jimmy';
   const _nicknameTwo = 'jammy';
   const _nicknameThree = 'jeremy';
+  const _nicknameFour = 'janey';
 
   const unknownTokenId = 99;
 
-  const defaultUri = 'QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk';
+  const defaultUri = 'Qma4QoWXq7YzFUkREXW9wKVYPZmKzS5pkckaSjwY8Gc489';
 
-  const ZERO_ADDRESS = '-0x000000000000000000000000000000000000000000000000000000000000000';
+  const ZERO_ADDRESS = '0x000000000000000000000000000000000000000000000000000000000000000';
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
@@ -57,7 +60,7 @@ contract('InterfaceToken', function (accounts) {
       await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _owner});
     });
 
-    describe('checking recipient mint', async function () {
+    describe('mint', async function () {
       beforeEach(async function () {
         await this.token.mintTransfer(_blockhashThree, _tokenIdThree, _nicknameThree, _buyerOne, {from: _owner});
       });
@@ -65,6 +68,20 @@ contract('InterfaceToken', function (accounts) {
       it('should set the owner to be the recipient', async function () {
         const owner = await this.token.ownerOf(_tokenIdThree);
         owner.should.be.equal(_buyerOne);
+      });
+
+      it('should revert if not under the Purchase Token Pointer', async function () {
+        const pointer = await this.token.purchaseTokenPointer();
+        await assertRevert(this.token.mintTransfer(_blockhashFour, pointer, _nicknameThree, _buyerOne, {from: _owner}));
+      });
+
+      it('should revert if not whitelisted', async function () {
+        await assertRevert(this.token.mintTransfer(_blockhashFour, _tokenIdFour, _nicknameFour, _buyerOne, {from: _buyerOne}));
+      });
+
+      it('should whitelist and have ability to mint', async function () {
+        await this.token.addAddressToWhitelist(_buyerOne, {from: _owner});
+        await this.token.mintTransfer(_blockhashFour, _tokenIdFour, _nicknameFour, _buyerOne, {from: _buyerOne});
       });
     });
 
@@ -78,13 +95,28 @@ contract('InterfaceToken', function (accounts) {
         const blockhash = await this.token.blockhashOf(_tokenIdOne);
         blockhash.should.be.equal(_blockhashOne);
       });
+
+      it('tokenIdOf is set for initial token', async function () {
+        const blockhash = await this.token.blockhashOf(_tokenIdOne);
+        const tokenId = await this.token.tokenIdOf(blockhash);
+        tokenId.toNumber().should.be.equal(_tokenIdOne);
+      });
     });
 
     describe('ensure token URI is set to default', async function () {
 
-      it('should be default art-block URI', async function () {
+      it('should be default URI', async function () {
         const tokenUri = await this.token.tokenURI(_tokenIdOne);
         tokenUri.should.be.equal(`https://ipfs.infura.io/ipfs/${defaultUri}`);
+      });
+    });
+
+    describe('only whitelisted can set cost of token', async function () {
+
+      it('should allow owner', async function () {
+        await this.token.setCostOfToken(1, {from: _owner});
+        const costOfToken = await this.token.costOfToken();
+        costOfToken.toString(10).should.be.equal("1");
       });
     });
 

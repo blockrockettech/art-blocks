@@ -112,7 +112,7 @@ contract('ERC721Token', function (accounts) {
 
       it('returns metadata for a token id', async function () {
         const uri = await this.token.tokenURI(_tokenIdOne);
-        uri.should.be.equal('https://ipfs.infura.io/ipfs/' + 'QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk');
+        uri.should.be.equal('https://ipfs.infura.io/ipfs/' + 'Qma4QoWXq7YzFUkREXW9wKVYPZmKzS5pkckaSjwY8Gc489');
       });
 
       it('can burn token with metadata', async function () {
@@ -123,7 +123,7 @@ contract('ERC721Token', function (accounts) {
 
       it('when querying metadata for non existant token id return default IPFS URI', async function () {
         const uri = await this.token.tokenURI(500);
-        uri.should.be.equal('https://ipfs.infura.io/ipfs/' + 'QmUrTjPy2g4awRYAV8KsRShGaHfLhcgk3nQpEGwY5893Bk');
+        uri.should.be.equal('https://ipfs.infura.io/ipfs/' + 'Qma4QoWXq7YzFUkREXW9wKVYPZmKzS5pkckaSjwY8Gc489');
       });
     });
 
