@@ -28,6 +28,7 @@ const store = new Vuex.Store({
     etherscanBase: null,
     assetsPurchasedByAccount: [],
     accountTokenDetails: [],
+    sacDetails: {},
 
     // contract metadata
     contractName: '',
@@ -64,6 +65,10 @@ const store = new Vuex.Store({
         return false;
       }
       return matchAsset;
+    },
+    getSacDetails: (state) => (sacAddress) => {
+      console.log(sacAddress);
+      return state.sacDetails[sacAddress];
     }
   },
   mutations: {
@@ -95,6 +100,9 @@ const store = new Vuex.Store({
       state.pricePerBlockInWei = pricePerBlockInWei;
       state.pricePerBlockInEth = pricePerBlockInEth;
       state.maxBlockPurchaseInOneGo = maxBlockPurchaseInOneGo;
+    },
+    [mutations.SET_SAC_DETAILS](state, {sacAddress, data}) {
+      Vue.set(state.sacDetails, sacAddress, data);
     },
     [mutations.SET_ACCOUNT](state, {account, accountBalance}) {
       state.account = account;
@@ -155,6 +163,21 @@ const store = new Vuex.Store({
         .then(function (result) {
           console.log(result);
           dispatch(actions.REFRESH_ACCOUNT_TOKENS_DETAILS);
+        });
+    },
+    async [actions.GET_SAC_DETAILS]({commit, dispatch, state}, sacAddress) {
+      const sacContract = await simpleArtistContract.at(sacAddress);
+
+      Promise.props({
+        token: sacContract.token(),
+        pricePerBlockInWei: sacContract.pricePerBlockInWei().then(data => data.toString("10")),
+        maxBlockPurchaseInOneGo: sacContract.maxBlockPurchaseInOneGo().then(data => data.toString("10")),
+        onlyShowPurchased: sacContract.onlyShowPurchased(),
+        foundationAddress: sacContract.foundationAddress(),
+        foundationPercentage: sacContract.foundationPercentage().then(data => data.toString("10"))
+      })
+        .then((data) => {
+          commit(mutations.SET_SAC_DETAILS, {sacAddress, data: data});
         });
     },
     [actions.GET_ASSETS_PURCHASED_FOR_ACCOUNT]({commit, dispatch, state}) {

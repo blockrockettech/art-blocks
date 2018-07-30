@@ -1,9 +1,3 @@
-// set nickname
-// transfer ownership
-// burn
-// details
-
-
 <template>
   <div>
     <div class="row justify-content-center">
@@ -81,20 +75,13 @@
 <script>
 
   import {mapGetters, mapState} from 'vuex';
-  import LoadingSpinner from '../ui-controls/LoadingSpinner.vue';
-  import ClickableAddress from '../ui-controls/ClickableAddress';
   import AddressIcon from '../ui-controls/AddressIcon';
   import * as actions from '../../store/actions';
-  import CurrentNetwork from "../ui-controls/CurrentNetwork.vue";
-  import ClickableBlockhash from "../ui-controls/ClickableBlockhash";
   import Vue from 'vue';
 
   export default {
     name: 'myToken',
     components: {
-      ClickableBlockhash,
-      LoadingSpinner,
-      ClickableAddress,
       AddressIcon
     },
     data() {

@@ -3,7 +3,8 @@ import Router from 'vue-router';
 import Gallery from '@/components/pages/Gallery';
 import Mint from '@/components/pages/Mint';
 import Artist from '@/components/pages/Artist';
-import MyyTokens from '@/components/pages/MyTokens';
+import MyTokens from '@/components/pages/MyTokens';
+import SACManagement from '@/components/pages/SACManagement';
 
 Vue.use(Router);
 
@@ -36,7 +37,12 @@ export default new Router({
     {
       path: '/mytokens',
       name: 'mytokens',
-      component: MyyTokens
+      component: MyTokens
     },
+    {
+      path: '/contract/:sacAddress',
+      name: 'SACManagement',
+      component: SACManagement
+    }
   ]
 });
