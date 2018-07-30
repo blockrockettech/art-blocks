@@ -170,6 +170,7 @@ const store = new Vuex.Store({
 
       Promise.props({
         token: sacContract.token(),
+        artist: sacContract.artist(),
         pricePerBlockInWei: sacContract.pricePerBlockInWei().then(data => data.toString("10")),
         maxBlockPurchaseInOneGo: sacContract.maxBlockPurchaseInOneGo().then(data => data.toString("10")),
         onlyShowPurchased: sacContract.onlyShowPurchased(),

@@ -99,8 +99,6 @@
     },
     methods: {
       toggleEdit: function (tokenId) {
-        console.log("Toggle", tokenId);
-        console.log("this.edits", this.edits);
         Vue.set(this.edits, tokenId, true);
       },
       updateNickname: function (tokenId, nickname) {
