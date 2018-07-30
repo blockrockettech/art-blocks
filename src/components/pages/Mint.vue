@@ -3,7 +3,7 @@
     <div class="col-sm-8">
       <div class="card text-center">
         <div class="card-header">
-          Mint dART Token
+          Mint TOKN
         </div>
         <form @submit.prevent="sendHandler">
           <ul class="list-group list-group-flush">
@@ -22,7 +22,7 @@
               <div class="form-group">
                 <label for="blockhash">Blockhash</label>
                 <input type="text" class="form-control" id="blockhash" placeholder="0x000000" v-model="blockhash">
-                <small id="emailHelp" class="form-text text-muted">dART tokens must have a unique hash!</small>
+                <small id="emailHelp" class="form-text text-muted">TOKNs must have a unique hash!</small>
               </div>
             </li>
             <li class="list-group-item">

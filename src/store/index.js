@@ -135,7 +135,7 @@ const store = new Vuex.Store({
     },
   },
   actions: {
-    async [actions.REFRESH_ACCOUNT_TOKENS_DETAILS]({commit, dispatch, state}) {
+    async [actions.TOKN_REFRESH_ACCOUNT_TOKENS_DETAILS]({commit, dispatch, state}) {
       const tokenContract = await toknContract.deployed();
 
       const tokenDetails = state.assetsPurchasedByAccount.map((tokenId) => {
@@ -153,17 +153,40 @@ const store = new Vuex.Store({
           commit(mutations.SET_ACCOUNT_TOKEN_DETAILS, resolvedData);
         });
     },
-    async [actions.UPDATE_NICKNAME]({commit, dispatch, state}, {tokenId, nickname}) {
-
-      console.log(tokenId, nickname);
-
+    async [actions.TOKN_UPDATE_NICKNAME]({commit, dispatch, state}, {tokenId, nickname}) {
       const tokenContract = await toknContract.deployed();
-
       tokenContract.setNickname(tokenId, Web3.utils.toHex(nickname), {from: state.account})
-        .then(function (result) {
-          console.log(result);
-          dispatch(actions.REFRESH_ACCOUNT_TOKENS_DETAILS);
-        });
+        .then(() => {
+          dispatch(actions.TOKN_REFRESH_ACCOUNT_TOKENS_DETAILS);
+        })
+        .catch(console.log);
+    },
+    async [actions.SAC_UPDATE_MAX_BLOCKS_PURCHASE]({commit, dispatch, state}, {sacAddress, data}) {
+      const sacContract = await simpleArtistContract.at(sacAddress);
+      console.log(sacAddress, data);
+      sacContract.setMaxBlockPurchaseInOneGo(data, {from: state.account})
+        .then(() => {
+          dispatch(actions.GET_SAC_DETAILS, sacAddress);
+        })
+        .catch(console.log);
+    },
+    async [actions.SAC_UPDATE_ONLY_PURCHASED]({commit, dispatch, state}, {sacAddress, data}) {
+      const sacContract = await simpleArtistContract.at(sacAddress);
+      console.log(sacAddress, data);
+      sacContract.setOnlyShowPurchased(data, {from: state.account})
+        .then(() => {
+          dispatch(actions.GET_SAC_DETAILS, sacAddress);
+        })
+        .catch(console.log);
+    },
+    async [actions.SAC_UPDATE_MAX_PRICE_PRE_BLOCK]({commit, dispatch, state}, {sacAddress, data}) {
+      console.log(sacAddress, data);
+      const sacContract = await simpleArtistContract.at(sacAddress);
+      sacContract.setPricePerBlockInWei(data, {from: state.account})
+        .then(() => {
+          dispatch(actions.GET_SAC_DETAILS, sacAddress);
+        })
+        .catch(console.log);
     },
     async [actions.GET_SAC_DETAILS]({commit, dispatch, state}, sacAddress) {
       const sacContract = await simpleArtistContract.at(sacAddress);
@@ -187,7 +210,7 @@ const store = new Vuex.Store({
           return contract.tokensOf(state.account)
             .then((tokens) => {
               commit(mutations.SET_ASSETS_PURCHASED_FROM_ACCOUNT, tokens);
-              dispatch(actions.REFRESH_ACCOUNT_TOKENS_DETAILS);
+              dispatch(actions.TOKN_REFRESH_ACCOUNT_TOKENS_DETAILS);
             });
         })
         .catch((e) => {

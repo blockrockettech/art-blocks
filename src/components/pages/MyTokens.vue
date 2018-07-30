@@ -102,7 +102,7 @@
         Vue.set(this.edits, tokenId, true);
       },
       updateNickname: function (tokenId, nickname) {
-        this.$store.dispatch(actions.UPDATE_NICKNAME, {tokenId, nickname});
+        this.$store.dispatch(actions.TOKN_UPDATE_NICKNAME, {tokenId, nickname});
         Vue.set(this.edits, tokenId, false);
       }
     }

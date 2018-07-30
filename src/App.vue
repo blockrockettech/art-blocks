@@ -3,23 +3,33 @@
     <header>
       <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
         <router-link :to="{ name: 'home' }" class="navbar-brand">
-         dART
+          TOKN
         </router-link>
 
         <ul class="navbar-nav justify-content-end">
           <li class="nav-item">
-            <router-link :to="{ name: 'home' }" class="nav-link d-none d-sm-block">Home</router-link>
+            <router-link :to="{ name: 'home' }" class="nav-link d-sm-block">Home</router-link>
           </li>
           <li class="nav-item">
-            <router-link :to="{ name: 'mint' }" class="nav-link d-none d-sm-block">Mint</router-link>
+            <router-link :to="{ name: 'mint' }" class="nav-link d-sm-block">Mint</router-link>
           </li>
           <li class="nav-item">
-            <router-link :to="{ name: 'artist' }" class="nav-link d-none d-sm-block">Artist</router-link>
+            <router-link :to="{ name: 'artist' }" class="nav-link d-sm-block">Artist</router-link>
           </li>
           <li class="nav-item">
-            <router-link :to="{ name: 'mytokens' }" class="nav-link d-none d-sm-block">My Tokens</router-link>
+            <router-link :to="{ name: 'mytokens' }" class="nav-link d-sm-block">My Tokens</router-link>
           </li>
         </ul>
+
+        <form class="form-inline my-2 my-lg-0 float-right" novalidate>
+          <input class="form-control mr-sm-2" type="search"
+                 placeholder="SAC Contract Address..."
+                 v-model="sacAddress">
+          <button class="btn btn-info my-2 my-sm-0" type="button"
+                  v-on:click="goToSAC()">SAC Contract
+          </button>
+        </form>
+
       </nav>
 
     </header>
@@ -51,6 +61,18 @@
     computed: {
       ...mapGetters([]),
       ...mapState([]),
+    },
+    data() {
+      return {
+        sacAddress: undefined
+      };
+    },
+    methods: {
+      goToSAC: function () {
+        this.$router.push({
+          name: 'SACManagement', params: {sacAddress: this.sacAddress}
+        });
+      }
     },
     mounted() {
 

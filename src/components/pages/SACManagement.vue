@@ -5,7 +5,7 @@
     </h4>
 
     <div v-if="contractError">
-      <span class="text-danger">Error - SAC address not found or valid</span>
+      <span class="text-danger">Error - SAC address not found or not invalid</span>
     </div>
 
     <div v-else class="row justify-content-center">
@@ -19,29 +19,79 @@
                 Price per block: {{sacDetails[$route.params.sacAddress].pricePerBlockInWei | toEth}} ETH
                 <span class="text-muted text-sm float-right"
                       style="cursor: pointer;"
-                      v-on:click="toggleEdit('pricePerBlockInWei')">edit</span>
+                      v-on:click="toggleEdit('pricePerBlockInWei')"
+                      v-if="isArtist">edit</span>
               </div>
 
               <div class="input-group mb-2 mr-sm-2" v-show="edits['pricePerBlockInWei']">
                 <div class="input-group-prepend">
-                  <div class="input-group-text">Wei</div>
+                  <div class="input-group-text">Price per block (Wei)</div>
                 </div>
                 <input type="number" class="form-control form-control-sm"
                        placeholder="Price per block..."
                        v-model="sacDetails[$route.params.sacAddress].pricePerBlockInWei">
                 <div class="input-group-append">
-                  <button class="btn btn-outline-secondary" type="button">Commit
+                  <button class="btn btn-outline-secondary" type="button"
+                          v-on:click="commitChanges('pricePerBlockInWei')" >Commit
                   </button>
                 </div>
               </div>
+            </li>
 
-            </li>
             <li class="list-group-item">
-              Max blocks in one go: {{sacDetails[$route.params.sacAddress].maxBlockPurchaseInOneGo}}
+              <div v-show="!edits['maxBlockPurchaseInOneGo']">
+                Max blocks in one go: {{sacDetails[$route.params.sacAddress].maxBlockPurchaseInOneGo}}
+                <span class="text-muted text-sm float-right"
+                      style="cursor: pointer;"
+                      v-on:click="toggleEdit('maxBlockPurchaseInOneGo')"
+                      v-if="isArtist">edit</span>
+              </div>
+
+              <div class="input-group mb-2 mr-sm-2" v-show="edits['maxBlockPurchaseInOneGo']">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">Max purchase (blocks)</div>
+                </div>
+                <input type="number" class="form-control form-control-sm"
+                       placeholder="Max blocks..."
+                       v-model="sacDetails[$route.params.sacAddress].maxBlockPurchaseInOneGo">
+                <div class="input-group-append">
+                  <button class="btn btn-outline-secondary" type="button"
+                          v-on:click="commitChanges('maxBlockPurchaseInOneGo')">Commit
+                  </button>
+                </div>
+              </div>
             </li>
+
             <li class="list-group-item">
-              Only show purchased: {{sacDetails[$route.params.sacAddress].onlyShowPurchased}}
+              <div v-show="!edits['onlyShowPurchased']">
+                Only show purchased: {{sacDetails[$route.params.sacAddress].onlyShowPurchased}}
+                <span class="text-muted text-sm float-right"
+                      style="cursor: pointer;"
+                      v-on:click="toggleEdit('onlyShowPurchased')"
+                      v-if="isArtist">edit</span>
+              </div>
+
+              <div class="input-group mb-2 mr-sm-2" v-show="edits['onlyShowPurchased']">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text">Only show purchase</label>
+                  </div>
+                  <select class="custom-select"
+                          v-model="sacDetails[$route.params.sacAddress].onlyShowPurchased">
+                    <option disabled value="">Please select one</option>
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                  </select>
+
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button"
+                            v-on:click="commitChanges('onlyShowPurchased')">Commit
+                    </button>
+                  </div>
+                </div>
+              </div>
             </li>
+
             <li class="list-group-item">
               Foundation: {{sacDetails[$route.params.sacAddress].foundationAddress}} at
               ({{sacDetails[$route.params.sacAddress].foundationPercentage}}%)
@@ -81,6 +131,24 @@
       toggleEdit: function (type) {
         Vue.set(this.edits, type, true);
       },
+      isArtist: function () {
+        return this.sacDetails[this.$route.params.sacAddress].artist === this.account;
+      },
+      commitChanges: function (type) {
+        Vue.set(this.edits, type, false);
+        const payload = {
+          sacAddress: this.$route.params.sacAddress,
+          data: this.sacDetails[this.$route.params.sacAddress][type]
+        };
+        switch (type) {
+          case 'onlyShowPurchased':
+            return this.$store.dispatch(actions.SAC_UPDATE_ONLY_PURCHASED, payload);
+          case 'maxBlockPurchaseInOneGo':
+            return this.$store.dispatch(actions.SAC_UPDATE_MAX_BLOCKS_PURCHASE, payload);
+          case 'pricePerBlockInWei':
+            return this.$store.dispatch(actions.SAC_UPDATE_MAX_PRICE_PRE_BLOCK, payload);
+        }
+      }
     },
     mounted: function () {
       this.$nextTick(function () {
@@ -88,6 +156,7 @@
           this.contractError = true;
           return;
         }
+        this.contractError = false;
         this.$store.dispatch(actions.GET_SAC_DETAILS, this.$route.params.sacAddress);
       });
     }
