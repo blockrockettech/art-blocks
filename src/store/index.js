@@ -1,3 +1,4 @@
+import Promise from 'bluebird';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import * as actions from './actions';
@@ -8,10 +9,10 @@ import createLogger from 'vuex/dist/logger';
 import {getEtherscanAddress, getNetIdString} from '../utils';
 import contract from 'truffle-contract';
 
-import dARTJson from '../../build/contracts/InterfaceToken.json';
+import toknJson from '../../build/contracts/InterfaceToken.json';
 import simpleArtistContractJson from '../../build/contracts/SimpleArtistContract.json';
 
-const dart = contract(dARTJson);
+const toknContract = contract(toknJson);
 const simpleArtistContract = contract(simpleArtistContractJson);
 
 Vue.use(Vuex);
@@ -26,6 +27,7 @@ const store = new Vuex.Store({
     currentNetwork: null,
     etherscanBase: null,
     assetsPurchasedByAccount: [],
+    accountTokenDetails: [],
 
     // contract metadata
     contractName: '',
@@ -77,6 +79,9 @@ const store = new Vuex.Store({
     [mutations.SET_ASSETS_PURCHASED_FROM_ACCOUNT](state, tokens) {
       Vue.set(state, 'assetsPurchasedByAccount', tokens);
     },
+    [mutations.SET_ACCOUNT_TOKEN_DETAILS](state, data) {
+      Vue.set(state, 'accountTokenDetails', data);
+    },
     [mutations.SET_CONTRACT_DETAILS](state, {name, symbol, totalSupply, curatorAddress, contractAddress}) {
       state.totalSupply = totalSupply;
       state.contractSymbol = symbol;
@@ -122,12 +127,43 @@ const store = new Vuex.Store({
     },
   },
   actions: {
+    async [actions.REFRESH_ACCOUNT_TOKENS_DETAILS]({commit, dispatch, state}) {
+      const tokenContract = await toknContract.deployed();
+
+      const tokenDetails = state.assetsPurchasedByAccount.map((tokenId) => {
+        return Promise.props({
+          tokenId: Promise.resolve(tokenId.toString("10")),
+          blockhash: tokenContract.blockhashOf(tokenId),
+          metadata: tokenContract.tokenURI(tokenId),
+          nickname: tokenContract.nicknameOf(tokenId)
+            .then((nickname) => Web3.utils.toAscii(nickname).replace(/\0.*$/g, ''))
+        });
+      });
+
+      Promise.all(tokenDetails)
+        .then((resolvedData) => {
+          commit(mutations.SET_ACCOUNT_TOKEN_DETAILS, resolvedData);
+        });
+    },
+    async [actions.UPDATE_NICKNAME]({commit, dispatch, state}, {tokenId, nickname}) {
+
+      console.log(tokenId, nickname);
+
+      const tokenContract = await toknContract.deployed();
+
+      tokenContract.setNickname(tokenId, Web3.utils.toHex(nickname), {from: state.account})
+        .then(function (result) {
+          console.log(result);
+          dispatch(actions.REFRESH_ACCOUNT_TOKENS_DETAILS);
+        });
+    },
     [actions.GET_ASSETS_PURCHASED_FOR_ACCOUNT]({commit, dispatch, state}) {
-      dart.deployed()
+      toknContract.deployed()
         .then((contract) => {
           return contract.tokensOf(state.account)
             .then((tokens) => {
               commit(mutations.SET_ASSETS_PURCHASED_FROM_ACCOUNT, tokens);
+              dispatch(actions.REFRESH_ACCOUNT_TOKENS_DETAILS);
             });
         })
         .catch((e) => {
@@ -147,13 +183,13 @@ const store = new Vuex.Store({
     [actions.INIT_APP]({commit, dispatch, state}, web3) {
 
       // NON-ASYNC action - set web3 provider on init
-      dart.setProvider(web3.currentProvider);
+      toknContract.setProvider(web3.currentProvider);
 
       //dirty hack for web3@1.0.0 support for localhost testrpc, see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530
-      if (typeof dart.currentProvider.sendAsync !== 'function') {
-        dart.currentProvider.sendAsync = function () {
-          return dart.currentProvider.send.apply(
-            dart.currentProvider, arguments
+      if (typeof toknContract.currentProvider.sendAsync !== 'function') {
+        toknContract.currentProvider.sendAsync = function () {
+          return toknContract.currentProvider.send.apply(
+            toknContract.currentProvider, arguments
           );
         };
       }
@@ -216,7 +252,7 @@ const store = new Vuex.Store({
         });
     },
     [actions.GET_ALL_ASSETS]({commit, dispatch, state}) {
-      dart.deployed()
+      toknContract.deployed()
         .then((contract) => {
 
           let mintEvent = contract.Minted({}, {
@@ -241,7 +277,7 @@ const store = new Vuex.Store({
     },
     [actions.REFRESH_CONTRACT_DETAILS]({commit, dispatch, state}) {
 
-      dart.deployed()
+      toknContract.deployed()
         .then((contract) => {
 
           Promise.all([contract.name(), contract.symbol(), contract.totalSupply(), contract.owner(), contract.address])
@@ -291,7 +327,7 @@ const store = new Vuex.Store({
         });
     },
     [actions.MINT]({commit, dispatch, state}, {blockhash, nickname, tokenId}) {
-      dart.deployed()
+      toknContract.deployed()
         .then((contract) => {
           console.log(`minting... ${blockhash} -  ${nickname} - ${tokenId}`);
           let tx = contract.mint(blockhash, tokenId, nickname, {from: state.account});

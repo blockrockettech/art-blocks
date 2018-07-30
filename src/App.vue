@@ -16,6 +16,9 @@
           <li class="nav-item">
             <router-link :to="{ name: 'artist' }" class="nav-link d-none d-sm-block">Artist</router-link>
           </li>
+          <li class="nav-item">
+            <router-link :to="{ name: 'mytokens' }" class="nav-link d-none d-sm-block">My Tokens</router-link>
+          </li>
         </ul>
       </nav>
 

@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Gallery from '@/components/pages/Gallery';
 import Mint from '@/components/pages/Mint';
 import Artist from '@/components/pages/Artist';
+import MyyTokens from '@/components/pages/MyTokens';
 
 Vue.use(Router);
 
@@ -31,6 +32,11 @@ export default new Router({
       path: '/artist',
       name: 'artist',
       component: Artist
-    }
+    },
+    {
+      path: '/mytokens',
+      name: 'mytokens',
+      component: MyyTokens
+    },
   ]
 });
