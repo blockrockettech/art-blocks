@@ -1,6 +1,6 @@
 <template>
   <span v-if="ethAddress">
-    <a class="token-id" :href="buildLink" target="_blank">{{ dotDotDot }}</a>
+    <pre><small><a class="token-id" :href="buildLink" target="_blank">{{ dotDotDot }}</a></small></pre>
   </span>
 </template>
 
@@ -23,7 +23,8 @@
       ]),
       dotDotDot: function () {
         if (this.ethAddress) {
-          return this.ethAddress.substr(0, 6) + '...' + this.ethAddress.substr(this.ethAddress.length - 6, this.ethAddress.length);
+          return this.ethAddress;
+          // return this.ethAddress.substr(0, 6) + '...' + this.ethAddress.substr(this.ethAddress.length - 6, this.ethAddress.length);
         }
         return '';
       },

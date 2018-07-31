@@ -2,7 +2,7 @@
   <div>
     <div class="row justify-content-center">
       <div class="col-sm-12">
-        <h2>My Tokens <span class="badge badge-primary">{{assetsPurchasedByAccount.length || 0}}</span></h2>
+        <h2>My Interface Tokens <span class="badge badge-primary">{{assetsPurchasedByAccount.length || 0}}</span></h2>
         <h4><pre>{{account}}</pre></h4>
       </div>
     </div>
@@ -14,14 +14,20 @@
         <div class="card-columns">
 
           <div class="card" v-for="tokenDetails in accountTokenDetails">
+            <div class="text-center">
+              <address-icon :ethAddress="tokenDetails.blockhash"></address-icon>
+            </div>
             <ul class="list-group list-group-flush">
+              <li class="list-group-item text-center">
+                <span class="badge badge-primary">{{ tokenDetails.tokenId }}</span>
+              </li>
               <li class="list-group-item">
-                <span class="badge badge-primary">{{tokenDetails.tokenId}}</span>
+                <small><samp>{{ tokenDetails.blockhash }}</samp></small>
               </li>
               <li class="list-group-item">
 
                 <div v-show="!edits[tokenDetails.tokenId]">
-                  {{tokenDetails.nickname}}
+                  <span class="text-muted">Nickname:</span> {{tokenDetails.nickname || "-- no nickname --"}}
                   <span class="text-muted text-sm float-right" style="cursor: pointer;"
                         v-on:click="toggleEdit(tokenDetails.tokenId)">edit</span>
                 </div>
@@ -41,10 +47,6 @@
                     </button>
                   </div>
                 </div>
-              </li>
-              <li class="list-group-item text-sm-center">
-                <address-icon :ethAddress="tokenDetails.blockhash"></address-icon>
-                <p>{{tokenDetails.blockhash}}</p>
               </li>
               <li class="list-group-item">
                 <a :href="tokenDetails.metadata" target="_blank">Metadata</a>

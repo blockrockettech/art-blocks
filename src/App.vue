@@ -18,7 +18,7 @@
               <!--<router-link :to="{ name: 'artist' }" class="nav-link d-none d-sm-block">Art Node</router-link>-->
             <!--</li>-->
             <li class="nav-item">
-              <router-link :to="{ name: 'mytokens' }" class="nav-link d-none d-sm-block">My Tokens</router-link>
+              <router-link :to="{ name: 'mytokens' }" class="nav-link d-none d-sm-block">My TOKNs</router-link>
             </li>
           </ul>
         </div>

@@ -3,7 +3,28 @@
     <h1>&nbsp;</h1>
 
     <div class="row mt-5">
-      <div class="col">
+      <loading-spinner v-if="!assets || assets.length == 0"></loading-spinner>
+
+      <div class="col-2 mb-4" v-for="tokn, key in limitBy(orderBy(assets, 'blocknumber', -1), 100)" :key="key">
+        <div class="card">
+          <div class="text-center">
+            <address-icon :ethAddress="tokn.blockhash"></address-icon>
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item text-center">
+              <span class="badge badge-primary">{{ tokn.tokenId }}</span>
+            </li>
+            <li class="list-group-item">
+              <small><samp>{{ tokn.blockhash }}</samp></small>
+            </li>
+            <li class="list-group-item">
+              <small><samp>block: {{ tokn.blocknumber }}</samp></small>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-5">
         <table class="table table-striped">
           <tbody>
           <tr v-if="contractAddress">
@@ -30,44 +51,10 @@
           </tr>
           <tr v-if="totalSupply">
             <td>Supply</td>
-            <td>{{ totalSupply }}</td>
+            <td><span class="badge badge-primary">{{ totalSupply }}</span></td>
           </tr>
           </tbody>
         </table>
-      </div>
-    </div>
-
-    <div class="row mt-5">
-
-      <div class="col">
-        <loading-spinner v-if="!assets || assets.length == 0"></loading-spinner>
-
-
-        <div class="row">
-          <div class="col-2 mb-4" v-for="tokn, key in limitBy(orderBy(assets, 'blocknumber', -1), 100)" :key="key">
-            <div class="card">
-              <div class="text-center">
-                <address-icon :ethAddress="tokn.blockhash"></address-icon>
-              </div>
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item text-center">
-                  <span class="badge badge-primary">{{ tokn.tokenId }}</span>
-                </li>
-              </ul>
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item">
-                  <small><samp>{{ tokn.blockhash }}</samp></small>
-                </li>
-              </ul>
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item">
-                  <small><samp>block: {{ tokn.blocknumber }}</samp></small>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
