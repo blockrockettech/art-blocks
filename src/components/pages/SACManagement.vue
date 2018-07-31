@@ -1,13 +1,19 @@
 <template>
   <div>
-    <h2>Art Node</h2>
-    <h4><pre>{{$route.params.sacAddress}}</pre></h4>
+    <div class="row justify-content-center">
+      <div class="col-sm-12">
+        <h2>Art Node</h2>
+        <h4>
+          <pre>{{$route.params.sacAddress}}</pre>
+        </h4>
+      </div>
+    </div>
 
-    <div v-if="contractError">
+    <div v-if="contractError" class="mt-2">
       <span class="text-danger">Error - SAC address not found or not invalid</span>
     </div>
 
-    <div v-else class="row justify-content-center">
+    <div v-else class="row justify-content-center mt-2">
 
       <div class="col-sm-12">
         <div v-if="sacDetails[$route.params.sacAddress]">
@@ -31,7 +37,7 @@
                        v-model="sacDetails[$route.params.sacAddress].pricePerBlockInWei">
                 <div class="input-group-append">
                   <button class="btn btn-outline-secondary" type="button"
-                          v-on:click="commitChanges('pricePerBlockInWei')" >Commit
+                          v-on:click="commitChanges('pricePerBlockInWei')">Commit
                   </button>
                 </div>
               </div>
@@ -92,11 +98,14 @@
             </li>
 
             <li class="list-group-item">
-              Foundation: <clickable-address :ethAddress="sacDetails[$route.params.sacAddress].foundationAddress"></clickable-address> at
+              Foundation:
+              <clickable-address :ethAddress="sacDetails[$route.params.sacAddress].foundationAddress"></clickable-address>
+              at
               ({{sacDetails[$route.params.sacAddress].foundationPercentage}}%)
             </li>
             <li class="list-group-item">
-              Artist Account: <clickable-address :ethAddress="sacDetails[$route.params.sacAddress].artist"></clickable-address>
+              Artist Account:
+              <clickable-address :ethAddress="sacDetails[$route.params.sacAddress].artist"></clickable-address>
             </li>
           </ul>
         </div>
@@ -111,14 +120,14 @@
   import * as actions from '../../store/actions';
   import Vue from 'vue';
   import Web3 from 'web3';
-  import {mapGetters, mapState} from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import AddressIcon from '../ui-controls/AddressIcon';
   import ClickableAddress from '../ui-controls/ClickableAddress';
 
   export default {
     name: 'SACManagement',
     components: {ClickableAddress},
-    data() {
+    data () {
       return {
         contractError: false,
         edits: {}
