@@ -15700,6 +15700,12 @@
     "version": "0.4.24+commit.e67f0147.Emscripten.clang"
   },
   "networks": {
+    "1": {
+      "events": {},
+      "links": {},
+      "address": "0x7f737b66921d18b008dc9c3a9b933a3bf559f1bc",
+      "transactionHash": "0x03a8c71a59cef599a74cf9b4dd891fc339503320996a7cfb65f2899c058f6619"
+    },
     "3": {
       "events": {
         "0x524f2cbda4d6611f91af397a555f7d212dde00cbf933069a6267518e0c4a27d7": {
