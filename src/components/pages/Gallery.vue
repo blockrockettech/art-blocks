@@ -1,8 +1,13 @@
 <template>
   <div>
-    <h1>&nbsp;</h1>
+    <div class="row justify-content-center">
+      <div class="col-sm-12">
+        <h2>TOKN <span class="badge badge-primary">{{assets.length || 0}}</span></h2>
+        <h4><pre>{{contractAddress}}</pre></h4>
+      </div>
+    </div>
 
-    <div class="row mt-5">
+    <div class="row mt-2">
       <loading-spinner v-if="!assets || assets.length == 0"></loading-spinner>
 
       <div class="col-2 mb-4" v-for="tokn, key in limitBy(orderBy(assets, 'blocknumber', -1), 100)" :key="key">
@@ -22,39 +27,6 @@
             </li>
           </ul>
         </div>
-      </div>
-
-      <div class="col-5">
-        <table class="table table-striped">
-          <tbody>
-          <tr v-if="contractAddress">
-            <td>Contract</td>
-            <td>
-              <clickable-address :eth-address="contractAddress"></clickable-address>
-            </td>
-          </tr>
-          <tr v-if="contractName">
-            <td>Name</td>
-            <td>
-              {{ contractName }}
-            </td>
-          </tr>
-          <tr v-if="contractSymbol">
-            <td>Symbol</td>
-            <td>{{ contractSymbol }}</td>
-          </tr>
-          <tr v-if="curatorAddress">
-            <td>Curator</td>
-            <td>
-              <clickable-address :eth-address="curatorAddress"></clickable-address>
-            </td>
-          </tr>
-          <tr v-if="totalSupply">
-            <td>Supply</td>
-            <td><span class="badge badge-primary">{{ totalSupply }}</span></td>
-          </tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </div>
