@@ -43,7 +43,7 @@
         <loading-spinner v-if="!assets || assets.length == 0"></loading-spinner>
 
         <div class="card-columns">
-          <div class="card" v-for="dART, key in assets" :key="key">
+          <div class="card" v-for="dART, key in orderBy(limitBy(assets, 6), 'blocknumber', -1)" :key="key">
             <div class="text-center">
               <address-icon :ethAddress="dART.blockhash"></address-icon>
             </div>
@@ -53,6 +53,11 @@
             <ul class="list-group list-group-flush">
               <li class="list-group-item">
                 <small><samp>{{ dART.blockhash }}</samp></small>
+              </li>
+            </ul>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                <small><samp>block: {{ dART.blocknumber }}</samp></small>
               </li>
             </ul>
           </div>

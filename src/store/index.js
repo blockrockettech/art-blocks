@@ -315,6 +315,7 @@ const store = new Vuex.Store({
                 tokenId: result.args._tokenId.toNumber(10),
                 blockhash: result.args._blockhash,
                 nickname: Web3.utils.hexToAscii(result.args._nickname),
+                blocknumber: result.blockNumber
               });
             } else {
               console.log('Failure', error);

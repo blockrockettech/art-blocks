@@ -15,6 +15,8 @@ import fontawesome from '@fortawesome/fontawesome';
 import brands from '@fortawesome/fontawesome-free-brands';
 import solid from '@fortawesome/fontawesome-free-solid';
 
+import Vue2Filters from 'vue2-filters';
+
 fontawesome.library.add(brands, solid);
 
 Vue.use(VModal);
@@ -37,6 +39,9 @@ Vue.filter('to0Dp', function (value) {
   if (!value) return '';
   return new BigNumber(value.toString(10)).toFormat(0);
 });
+
+Vue.use(Vue2Filters);
+
 
 ;(async () => {
   try {
