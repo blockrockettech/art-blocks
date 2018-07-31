@@ -29,7 +29,7 @@
             </td>
           </tr>
           <tr v-if="totalSupply">
-            <td>Supply:</td>
+            <td>Supply</td>
             <td>{{ totalSupply }}</td>
           </tr>
           </tbody>
@@ -48,15 +48,11 @@
               <address-icon :ethAddress="dART.blockhash"></address-icon>
             </div>
             <div class="card-body">
-              <h5 class="card-title">{{ dART.nickname }} <span class="badge badge-primary float-right">{{ dART.tokenId
-                }}</span></h5>
+              <h5 class="card-title"><span class="badge badge-primary float-right">{{ dART.tokenId }}</span></h5>
             </div>
             <ul class="list-group list-group-flush">
               <li class="list-group-item">
                 <small><samp>{{ dART.blockhash }}</samp></small>
-              </li>
-              <li class="list-group-item"><span class="text-muted">Owner: </span>
-                <clickable-address :eth-address="dART.owner"></clickable-address>
               </li>
             </ul>
           </div>

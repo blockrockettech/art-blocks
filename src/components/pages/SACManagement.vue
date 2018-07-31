@@ -1,8 +1,7 @@
 <template>
   <div>
-    <h4>Simple Artist Contract Management
-      <small>{{$route.params.sacAddress}}</small>
-    </h4>
+    <h2>Art Node</h2>
+    <h4><pre>{{$route.params.sacAddress}}</pre></h4>
 
     <div v-if="contractError">
       <span class="text-danger">Error - SAC address not found or not invalid</span>
@@ -16,7 +15,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
               <div v-show="!edits['pricePerBlockInWei']">
-                Price per block: {{sacDetails[$route.params.sacAddress].pricePerBlockInWei | toEth}} ETH
+                <span class="text-muted">Price per block:</span> {{sacDetails[$route.params.sacAddress].pricePerBlockInWei | toEth}} ETH
                 <span class="text-muted text-sm float-right"
                       style="cursor: pointer;"
                       v-on:click="toggleEdit('pricePerBlockInWei')"
@@ -93,11 +92,11 @@
             </li>
 
             <li class="list-group-item">
-              Foundation: {{sacDetails[$route.params.sacAddress].foundationAddress}} at
+              Foundation: <clickable-address :ethAddress="sacDetails[$route.params.sacAddress].foundationAddress"></clickable-address> at
               ({{sacDetails[$route.params.sacAddress].foundationPercentage}}%)
             </li>
             <li class="list-group-item">
-              Artist Account: {{sacDetails[$route.params.sacAddress].artist}}
+              Artist Account: <clickable-address :ethAddress="sacDetails[$route.params.sacAddress].artist"></clickable-address>
             </li>
           </ul>
         </div>
@@ -113,10 +112,12 @@
   import Vue from 'vue';
   import Web3 from 'web3';
   import {mapGetters, mapState} from 'vuex';
+  import AddressIcon from '../ui-controls/AddressIcon';
+  import ClickableAddress from '../ui-controls/ClickableAddress';
 
   export default {
     name: 'SACManagement',
-    components: {},
+    components: {ClickableAddress},
     data() {
       return {
         contractError: false,

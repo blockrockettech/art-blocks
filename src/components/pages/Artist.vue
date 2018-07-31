@@ -1,11 +1,10 @@
 <template>
   <div>
     <div class="row mt-5">
-
       <div class="col-6">
         <div class="card text-center">
           <div class="card-header">
-            Simple Artist Contract
+            Art Node
           </div>
           <div class="card-body">
             <p>

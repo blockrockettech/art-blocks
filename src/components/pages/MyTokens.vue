@@ -2,24 +2,12 @@
   <div>
     <div class="row justify-content-center">
       <div class="col-sm-12">
-        <h5>Manage your token!</h5>
-
-        <div>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-              Account: {{account}}
-            </li>
-            <li class="list-group-item">
-              Total tokens: {{assetsPurchasedByAccount || 0}}
-            </li>
-          </ul>
-        </div>
-
+        <h2>My Tokens <span class="badge badge-primary">{{assetsPurchasedByAccount.length || 0}}</span></h2>
+        <h4><pre>{{account}}</pre></h4>
       </div>
-
     </div>
 
-    <div class="row mt-5">
+    <div class="row mt-2">
 
       <div class="col">
 
@@ -28,7 +16,7 @@
           <div class="card" v-for="tokenDetails in accountTokenDetails">
             <ul class="list-group list-group-flush">
               <li class="list-group-item">
-                ID: {{tokenDetails.tokenId}}
+                <span class="badge badge-primary">{{tokenDetails.tokenId}}</span>
               </li>
               <li class="list-group-item">
 

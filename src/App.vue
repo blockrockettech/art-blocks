@@ -1,43 +1,45 @@
 <template>
-  <div>
+  <div id="main-container">
     <header>
       <nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top">
         <router-link :to="{ name: 'home' }" class="navbar-brand">
           TOKN
         </router-link>
 
-        <ul class="navbar-nav justify-content-end">
-          <li class="nav-item">
-            <router-link :to="{ name: 'home' }" class="nav-link d-none d-sm-block">Home</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link :to="{ name: 'mint' }" class="nav-link d-none d-sm-block">Mint</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link :to="{ name: 'artist' }" class="nav-link d-none d-sm-block">Artist</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link :to="{ name: 'mytokens' }" class="nav-link d-none d-sm-block">My Tokens</router-link>
-          </li>
-        </ul>
-
-        <form class="form-inline my-2 my-lg-0 nav-link d-none d-sm-block float-right" novalidate>
-          <input class="form-control mr-sm-2" type="search"
-                 placeholder="SAC Contract Address..."
-                 v-model="sacAddress">
-          <button class="btn btn-info my-2 my-sm-0" type="button"
-                  v-on:click="goToSAC()">SAC Contract
-          </button>
-        </form>
-
+        <div class="col">
+          <ul class="navbar-nav justify-content-end float-left">
+            <li class="nav-item">
+              <router-link :to="{ name: 'home' }" class="nav-link d-none d-sm-block">Home</router-link>
+            </li>
+            <!--<li class="nav-item">-->
+              <!--<router-link :to="{ name: 'mint' }" class="nav-link d-none d-sm-block">Mint</router-link>-->
+            <!--</li>-->
+            <!--<li class="nav-item">-->
+              <!--<router-link :to="{ name: 'artist' }" class="nav-link d-none d-sm-block">Art Node</router-link>-->
+            <!--</li>-->
+            <li class="nav-item">
+              <router-link :to="{ name: 'mytokens' }" class="nav-link d-none d-sm-block">My Tokens</router-link>
+            </li>
+          </ul>
+        </div>
+        <div class="col">
+          <form class="form-inline my-2 my-lg-0 d-none d-sm-block float-right" novalidate>
+            <input class="form-control mr-sm-2" type="search"
+                   placeholder="Art Node Address..."
+                   v-model="sacAddress">
+            <button class="btn btn-info my-2 my-sm-0" type="button"
+                    v-on:click="goToSAC()">Art Node Contract
+            </button>
+          </form>
+        </div>
       </nav>
-
     </header>
 
     <main role="main" class="container">
       <router-view></router-view>
     </main>
 
+    <hr/>
     <current-network></current-network>
   </div>
 </template>
