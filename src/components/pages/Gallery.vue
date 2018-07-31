@@ -49,9 +49,11 @@
               <div class="text-center">
                 <address-icon :ethAddress="tokn.blockhash"></address-icon>
               </div>
-              <div class="card-body">
-                <h5 class="card-title"><span class="badge badge-primary float-right">{{ tokn.tokenId }}</span></h5>
-              </div>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item text-center">
+                  <span class="badge badge-primary">{{ tokn.tokenId }}</span>
+                </li>
+              </ul>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                   <small><samp>{{ tokn.blockhash }}</samp></small>
