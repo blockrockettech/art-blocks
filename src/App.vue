@@ -22,16 +22,16 @@
             </li>
           </ul>
         </div>
-        <div class="col">
-          <form class="form-inline my-2 my-lg-0 d-none d-sm-block float-right" novalidate>
-            <input class="form-control mr-sm-2" type="search"
-                   placeholder="Art Node Address..."
-                   v-model="sacAddress">
-            <button class="btn btn-info my-2 my-sm-0" type="button"
-                    v-on:click="goToSAC()">Art Node Contract
-            </button>
-          </form>
-        </div>
+        <!--<div class="col">-->
+          <!--<form class="form-inline my-2 my-lg-0 d-none d-sm-block float-right" novalidate>-->
+            <!--<input class="form-control mr-sm-2" type="search"-->
+                   <!--placeholder="Art Node Address..."-->
+                   <!--v-model="sacAddress">-->
+            <!--<button class="btn btn-info my-2 my-sm-0" type="button"-->
+                    <!--v-on:click="goToSAC()">Art Node Contract-->
+            <!--</button>-->
+          <!--</form>-->
+        <!--</div>-->
       </nav>
     </header>
 

@@ -3,7 +3,9 @@
     <div class="row justify-content-center">
       <div class="col-sm-12">
         <h2>My Interface Tokens <span class="badge badge-primary">{{assetsPurchasedByAccount.length || 0}}</span></h2>
-        <h4><pre>{{account}}</pre></h4>
+        <h4>
+          <pre>{{account}}</pre>
+        </h4>
       </div>
     </div>
 
@@ -27,9 +29,8 @@
               <li class="list-group-item">
 
                 <div v-show="!edits[tokenDetails.tokenId]">
-                  <span class="text-muted">Nickname:</span> {{tokenDetails.nickname || "-- no nickname --"}}
-                  <span class="text-muted text-sm float-right" style="cursor: pointer;"
-                        v-on:click="toggleEdit(tokenDetails.tokenId)">edit</span>
+                  <span class="text-muted">Nickname:</span> {{tokenDetails.nickname || '-- no nickname --'}}
+                  <a href="#" class="small float-right" v-on:click="toggleEdit(tokenDetails.tokenId)">edit</a>
                 </div>
 
                 <div class="input-group mb-2 mr-sm-2" v-show="edits[tokenDetails.tokenId]">
@@ -64,7 +65,7 @@
 
 <script>
 
-  import {mapGetters, mapState} from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import AddressIcon from '../ui-controls/AddressIcon';
   import * as actions from '../../store/actions';
   import Vue from 'vue';
@@ -74,7 +75,7 @@
     components: {
       AddressIcon
     },
-    data() {
+    data () {
       return {
         edits: {}
       };

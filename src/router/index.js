@@ -40,7 +40,7 @@ export default new Router({
       component: MyTokens
     },
     {
-      path: '/contract/:sacAddress',
+      path: '/art-node/:sacAddress',
       name: 'SACManagement',
       component: SACManagement
     }

@@ -21,11 +21,18 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
               <div v-show="!edits['pricePerBlockInWei']">
-                <span class="text-muted">Price per block:</span> {{sacDetails[$route.params.sacAddress].pricePerBlockInWei | toEth}} ETH
-                <span class="text-muted text-sm float-right"
-                      style="cursor: pointer;"
-                      v-on:click="toggleEdit('pricePerBlockInWei')"
-                      v-if="isArtist">edit</span>
+                <div class="row">
+                  <div class="col text-muted">
+                    Price per block:
+                  </div>
+                  <div class="col">
+                    {{sacDetails[$route.params.sacAddress].pricePerBlockInWei | toEth}} ETH
+
+                    <a href="#" class="small float-right"
+                       v-on:click="toggleEdit('pricePerBlockInWei')"
+                       v-if="isArtist()">edit</a>
+                  </div>
+                </div>
               </div>
 
               <div class="input-group mb-2 mr-sm-2" v-show="edits['pricePerBlockInWei']">
@@ -45,11 +52,18 @@
 
             <li class="list-group-item">
               <div v-show="!edits['maxBlockPurchaseInOneGo']">
-                Max blocks in one go: {{sacDetails[$route.params.sacAddress].maxBlockPurchaseInOneGo}}
-                <span class="text-muted text-sm float-right"
-                      style="cursor: pointer;"
-                      v-on:click="toggleEdit('maxBlockPurchaseInOneGo')"
-                      v-if="isArtist">edit</span>
+                <div class="row">
+                  <div class="col text-muted">
+                    Max blocks per purchase:
+                  </div>
+                  <div class="col">
+                    {{sacDetails[$route.params.sacAddress].maxBlockPurchaseInOneGo}}
+                    <a href="#" class="small float-right"
+                       v-on:click="toggleEdit('maxBlockPurchaseInOneGo')"
+                       v-if="isArtist()">edit</a>
+                  </div>
+                </div>
+
               </div>
 
               <div class="input-group mb-2 mr-sm-2" v-show="edits['maxBlockPurchaseInOneGo']">
@@ -69,11 +83,17 @@
 
             <li class="list-group-item">
               <div v-show="!edits['onlyShowPurchased']">
-                Only show purchased: {{sacDetails[$route.params.sacAddress].onlyShowPurchased}}
-                <span class="text-muted text-sm float-right"
-                      style="cursor: pointer;"
-                      v-on:click="toggleEdit('onlyShowPurchased')"
-                      v-if="isArtist">edit</span>
+                <div class="row">
+                  <div class="col text-muted">
+                    Only show purchased:
+                  </div>
+                  <div class="col">
+                    {{sacDetails[$route.params.sacAddress].onlyShowPurchased}}
+                    <a href="#" class="small float-right"
+                       v-on:click="toggleEdit('onlyShowPurchased')"
+                       v-if="isArtist()">edit</a>
+                  </div>
+                </div>
               </div>
 
               <div class="input-group mb-2 mr-sm-2" v-show="edits['onlyShowPurchased']">
@@ -98,14 +118,26 @@
             </li>
 
             <li class="list-group-item">
-              Foundation:
-              <clickable-address :ethAddress="sacDetails[$route.params.sacAddress].foundationAddress"></clickable-address>
-              at
-              ({{sacDetails[$route.params.sacAddress].foundationPercentage}}%)
+              <div class="row">
+                <div class="col text-muted">
+                  Foundation:
+                </div>
+                <div class="col">
+                  <clickable-address :ethAddress="sacDetails[$route.params.sacAddress].foundationAddress"></clickable-address>
+                  at
+                  {{sacDetails[$route.params.sacAddress].foundationPercentage}}%
+                </div>
+              </div>
             </li>
             <li class="list-group-item">
-              Artist Account:
-              <clickable-address :ethAddress="sacDetails[$route.params.sacAddress].artist"></clickable-address>
+              <div class="row">
+                <div class="col text-muted">
+                  Artist Account:
+                </div>
+                <div class="col">
+                  <clickable-address :ethAddress="sacDetails[$route.params.sacAddress].artist"></clickable-address>
+                </div>
+              </div>
             </li>
           </ul>
         </div>
@@ -173,5 +205,10 @@
   };
 </script>
 
-<style>
+<style lang="scss">
+  $body-bg: #ffffcc;
+
+  .list-group .list-group-item {
+    background-color: $body-bg;
+  }
 </style>

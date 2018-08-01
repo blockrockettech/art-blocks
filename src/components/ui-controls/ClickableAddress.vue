@@ -1,6 +1,6 @@
 <template>
   <span v-if="ethAddress">
-    <pre><small><a class="token-id" :href="buildLink" target="_blank">{{ dotDotDot }}</a></small></pre>
+    <small><a class="token-id" :href="buildLink" target="_blank">{{ dotDotDot }}</a></small>
   </span>
 </template>
 
