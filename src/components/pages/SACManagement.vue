@@ -174,7 +174,11 @@
         Vue.set(this.edits, type, true);
       },
       isArtist: function () {
-        return this.sacDetails[this.$route.params.sacAddress].artist === this.account;
+        if (!this.sacDetails[this.$route.params.sacAddress].artist || !this.account) {
+          return false;
+        }
+
+        return this.sacDetails[this.$route.params.sacAddress].artist.toLowerCase() === this.account.toLowerCase();
       },
       commitChanges: function (type) {
         Vue.set(this.edits, type, false);
