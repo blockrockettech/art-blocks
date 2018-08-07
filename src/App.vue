@@ -94,11 +94,6 @@
 
       // Bootstrap the full app
       this.$store.dispatch(actions.INIT_APP, bootStrappedWeb3);
-
-      setInterval(function () {
-        console.log('getting next hash');
-        this.$store.dispatch(actions.NEXT_HASH);
-      }.bind(this), 2000);
     },
   };
 </script>

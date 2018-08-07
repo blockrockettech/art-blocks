@@ -144,6 +144,25 @@
 
       </div>
     </div>
+
+
+    <div class="row mt-2">
+      <div class="col">
+        <div v-for="obj, key in hashes" :key="key" class="alert alert-light" role="alert">
+          <span class="badge">#{{ key }}</span>
+          <clickable-blockhash :ethAddress="obj.hash" :blocknumber="key"></clickable-blockhash>
+          <span class="badge badge-primary float-right" v-if="getHashMatch(obj.hash)">
+            {{ getHashMatch(obj.hash).nickname }}
+          </span>
+          <span class="badge badge-light float-right" v-if="getHashMatch(obj.hash)">
+            {{ getHashMatch(obj.hash).tokenId }}
+          </span>
+          <span class="badge badge-warning float-right" v-if="!getHashMatch(obj.hash)">
+            Blockchain
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -155,10 +174,11 @@
   import { mapGetters, mapState } from 'vuex';
   import AddressIcon from '../ui-controls/AddressIcon';
   import ClickableAddress from '../ui-controls/ClickableAddress';
+  import ClickableBlockhash from '../ui-controls/ClickableBlockhash';
 
   export default {
     name: 'SACManagement',
-    components: {ClickableAddress},
+    components: {ClickableAddress, ClickableBlockhash},
     data () {
       return {
         contractError: false,
@@ -166,8 +186,8 @@
       };
     },
     computed: {
-      ...mapState(['sacDetails', 'account']),
-      ...mapGetters(['getSacDetails'])
+      ...mapState(['sacDetails', 'account', 'hashes']),
+      ...mapGetters(['getSacDetails', 'getHashMatch'])
     },
     methods: {
       toggleEdit: function (type) {
@@ -205,6 +225,14 @@
         this.contractError = false;
         this.$store.dispatch(actions.GET_SAC_DETAILS, this.$route.params.sacAddress);
       });
+
+      this.timer = setInterval(function () {
+        console.log('getting next hash');
+        this.$store.dispatch(actions.NEXT_HASH, this.$route.params.sacAddress);
+      }.bind(this), 2000);
+    },
+    beforeDestroy() {
+      clearInterval(this.timer);
     }
   };
 </script>

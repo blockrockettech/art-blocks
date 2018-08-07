@@ -126,12 +126,10 @@ const store = new Vuex.Store({
       state.nextBlockToFund = nextBlockToFund;
       state.simpleArtistContractBalance = balance;
 
-      state.hashes[blocknumber] = {
+      Vue.set(state.hashes, blocknumber, {
         hash: hash,
         blocknumber: blocknumber
-      };
-
-      Vue.set(state, 'hashes', state.hashes);
+      });
     },
   },
   actions: {
@@ -180,7 +178,7 @@ const store = new Vuex.Store({
         .catch(console.log);
     },
     async [actions.SAC_UPDATE_MAX_PRICE_PRE_BLOCK]({commit, dispatch, state}, {sacAddress, data}) {
-      console.log(sacAddress, data);
+      // console.log(sacAddress, data);
       const sacContract = await simpleArtistContract.at(sacAddress);
       sacContract.setPricePerBlockInWei(data, {from: state.account})
         .then(() => {
@@ -357,8 +355,8 @@ const store = new Vuex.Store({
             });
         }).catch((error) => console.log('Something went bang!', error));
     },
-    [actions.NEXT_HASH]({commit, dispatch, state}) {
-      simpleArtistContract.deployed()
+    [actions.NEXT_HASH]({commit, dispatch, state}, sacAddress) {
+      simpleArtistContract.at(sacAddress)
         .then((contract) => {
           Promise.all([contract.nextHash(), contract.nextPurchasableBlocknumber()])
             .then((results) => {

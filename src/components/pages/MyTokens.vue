@@ -21,7 +21,7 @@
             </div>
             <ul class="list-group list-group-flush">
               <li class="list-group-item text-center">
-                <span class="text-muted">TokenID:</span><span class="badge badge-primary">{{ tokenDetails.tokenId }}</span>
+                <span class="text-muted">TokenID:</span> <span class="badge badge-primary">{{ tokenDetails.tokenId }}</span>
               </li>
               <li class="list-group-item">
                 <small><samp>{{ tokenDetails.blockhash }}</samp></small>
