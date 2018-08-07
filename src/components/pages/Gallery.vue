@@ -3,7 +3,7 @@
     <div class="row justify-content-center">
       <div class="col-sm-12">
         <h2>TOKN <span class="badge badge-primary">{{assets.length || 0}}</span></h2>
-        <h4><pre>{{contractAddress}}</pre></h4>
+        <h4>Contract Address:<pre>{{contractAddress}}</pre></h4>
       </div>
     </div>
 
