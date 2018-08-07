@@ -120,7 +120,7 @@
             <li class="list-group-item">
               <div class="row">
                 <div class="col text-muted">
-                  Foundation:
+                  Foundation Address:
                 </div>
                 <div class="col">
                   <clickable-address :ethAddress="sacDetails[$route.params.sacAddress].foundationAddress"></clickable-address>
@@ -132,7 +132,7 @@
             <li class="list-group-item">
               <div class="row">
                 <div class="col text-muted">
-                  Artist Account:
+                  Art Node Owner:
                 </div>
                 <div class="col">
                   <clickable-address :ethAddress="sacDetails[$route.params.sacAddress].artist"></clickable-address>
