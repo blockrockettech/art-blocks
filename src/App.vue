@@ -105,9 +105,9 @@
 
 <style lang="scss">
 
-  $body-bg: #ffffcc;
+  $body-bg: #efefef;
   $body-color: #545454;
-  $primary: #cc3399;
+  $primary: #ffb33a;
 
   $font-family-base: 'Avenir', Helvetica, Arial, sans-serif;
 
