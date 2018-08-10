@@ -53,7 +53,7 @@ const store = new Vuex.Store({
     hash: null,
     blocknumber: null,
     nextBlockToFund: null,
-    hashes: {}
+    hashes: []
   },
   getters: {
     assetByTokenId: (state) => (tokenId) => {
@@ -126,10 +126,16 @@ const store = new Vuex.Store({
       state.nextBlockToFund = nextBlockToFund;
       state.simpleArtistContractBalance = balance;
 
-      Vue.set(state.hashes, blocknumber, {
+      let hashArray = state.hashes;
+      hashArray.push({
         hash: hash,
         blocknumber: blocknumber
       });
+      hashArray = _.uniqBy(hashArray, function (h) {
+        return h.blocknumber;
+      });
+
+      Vue.set(state, 'hashes', hashArray);
     },
   },
   actions: {

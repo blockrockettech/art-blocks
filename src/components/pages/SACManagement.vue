@@ -145,19 +145,20 @@
       </div>
     </div>
 
+    <hr/>
 
     <div class="row mt-2">
       <div class="col">
-        <div v-for="obj, key in hashes" :key="key" class="alert alert-light" role="alert">
-          <span class="badge">#{{ key }}</span>
-          <clickable-blockhash :ethAddress="obj.hash" :blocknumber="key"></clickable-blockhash>
-          <span class="badge badge-primary float-right" v-if="getHashMatch(obj.hash)">
-            {{ getHashMatch(obj.hash).nickname }}
+        <div v-for="hash in orderBy(hashes, 'blocknumber', -1)" :key="hash.blocknumber" class="alert alert-light" role="alert">
+          <span class="badge">#{{ hash.blocknumber }}</span>
+          <clickable-blockhash :ethAddress="hash.hash" :blocknumber="`${hash.blocknumber}`"></clickable-blockhash>
+          <span class="badge badge-success float-right" v-if="getHashMatch(hash.hash)">
+            {{ getHashMatch(hash.hash).nickname }}
           </span>
-          <span class="badge badge-light float-right" v-if="getHashMatch(obj.hash)">
-            {{ getHashMatch(obj.hash).tokenId }}
+          <span class="badge badge-light float-right" v-if="getHashMatch(hash.hash)">
+            {{ getHashMatch(hash.hash).tokenId }}
           </span>
-          <span class="badge badge-warning float-right" v-if="!getHashMatch(obj.hash)">
+          <span class="badge badge-primary float-right" v-if="!getHashMatch(hash.hash)">
             Blockchain
           </span>
         </div>
@@ -172,7 +173,6 @@
   import Vue from 'vue';
   import Web3 from 'web3';
   import { mapGetters, mapState } from 'vuex';
-  import AddressIcon from '../ui-controls/AddressIcon';
   import ClickableAddress from '../ui-controls/ClickableAddress';
   import ClickableBlockhash from '../ui-controls/ClickableBlockhash';
 
@@ -238,7 +238,7 @@
 </script>
 
 <style lang="scss">
-  $body-bg: #ffffcc;
+  $body-bg: #efefef;
 
   .list-group .list-group-item {
     background-color: $body-bg;
