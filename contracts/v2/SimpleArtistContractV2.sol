@@ -39,8 +39,13 @@ contract SimpleArtistContractV2  {
   uint256 public minBlockPurchaseInOneGo;
   bool public onlyShowPurchased = false;
 
+  // Foundation split
   address public foundationAddress = 0x2b54605eF16c4da53E32eC20b7F170389350E9F1;
   uint256 public foundationPercentage = 5; // 5% to foundation
+
+  // Optional 3rd party split
+  address public optionalSplitAddress;
+  uint256 public optionalSplitPercentage;
 
   mapping(uint256 => uint256) internal blocknumberToTokenId;
   mapping(uint256 => uint256[]) internal tokenIdToPurchasedBlocknumbers;
@@ -69,13 +74,7 @@ contract SimpleArtistContractV2  {
       purchase(token.firstToken(msg.sender));
     }
     else {
-      // 5% to foundation
-      uint foundationShare = msg.value / 100 * foundationPercentage;
-      foundationAddress.transfer(foundationShare);
-
-      // artists sent the remaining value
-      uint artistTotal = msg.value - foundationShare;
-      artist.transfer(artistTotal);
+      splitFunds();
     }
   }
 
@@ -114,14 +113,7 @@ contract SimpleArtistContractV2  {
     lastPurchasedBlock = nextBlockToPurchase;
 
     // payments
-
-    // 5% to foundation
-    uint foundationShare = msg.value / 100 * foundationPercentage;
-    foundationAddress.transfer(foundationShare);
-
-    // artists sent the remaining value
-    uint artistTotal = msg.value - foundationShare;
-    artist.transfer(artistTotal);
+    splitFunds();
 
     emit Purchased(msg.sender, _tokenId, blocksToPurchased, msg.value);
   }
@@ -135,6 +127,23 @@ contract SimpleArtistContractV2  {
 
     // Emit event for logging/tracking
     emit PurchaseBlock(msg.sender, _tokenId, getPurchasedBlockhash(_blocknumber), _blocknumber);
+  }
+
+  function splitFunds() internal {
+    // 5% to foundation
+    uint foundationShare = msg.value / 100 * foundationPercentage;
+    foundationAddress.transfer(foundationShare);
+
+    // Optional X% to 3rd party
+    uint256 optionalShare;
+    if (optionalSplitAddress != address(0) && optionalSplitPercentage > 0) {
+      optionalShare = msg.value.div(100).mul(optionalSplitPercentage);
+      optionalSplitAddress.transfer(optionalShare);
+    }
+
+    // artists sent the remaining value
+    uint artistTotal = msg.value - foundationShare - optionalShare;
+    artist.transfer(artistTotal);
   }
 
   /**
