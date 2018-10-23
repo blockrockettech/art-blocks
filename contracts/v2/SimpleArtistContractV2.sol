@@ -5,8 +5,11 @@ import "../v1/InterfaceToken.sol";
 /**
 * @title SimpleArtistContract V2
 */
-contract SimpleArtistContractV2  {
+contract SimpleArtistContractV2 {
+
   using SafeMath for uint256;
+
+  uint256 constant internal MAX_UINT = ~uint256(0);
 
   event Purchased(address indexed _funder, uint256 indexed _tokenId, uint256 _blocksPurchased, uint256 _totalValue);
   event PurchaseBlock(address indexed _funder, uint256 indexed _tokenId, bytes32 _blockhash, uint256 _block);
@@ -50,6 +53,10 @@ contract SimpleArtistContractV2  {
   mapping(uint256 => uint256) internal blocknumberToTokenId;
   mapping(uint256 => uint256[]) internal tokenIdToPurchasedBlocknumbers;
 
+  bool public preventDoublePurchases = false;
+  uint256 public maxInvocations = MAX_UINT;
+  uint256 public totalInvocations = 0;
+
   uint256 public lastPurchasedBlock = 0;
 
   constructor(InterfaceToken _token, uint256 _pricePerBlockInWei, uint256 _minBlockPurchaseInOneGo, uint256 _maxBlockPurchaseInOneGo, address _artist) public {
@@ -70,8 +77,22 @@ contract SimpleArtistContractV2  {
   * @dev allows payment direct to contract - if no token will store value on contract
   */
   function() public payable {
+
     if (token.hasTokens(msg.sender)) {
-      purchase(token.firstToken(msg.sender));
+
+      uint256 tokenId = token.firstToken(msg.sender);
+
+      // If we are preventing double purchases, then check the token has not been used before
+      if (preventDoublePurchases && tokenAlreadyUsed(tokenId)) {
+        revert("Cant buy any more - sorry!");
+      }
+
+      // We check to see if the Node has exceeded max available invocations
+      if (exceedsMaxInvocations()) {
+        revert("Art Node sold out - sorry!");
+      }
+
+      purchase(tokenId);
     }
     else {
       splitFunds();
@@ -115,6 +136,9 @@ contract SimpleArtistContractV2  {
     // payments
     splitFunds();
 
+    // Bump the invocation count
+    totalInvocations = totalInvocations.add(1);
+
     emit Purchased(msg.sender, _tokenId, blocksToPurchased, msg.value);
   }
 
@@ -144,6 +168,20 @@ contract SimpleArtistContractV2  {
     // artists sent the remaining value
     uint artistTotal = msg.value - foundationShare - optionalShare;
     artist.transfer(artistTotal);
+  }
+
+  /**
+   * @dev Checks to see if the token has already purchased blocks
+   */
+  function tokenAlreadyUsed(uint256 _tokenId) public view returns (bool) {
+    return tokenIdToPurchasedBlocknumbers[_tokenId].length > 0;
+  }
+
+  /**
+   * @dev Checks to see if the maximum number of purchases have been made
+   */
+  function exceedsMaxInvocations() public view returns (bool) {
+    return totalInvocations >= maxInvocations;
   }
 
   /**
@@ -217,10 +255,24 @@ contract SimpleArtistContractV2  {
   }
 
   /**
+   * @dev Allows for setting of setting max invocations allowed
+   */
+  function togglePreventDoublePurchases() external onlyArtist {
+    preventDoublePurchases = !preventDoublePurchases;
+  }
+
+  /**
+   * @dev Allows control of setting max invocations allowed
+   */
+  function setMaxInvocations(uint256 _maxInvocations) external onlyArtist {
+    maxInvocations = _maxInvocations;
+  }
+
+  /**
    * @dev Utility function for updating price per block
    * @param _priceInWei the price in wei
    */
-  function setPricePerBlockInWei( uint256 _priceInWei) external onlyArtist {
+  function setPricePerBlockInWei(uint256 _priceInWei) external onlyArtist {
     pricePerBlockInWei = _priceInWei;
   }
 
@@ -228,7 +280,7 @@ contract SimpleArtistContractV2  {
    * @dev Utility function for updating max blocks
    * @param _maxBlockPurchaseInOneGo max blocks per purchase
    */
-  function setMaxBlockPurchaseInOneGo( uint256 _maxBlockPurchaseInOneGo) external onlyArtist {
+  function setMaxBlockPurchaseInOneGo(uint256 _maxBlockPurchaseInOneGo) external onlyArtist {
     maxBlockPurchaseInOneGo = _maxBlockPurchaseInOneGo;
   }
 
@@ -236,7 +288,7 @@ contract SimpleArtistContractV2  {
    * @dev Utility function for updating min blocks
    * @param _minBlockPurchaseInOneGo min blocks per purchase
    */
-  function setMinBlockPurchaseInOneGo( uint256 _minBlockPurchaseInOneGo) external onlyArtist {
+  function setMinBlockPurchaseInOneGo(uint256 _minBlockPurchaseInOneGo) external onlyArtist {
     minBlockPurchaseInOneGo = _minBlockPurchaseInOneGo;
   }
 
