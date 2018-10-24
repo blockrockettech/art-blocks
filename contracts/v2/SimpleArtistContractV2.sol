@@ -79,20 +79,7 @@ contract SimpleArtistContractV2 {
   function() public payable {
 
     if (token.hasTokens(msg.sender)) {
-
-      uint256 tokenId = token.firstToken(msg.sender);
-
-      // If we are preventing double purchases, then check the token has not been used before
-      if (preventDoublePurchases && tokenAlreadyUsed(tokenId)) {
-        revert("Cant buy any more - sorry!");
-      }
-
-      // We check to see if the Node has exceeded max available invocations
-      if (exceedsMaxInvocations()) {
-        revert("Art Node sold out - sorry!");
-      }
-
-      purchase(tokenId);
+      purchase(token.firstToken(msg.sender));
     }
     else {
       splitFunds();
@@ -105,6 +92,16 @@ contract SimpleArtistContractV2 {
    */
   function purchase(uint256 _tokenId) public payable onlyValidAmounts {
     require(token.exists(_tokenId));
+
+    // If we are preventing double purchases, then check the token has not been used before
+    if (preventDoublePurchases && tokenAlreadyUsed(_tokenId)) {
+      revert("Cant buy any more - sorry!");
+    }
+
+    // We check to see if the Node has exceeded max available invocations
+    if (exceedsMaxInvocations()) {
+      revert("Art Node sold out - sorry!");
+    }
 
     // determine how many blocks purchased
     uint256 blocksToPurchased = msg.value / pricePerBlockInWei;
@@ -265,6 +262,7 @@ contract SimpleArtistContractV2 {
    * @dev Allows control of setting max invocations allowed
    */
   function setMaxInvocations(uint256 _maxInvocations) external onlyArtist {
+    require(_maxInvocations > 0, "Cannot set max invocations to less then 1");
     maxInvocations = _maxInvocations;
   }
 
