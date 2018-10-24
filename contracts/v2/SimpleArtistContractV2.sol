@@ -53,9 +53,17 @@ contract SimpleArtistContractV2 {
   mapping(uint256 => uint256) internal blocknumberToTokenId;
   mapping(uint256 => uint256[]) internal tokenIdToPurchasedBlocknumbers;
 
+  // When true - prevents the same token being used more than once
   bool public preventDoublePurchases = false;
+
+  // Allows for a max number of invocations of this contract, equivalent to rarity i.e. 1 or 1000 in an edition
   uint256 public maxInvocations = MAX_UINT;
+
+  // When total invocations equal max allowed invocations - no further token interactions with this contract are allowed
   uint256 public totalInvocations = 0;
+
+  // Can hold the checksum of the corresponding generative script
+  bytes32 public applicationChecksum;
 
   uint256 public lastPurchasedBlock = 0;
 
@@ -182,6 +190,13 @@ contract SimpleArtistContractV2 {
   }
 
   /**
+   * @dev Returns the allowed number of interactions left on the contract
+   */
+  function remainingInvocations() public view returns (uint256) {
+    return maxInvocations - totalInvocations;
+  }
+
+  /**
    * @dev Attempts to work out the next block which will be funded
    */
   function nextPurchasableBlocknumber() public view returns (uint256 _nextFundedBlock) {
@@ -252,18 +267,25 @@ contract SimpleArtistContractV2 {
   }
 
   /**
-   * @dev Allows for setting of setting max invocations allowed
+   * @dev Toggles the contract between allowing and preventing double purchases
    */
   function togglePreventDoublePurchases() external onlyArtist {
     preventDoublePurchases = !preventDoublePurchases;
   }
 
   /**
-   * @dev Allows control of setting max invocations allowed
+   * @dev Can control the max invocations allowed
    */
   function setMaxInvocations(uint256 _maxInvocations) external onlyArtist {
     require(_maxInvocations > 0, "Cannot set max invocations to less then 1");
     maxInvocations = _maxInvocations;
+  }
+
+  /**
+   * @dev Sets the application checksum, assume the bytes32 is a sha256 has of the application
+   */
+  function setApplicationChecksum(bytes32 _applicationChecksum) external onlyArtist {
+    applicationChecksum = _applicationChecksum;
   }
 
   /**

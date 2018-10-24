@@ -1,11 +1,7 @@
 const assertRevert = require('../helpers/assertRevert');
-const sendTransaction = require('../helpers/sendTransaction').sendTransaction;
 const etherToWei = require('../helpers/etherToWei');
 
 const advanceBlock = require('../helpers/advanceToBlock');
-const increaseTimeTo = require('../helpers/increaseTime').increaseTimeTo;
-const duration = require('../helpers/increaseTime').duration;
-const latestTime = require('../helpers/latestTime');
 
 const _ = require('lodash');
 
@@ -19,7 +15,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract.only('SimpleArtistContractV2', function (accounts) {
+contract('SimpleArtistContractV2', function (accounts) {
   const _dartOwner = accounts[0];
 
   const _artist = accounts[1];
@@ -40,7 +36,7 @@ contract.only('SimpleArtistContractV2', function (accounts) {
 
   const unknownTokenId = 99;
 
-  const minBlockPurchaseInOneGo = 5;
+  const minBlockPurchaseInOneGo = 2;
   const maxBlockPurchaseInOneGo = 20;
 
   before(async function () {
@@ -332,7 +328,7 @@ contract.only('SimpleArtistContractV2', function (accounts) {
 
   });
 
-  describe.only('when restricting number of invocations of the art node', async function () {
+  describe('when restricting number of invocations of the art node', async function () {
 
     beforeEach(async function () {
       await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _dartOwner});
@@ -389,7 +385,7 @@ contract.only('SimpleArtistContractV2', function (accounts) {
     });
   });
 
-  describe.only('when preventing double purchases', async function () {
+  describe('when preventing double purchases', async function () {
     const fiveBlocksToPurchase = 5;
     const fiveBlocksInEther = etherToWei(0.01).times(fiveBlocksToPurchase);
 
@@ -451,6 +447,26 @@ contract.only('SimpleArtistContractV2', function (accounts) {
         totalInvocations.should.be.bignumber.equal(2);
       });
 
+    });
+
+    describe('can set application checksum', async function () {
+
+      it('is blank by default', async function () {
+        const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
+        applicationChecksum.should.be.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+      });
+
+      it('can be set by artist', async function () {
+        await this.simpleArtistContract.setApplicationChecksum("file-checksum", {from: _artist});
+        const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
+        web3.toAscii(applicationChecksum).replace(/\0/g, '').should.be.equal("file-checksum");
+      });
+
+      it('fails when not set by artist', async function () {
+        await assertRevert(this.simpleArtistContract.setApplicationChecksum("file-checksum", {from: _buyer1}));
+        const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
+        applicationChecksum.should.be.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+      });
     });
 
   });
