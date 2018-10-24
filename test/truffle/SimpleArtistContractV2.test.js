@@ -101,6 +101,19 @@ contract('SimpleArtistContractV2', function (accounts) {
         }));
       });
 
+      it('token invocations is updated', async function () {
+        const tokenInvocations = await this.simpleArtistContract.getTokenInvocations();
+        tokenInvocations
+          .map(e => e.toString())
+          .should.be.deep
+          .equal([_tokenIdOne.toString(), _tokenIdTwo.toString()]);
+      });
+
+      it('total invocations count is updated', async function () {
+        const totalInvocations = await this.simpleArtistContract.totalInvocations();
+        totalInvocations.should.be.bignumber.equal(2);
+      });
+
       describe("reverts when", async function () {
         it('tokenId not valid', async function () {
           await assertRevert(this.simpleArtistContract.purchase(unknownTokenId));

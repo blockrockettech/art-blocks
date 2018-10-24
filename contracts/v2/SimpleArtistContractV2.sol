@@ -59,8 +59,8 @@ contract SimpleArtistContractV2 {
   // Allows for a max number of invocations of this contract, equivalent to rarity i.e. 1 or 1000 in an edition
   uint256 public maxInvocations = MAX_UINT;
 
-  // When total invocations equal max allowed invocations - no further token interactions with this contract are allowed
-  uint256 public totalInvocations = 0;
+  // When total size of list equals the max allowed invocations - no further token interactions with this contract are allowed
+  uint256[] public tokenInvocations;
 
   // Can hold the checksum of the corresponding generative script
   bytes32 public applicationChecksum;
@@ -141,8 +141,8 @@ contract SimpleArtistContractV2 {
     // payments
     splitFunds();
 
-    // Bump the invocation count
-    totalInvocations = totalInvocations.add(1);
+    // Add the invocation count
+    tokenInvocations.push(_tokenId);
 
     emit Purchased(msg.sender, _tokenId, blocksToPurchased, msg.value);
   }
@@ -186,14 +186,28 @@ contract SimpleArtistContractV2 {
    * @dev Checks to see if the maximum number of purchases have been made
    */
   function exceedsMaxInvocations() public view returns (bool) {
-    return totalInvocations >= maxInvocations;
+    return tokenInvocations.length >= maxInvocations;
+  }
+
+  /**
+   * @dev Returns the total number invocations recorded for this contract
+   */
+  function totalInvocations() public view returns (uint256) {
+    return tokenInvocations.length;
+  }
+
+  /**
+   * @dev Returns the total number invocations recorded for this contract
+   */
+  function getTokenInvocations() public view returns (uint256[] _tokenIds) {
+    return tokenInvocations;
   }
 
   /**
    * @dev Returns the allowed number of interactions left on the contract
    */
   function remainingInvocations() public view returns (uint256) {
-    return maxInvocations - totalInvocations;
+    return maxInvocations - tokenInvocations.length;
   }
 
   /**
