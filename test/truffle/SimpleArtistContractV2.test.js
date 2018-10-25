@@ -15,7 +15,7 @@ require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SimpleArtistContractV2', function (accounts) {
+contract('SimpleArtistContract - V2', function (accounts) {
   const _dartOwner = accounts[0];
 
   const _artist = accounts[1];
@@ -39,6 +39,11 @@ contract('SimpleArtistContractV2', function (accounts) {
   const minBlockPurchaseInOneGo = 2;
   const maxBlockPurchaseInOneGo = 20;
 
+  const maxInvocations = 100;
+  const checksum = "";
+  const preventDoublePurchases = false;
+  const fixedContract = false;
+
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
     await advanceBlock();
@@ -47,7 +52,15 @@ contract('SimpleArtistContractV2', function (accounts) {
   beforeEach(async function () {
     this.token = await InterfaceToken.new({from: _dartOwner});
     this.simpleArtistContract = await SimpleArtistContract.new(
-      this.token.address, etherToWei(0.01), minBlockPurchaseInOneGo, maxBlockPurchaseInOneGo, _artist,
+      this.token.address,
+      etherToWei(0.01),
+      minBlockPurchaseInOneGo,
+      maxBlockPurchaseInOneGo,
+      _artist,
+      maxInvocations,
+      checksum,
+      preventDoublePurchases,
+      fixedContract,
       {
         from: _artist
       }
@@ -398,6 +411,26 @@ contract('SimpleArtistContractV2', function (accounts) {
     });
   });
 
+  describe('can set application checksum', async function () {
+
+    it('is blank by default', async function () {
+      const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
+      applicationChecksum.should.be.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+    });
+
+    it('can be set by artist', async function () {
+      await this.simpleArtistContract.setApplicationChecksum("file-checksum", {from: _artist});
+      const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
+      web3.toAscii(applicationChecksum).replace(/\0/g, '').should.be.equal("file-checksum");
+    });
+
+    it('fails when not set by artist', async function () {
+      await assertRevert(this.simpleArtistContract.setApplicationChecksum("file-checksum", {from: _buyer1}));
+      const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
+      applicationChecksum.should.be.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+    });
+  });
+
   describe('when preventing double purchases', async function () {
     const fiveBlocksToPurchase = 5;
     const fiveBlocksInEther = etherToWei(0.01).times(fiveBlocksToPurchase);
@@ -462,24 +495,53 @@ contract('SimpleArtistContractV2', function (accounts) {
 
     });
 
-    describe('can set application checksum', async function () {
+    describe('when the contract is built as a fixed contact', async function () {
 
-      it('is blank by default', async function () {
-        const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
-        applicationChecksum.should.be.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+      const maxInvocations = 1;
+      const fixedContract = true;
+      const checksum = "my-fixed-checksum";
+
+      beforeEach(async function () {
+        this.simpleArtistContract = await SimpleArtistContract.new(
+          this.token.address,
+          etherToWei(0.01),
+          minBlockPurchaseInOneGo,
+          maxBlockPurchaseInOneGo,
+          _artist,
+          maxInvocations,
+          checksum,
+          preventDoublePurchases,
+          fixedContract,
+          {
+            from: _artist
+          }
+        );
       });
 
-      it('can be set by artist', async function () {
-        await this.simpleArtistContract.setApplicationChecksum("file-checksum", {from: _artist});
+      it('values are set correctly', async function () {
+        const fixedContractValue = await this.simpleArtistContract.fixedContract();
+        fixedContractValue.should.be.equal(true);
+
+        const maxInvocationsValue = await this.simpleArtistContract.maxInvocations();
+        maxInvocationsValue.should.be.bignumber.equal(1);
+
         const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
-        web3.toAscii(applicationChecksum).replace(/\0/g, '').should.be.equal("file-checksum");
+        web3.toAscii(applicationChecksum).replace(/\0/g, '').should.be.equal(checksum);
       });
 
-      it('fails when not set by artist', async function () {
-        await assertRevert(this.simpleArtistContract.setApplicationChecksum("file-checksum", {from: _buyer1}));
-        const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
-        applicationChecksum.should.be.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+      it('value is updated', async function () {
+        const maxInvocations = await this.simpleArtistContract.maxInvocations();
+        maxInvocations.should.be.bignumber.equal(1);
       });
+
+      it('unable to set max invocations once contract is fixed', async function () {
+        await assertRevert(this.simpleArtistContract.setMaxInvocations(10, {from: _artist}));
+      });
+
+      it('unable to change checksum once contract is fixed', async function () {
+        await assertRevert(this.simpleArtistContract.setApplicationChecksum("new-checksum", {from: _artist}));
+      });
+
     });
 
   });

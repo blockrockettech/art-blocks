@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-// File: contracts/Strings.sol
+// File: contracts/v1/Strings.sol
 
 library Strings {
   // via https://github.com/oraclize/ethereum-api/blob/master/oraclizeAPI_0.5.sol
@@ -1178,7 +1178,7 @@ contract ERC721Token is SupportsInterfaceWithLookup, ERC721BasicToken, ERC721 {
 
 }
 
-// File: contracts/InterfaceToken.sol
+// File: contracts/v1/InterfaceToken.sol
 
 /**
   * @title InterfaceToken
@@ -1417,7 +1417,7 @@ contract InterfaceToken is ERC721Token, Whitelist {
   }
 }
 
-// File: contracts/SimpleArtistContract.sol
+// File: contracts/v1/SimpleArtistContract.sol
 
 /**
 * @title SimpleArtistContract
