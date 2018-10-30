@@ -338,7 +338,7 @@ contract SimpleArtistContractV2 {
   /**
    * @dev Toggles the contract between allowing and preventing double purchases
    */
-  function togglePreventDoublePurchases() external onlyArtist {
+  function togglePreventDoublePurchases() external onlyArtist onlyWhenNotFixed {
     preventDoublePurchases = !preventDoublePurchases;
   }
 

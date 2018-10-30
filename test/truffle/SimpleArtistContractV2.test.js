@@ -546,4 +546,39 @@ contract('SimpleArtistContract - V2', function (accounts) {
 
   });
 
+  describe('when fixing the contract', async function () {
+
+    const fixedContract = true;
+
+    beforeEach(async function () {
+      this.simpleArtistContract = await SimpleArtistContract.new(
+        this.token.address,
+        etherToWei(0.01),
+        minBlockPurchaseInOneGo,
+        maxBlockPurchaseInOneGo,
+        _artist,
+        maxInvocations,
+        checksum,
+        preventDoublePurchases,
+        fixedContract,
+        {
+          from: _artist
+        }
+      );
+    });
+
+    it('cannot change togglePreventDoublePurchases()', async function () {
+      await assertRevert(this.simpleArtistContract.togglePreventDoublePurchases({from: _artist}));
+    });
+
+    it('cannot change setMaxInvocations()', async function () {
+      await assertRevert(this.simpleArtistContract.setMaxInvocations(10, {from: _artist}));
+    });
+
+    it('cannot change setApplicationChecksum()', async function () {
+      await assertRevert(this.simpleArtistContract.setApplicationChecksum("123", {from: _artist}));
+    });
+
+  });
+
 });
