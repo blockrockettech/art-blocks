@@ -8,17 +8,20 @@ const _ = require('lodash');
 const BigNumber = web3.BigNumber;
 
 const InterfaceToken = artifacts.require('InterfaceToken');
-const SimpleArtistContract = artifacts.require('SimpleArtistContract');
+const SimpleArtistContract = artifacts.require('SimpleArtistContractV2');
 
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SimpleArtistContract', function (accounts) {
+contract('SimpleArtistContract - V2', function (accounts) {
   const _dartOwner = accounts[0];
 
   const _artist = accounts[1];
+
+  const _buyer1 = accounts[2];
+  const _optionalSplitAddress = accounts[3];
 
   const _tokenIdOne = 1;
   const _tokenIdTwo = 2;
@@ -34,6 +37,16 @@ contract('SimpleArtistContract', function (accounts) {
 
   const unknownTokenId = 99;
 
+  const minBlockPurchaseInOneGo = 2;
+  const maxBlockPurchaseInOneGo = 20;
+
+  const maxInvocations = 100;
+  const checksum = "";
+  const preventDoublePurchases = false;
+  const fixedContract = false;
+
+  const ZERO_ADDRESS = "0x0";
+
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
     await advanceBlock();
@@ -41,7 +54,20 @@ contract('SimpleArtistContract', function (accounts) {
 
   beforeEach(async function () {
     this.token = await InterfaceToken.new({from: _dartOwner});
-    this.simpleArtistContract = await SimpleArtistContract.new(this.token.address, etherToWei(0.01), 20, _artist, {from: _artist});
+    this.simpleArtistContract = await SimpleArtistContract.new(
+      this.token.address,
+      etherToWei(0.01),
+      minBlockPurchaseInOneGo,
+      maxBlockPurchaseInOneGo,
+      _artist,
+      maxInvocations,
+      checksum,
+      preventDoublePurchases,
+      fixedContract,
+      {
+        from: _artist
+      }
+    );
   });
 
   describe('purchase functions', function () {
@@ -77,12 +103,31 @@ contract('SimpleArtistContract', function (accounts) {
         const fiveBlocksInEther = etherToWei(0.01).times(fiveBlocksToPurchase);
 
         //fund the first token - 5 blocks
-        ({logs: firstFundLogs} = await this.simpleArtistContract.purchase(_tokenIdOne, {value: fiveBlocksInEther, from: _dartOwner}));
+        ({logs: firstFundLogs} = await this.simpleArtistContract.purchase(_tokenIdOne, {
+          value: fiveBlocksInEther,
+          from: _dartOwner
+        }));
 
         const twoBlocksInEther = etherToWei(0.01).times(twoBlocksToPurchase);
 
         // fund the second token - 2 blocks
-        ({logs: secondFundLogs} = await this.simpleArtistContract.purchase(_tokenIdTwo, {value: twoBlocksInEther, from: _dartOwner}));
+        ({logs: secondFundLogs} = await this.simpleArtistContract.purchase(_tokenIdTwo, {
+          value: twoBlocksInEther,
+          from: _dartOwner
+        }));
+      });
+
+      it('token invocations is updated', async function () {
+        const tokenInvocations = await this.simpleArtistContract.getTokenInvocations();
+        tokenInvocations
+          .map(e => e.toString())
+          .should.be.deep
+          .equal([_tokenIdOne.toString(), _tokenIdTwo.toString()]);
+      });
+
+      it('total invocations count is updated', async function () {
+        const totalInvocations = await this.simpleArtistContract.totalInvocations();
+        totalInvocations.should.be.bignumber.equal(2);
       });
 
       describe("reverts when", async function () {
@@ -311,5 +356,275 @@ contract('SimpleArtistContract', function (accounts) {
     });
 
   });
+
+  describe('when restricting number of invocations of the art node', async function () {
+
+    beforeEach(async function () {
+      await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _dartOwner});
+    });
+
+    it('fails when not artist', async function () {
+      await assertRevert(this.simpleArtistContract.setMaxInvocations(1, {from: _dartOwner}));
+    });
+
+    it('fails when setting zero', async function () {
+      await assertRevert(this.simpleArtistContract.setMaxInvocations(0, {from: _artist}));
+    });
+
+    describe('set by the artist', async function () {
+
+      beforeEach(async function () {
+        await this.simpleArtistContract.setMaxInvocations(1, {from: _artist});
+      });
+
+      it('value is updated', async function () {
+        const maxInvocations = await this.simpleArtistContract.maxInvocations();
+        maxInvocations.should.be.bignumber.equal(1);
+      });
+
+      describe('when a big is placed', async function () {
+
+        const fiveBlocksToPurchase = 5;
+        const fiveBlocksInEther = etherToWei(0.01).times(fiveBlocksToPurchase);
+
+        beforeEach(async function () {
+          await this.simpleArtistContract.purchase(_tokenIdOne, {
+            value: fiveBlocksInEther,
+            from: _buyer1
+          });
+        });
+
+        it('should update invocations', async function () {
+          const totalInvocations = await this.simpleArtistContract.totalInvocations();
+          totalInvocations.should.be.bignumber.equal(1);
+        });
+
+        it('should now exceed max invocations', async function () {
+          const exceedsMaxInvocations = await this.simpleArtistContract.exceedsMaxInvocations();
+          exceedsMaxInvocations.should.be.equal(true);
+        });
+
+        it('should prevent another purchase', async function () {
+          await assertRevert(this.simpleArtistContract.purchase(_tokenIdOne, {
+            value: fiveBlocksInEther,
+            from: _buyer1
+          }));
+        });
+      });
+    });
+  });
+
+  describe('can set application checksum', async function () {
+
+    it('is blank by default', async function () {
+      const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
+      applicationChecksum.should.be.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+    });
+
+    it('can be set by artist', async function () {
+      await this.simpleArtistContract.setApplicationChecksum("file-checksum", {from: _artist});
+      const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
+      web3.toAscii(applicationChecksum).replace(/\0/g, '').should.be.equal("file-checksum");
+    });
+
+    it('fails when not set by artist', async function () {
+      await assertRevert(this.simpleArtistContract.setApplicationChecksum("file-checksum", {from: _buyer1}));
+      const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
+      applicationChecksum.should.be.equal("0x0000000000000000000000000000000000000000000000000000000000000000");
+    });
+  });
+
+  describe('when preventing double purchases', async function () {
+    const fiveBlocksToPurchase = 5;
+    const fiveBlocksInEther = etherToWei(0.01).times(fiveBlocksToPurchase);
+
+    beforeEach(async function () {
+      await this.token.mint(_blockhashOne, _tokenIdOne, _nicknameOne, {from: _dartOwner});
+      await this.token.mint(_blockhashTwo, _tokenIdTwo, _nicknameTwo, {from: _dartOwner});
+    });
+
+    beforeEach(async function () {
+      await this.simpleArtistContract.purchase(_tokenIdOne, {
+        value: fiveBlocksInEther,
+        from: _buyer1
+      });
+    });
+
+    it('should default to disabled', async function () {
+      const preventDoublePurchases = await this.simpleArtistContract.preventDoublePurchases();
+      preventDoublePurchases.should.be.equal(false);
+    });
+
+    it('can toggle flag enabled/disabled', async function () {
+      await this.simpleArtistContract.togglePreventDoublePurchases({from: _artist});
+
+      let preventDoublePurchases = await this.simpleArtistContract.preventDoublePurchases();
+      preventDoublePurchases.should.be.equal(true);
+
+      await this.simpleArtistContract.togglePreventDoublePurchases({from: _artist});
+
+      preventDoublePurchases = await this.simpleArtistContract.preventDoublePurchases();
+      preventDoublePurchases.should.be.equal(false);
+    });
+
+    it('fails when not the artist', async function () {
+      await assertRevert(this.simpleArtistContract.togglePreventDoublePurchases({from: _buyer1}));
+    });
+
+    describe('when disabled', async function () {
+      beforeEach(async function () {
+        await this.simpleArtistContract.togglePreventDoublePurchases({from: _artist});
+        const preventDoublePurchases = await this.simpleArtistContract.preventDoublePurchases();
+        preventDoublePurchases.should.be.equal(true);
+      });
+
+      it('when disabled, prevents double purchases of the same token', async function () {
+
+        // Reverts for token 1
+        await assertRevert(this.simpleArtistContract.purchase(_tokenIdOne, {
+          value: fiveBlocksInEther,
+          from: _buyer1
+        }));
+
+        // Token 2 still able to purchase
+        await this.simpleArtistContract.purchase(_tokenIdTwo, {
+          value: fiveBlocksInEther,
+          from: _buyer1
+        });
+
+        const totalInvocations = await this.simpleArtistContract.totalInvocations();
+        totalInvocations.should.be.bignumber.equal(2);
+      });
+
+    });
+
+    describe('when the contract is built as a fixed contact', async function () {
+
+      const maxInvocations = 1;
+      const fixedContract = true;
+      const checksum = "my-fixed-checksum";
+
+      beforeEach(async function () {
+        this.simpleArtistContract = await SimpleArtistContract.new(
+          this.token.address,
+          etherToWei(0.01),
+          minBlockPurchaseInOneGo,
+          maxBlockPurchaseInOneGo,
+          _artist,
+          maxInvocations,
+          checksum,
+          preventDoublePurchases,
+          fixedContract,
+          {
+            from: _artist
+          }
+        );
+      });
+
+      it('values are set correctly', async function () {
+        const fixedContractValue = await this.simpleArtistContract.fixedContract();
+        fixedContractValue.should.be.equal(true);
+
+        const maxInvocationsValue = await this.simpleArtistContract.maxInvocations();
+        maxInvocationsValue.should.be.bignumber.equal(1);
+
+        const applicationChecksum = await this.simpleArtistContract.applicationChecksum();
+        web3.toAscii(applicationChecksum).replace(/\0/g, '').should.be.equal(checksum);
+      });
+
+      it('value is updated', async function () {
+        const maxInvocations = await this.simpleArtistContract.maxInvocations();
+        maxInvocations.should.be.bignumber.equal(1);
+      });
+
+      it('unable to set max invocations once contract is fixed', async function () {
+        await assertRevert(this.simpleArtistContract.setMaxInvocations(10, {from: _artist}));
+      });
+
+      it('unable to change checksum once contract is fixed', async function () {
+        await assertRevert(this.simpleArtistContract.setApplicationChecksum("new-checksum", {from: _artist}));
+      });
+
+    });
+
+  });
+
+  describe('when fixing the contract', async function () {
+
+    const fixedContract = true;
+
+    beforeEach(async function () {
+      this.simpleArtistContract = await SimpleArtistContract.new(
+        this.token.address,
+        etherToWei(0.01),
+        minBlockPurchaseInOneGo,
+        maxBlockPurchaseInOneGo,
+        _artist,
+        maxInvocations,
+        checksum,
+        preventDoublePurchases,
+        fixedContract,
+        {
+          from: _artist
+        }
+      );
+    });
+
+    it('cannot change togglePreventDoublePurchases()', async function () {
+      await assertRevert(this.simpleArtistContract.togglePreventDoublePurchases({from: _artist}));
+    });
+
+    it('cannot change setMaxInvocations()', async function () {
+      await assertRevert(this.simpleArtistContract.setMaxInvocations(10, {from: _artist}));
+    });
+
+    it('cannot change setApplicationChecksum()', async function () {
+      await assertRevert(this.simpleArtistContract.setApplicationChecksum("123", {from: _artist}));
+    });
+
+    describe('can only set optional split once when contract is fixed', async function () {
+
+      it('cannot set a zero address', async function () {
+        await assertRevert(this.simpleArtistContract.setOptionalFeeSplit(ZERO_ADDRESS, 2, {from: _artist}));
+      });
+
+      it('cannot set a zero amount', async function () {
+        await assertRevert(this.simpleArtistContract.setOptionalFeeSplit(_optionalSplitAddress, 0, {from: _artist}));
+      });
+
+      it('cannot set an amount greater than 100 including the foundationPercentage', async function () {
+        const foundationPercentage = await this.simpleArtistContract.foundationPercentage();
+        foundationPercentage.should.be.bignumber.equal(5);
+
+        // fails as 5% + 96% > 100%
+        await assertRevert(this.simpleArtistContract.setOptionalFeeSplit(_optionalSplitAddress, 96, {from: _artist}));
+      });
+
+      describe('once optionalSplitAddress is set', async function () {
+
+        const _optionalSplitPercentage = 10;
+
+        beforeEach(async function () {
+          // set optional fee split
+          await this.simpleArtistContract.setOptionalFeeSplit(_optionalSplitAddress, _optionalSplitPercentage, {from: _artist});
+        });
+
+        it('check values changed', async function () {
+          const optionalSplitAddress = await this.simpleArtistContract.optionalSplitAddress();
+          optionalSplitAddress.should.be.equal(_optionalSplitAddress);
+
+          const optionalSplitPercentage = await this.simpleArtistContract.optionalSplitPercentage();
+          optionalSplitPercentage.should.be.bignumber.equal(_optionalSplitPercentage);
+        });
+
+        it('should fail when trying to set it again', async function () {
+          await assertRevert(this.simpleArtistContract.setOptionalFeeSplit(accounts[4], 5, {from: _artist}));
+        });
+
+      });
+    });
+
+  });
+
 
 });
