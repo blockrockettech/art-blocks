@@ -21,6 +21,7 @@ contract('SimpleArtistContract - V2', function (accounts) {
   const _artist = accounts[1];
 
   const _buyer1 = accounts[2];
+  const _optionalSplitAddress = accounts[3];
 
   const _tokenIdOne = 1;
   const _tokenIdTwo = 2;
@@ -43,6 +44,8 @@ contract('SimpleArtistContract - V2', function (accounts) {
   const checksum = "";
   const preventDoublePurchases = false;
   const fixedContract = false;
+
+  const ZERO_ADDRESS = "0x0";
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
@@ -579,6 +582,49 @@ contract('SimpleArtistContract - V2', function (accounts) {
       await assertRevert(this.simpleArtistContract.setApplicationChecksum("123", {from: _artist}));
     });
 
+    describe('can only set optional split once when contract is fixed', async function () {
+
+      it('cannot set a zero address', async function () {
+        await assertRevert(this.simpleArtistContract.setOptionalFeeSplit(ZERO_ADDRESS, 2, {from: _artist}));
+      });
+
+      it('cannot set a zero amount', async function () {
+        await assertRevert(this.simpleArtistContract.setOptionalFeeSplit(_optionalSplitAddress, 0, {from: _artist}));
+      });
+
+      it('cannot set an amount greater than 100 including the foundationPercentage', async function () {
+        const foundationPercentage = await this.simpleArtistContract.foundationPercentage();
+        foundationPercentage.should.be.bignumber.equal(5);
+
+        // fails as 5% + 96% > 100%
+        await assertRevert(this.simpleArtistContract.setOptionalFeeSplit(_optionalSplitAddress, 96, {from: _artist}));
+      });
+
+      describe('once optionalSplitAddress is set', async function () {
+
+        const _optionalSplitPercentage = 10;
+
+        beforeEach(async function () {
+          // set optional fee split
+          await this.simpleArtistContract.setOptionalFeeSplit(_optionalSplitAddress, _optionalSplitPercentage, {from: _artist});
+        });
+
+        it('check values changed', async function () {
+          const optionalSplitAddress = await this.simpleArtistContract.optionalSplitAddress();
+          optionalSplitAddress.should.be.equal(_optionalSplitAddress);
+
+          const optionalSplitPercentage = await this.simpleArtistContract.optionalSplitPercentage();
+          optionalSplitPercentage.should.be.bignumber.equal(_optionalSplitPercentage);
+        });
+
+        it('should fail when trying to set it again', async function () {
+          await assertRevert(this.simpleArtistContract.setOptionalFeeSplit(accounts[4], 5, {from: _artist}));
+        });
+
+      });
+    });
+
   });
+
 
 });

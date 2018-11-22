@@ -365,6 +365,11 @@ contract SimpleArtistContractV2 {
     require(_optionalSplitPercentage > 0, "Cannot set a zero fee split");
     require(_optionalSplitPercentage.add(foundationPercentage) <= 100, "Optional split plus founders fee cannot be more than 100%");
 
+    // When the contract is fixed you can only chance this value once
+    if (fixedContract) {
+      require(optionalSplitAddress == address(0), "Optional split can only be set once when contract is fixed");
+    }
+
     optionalSplitAddress = _optionalSplitAddress;
     optionalSplitPercentage = _optionalSplitPercentage;
   }
